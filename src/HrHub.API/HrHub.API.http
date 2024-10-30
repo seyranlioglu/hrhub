@@ -1,0 +1,5 @@
+@HrHub.API_HostAddress = http://localhost:5225
+
+Accept: application/json
+
+###
