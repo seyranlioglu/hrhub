@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HrHub.Application\HrHub.Application.csproj" />
+    <ProjectReference Include="..\HrHub.Identity\HrHub.Identity.csproj" />
+  </ItemGroup>
+
 </Project>

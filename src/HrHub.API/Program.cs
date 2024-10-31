@@ -1,9 +1,36 @@
+using HrHub.API.Properties;
+using HrHub.Core.Helpers;
+using HrHub.Container.Bootstrappers;
+using HrHub.Abstraction.Data.Context;
+using HrHub.Abstraction.Data.EfCore.Repository;
+using HrHub.Abstraction.Data.EfCore.UnitOfwork;
+using HrHub.Abstraction.Data.MongoDb;
+using HrHub.Abstraction.Domain;
+using HrHub.Core.Base;
+using HrHub.Core.Domain.Entity;
+using HrHub.Core.IoC;
+using HrHub.Core.Rules;
+using HrHub.Application.Mappers;
+using HrHub.Worker.IoC;
+using ConnectionProvider.Container.Bootstrappers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddHttpContextAccessor();
+AppSettingsHelper.AppSettingsHelperConfigure(builder.Configuration);
+ResourceHelper.ConfigureResourceHelper<Resources>("HrHub.API.Properties.Resources");
+builder.Services.AddDbContext();
+builder.Services.AddMongoDb(builder.Configuration);
+builder.Services.RegisterIdentity();
+builder.Services.RegisterMapper<MapperProfile>();
+//builder.Services.RegisterCache();
+builder.Services.RegisterHrHubWorker();
+builder.Services.RegisterImplementations<IUnitOfWork<DbContextBase>>("HrHub.Infrastructre");
+builder.Services.RegisterImplementations<IRepository<IBaseEntity>>("HrHub.Infrastructre");
+builder.Services.RegisterImplementations<IMongoRepository<MongoDbEntity>>("HrHub.Infrastructre");
+builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -19,6 +46,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.AddWorkerDashboard();
 
 app.MapControllers();
 

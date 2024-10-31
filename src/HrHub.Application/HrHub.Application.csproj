@@ -6,4 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HrHub.Cache\HrHub.Cache\HrHub.Cache.csproj" />
+    <ProjectReference Include="..\HrHub.Infrastructre\HrHub.Infrastructre.csproj" />
+    <ProjectReference Include="..\HrHub.Worker\HrHub.Worker\HrHub.Worker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="Integrations\" />
+    <Folder Include="Managers\" />
+  </ItemGroup>
+
 </Project>
