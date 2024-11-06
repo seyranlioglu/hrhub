@@ -16,7 +16,7 @@ namespace HrHub.Worker.IoC
         {
 
             var hangfireSettings = new WorkerConfigure();
-            configure(hangfireSettings); // test
+            configure(hangfireSettings); 
 
             services.AddHangfire(config => 
             {
