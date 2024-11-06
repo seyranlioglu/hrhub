@@ -16,9 +16,9 @@ namespace HrHub.Worker.IoC
         {
 
             var hangfireSettings = new WorkerConfigure();
-            configure(hangfireSettings);
+            configure(hangfireSettings); // test
 
-            services.AddHangfire(config =>
+            services.AddHangfire(config => 
             {
                 config.UseFilter(new AutomaticRetryAttribute { Attempts = 3 });
                 switch (hangfireSettings.DatabaseType)
