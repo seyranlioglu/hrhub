@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class ExamAnswer : TypeCardEntity<int>
+    public class ExamAnswer : TypeCardEntity<long>
     {
         [ForeignKey("QuestionId")]
-        public int QuestionId { get; set; }
+        public long QuestionId { get; set; }
         public bool IsCorrect { get; set; }
 
 

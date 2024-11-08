@@ -2,7 +2,7 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingType : TypeCardEntity<int>
+    public class TrainingType : TypeCardEntity<long>
     {
         public string LangCode { get; set; }
     }

@@ -2,9 +2,9 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class Instructor : TypeCardEntity<int>
+    public class Instructor : TypeCardEntity<long>
     {
-        public int UserId { get; set; }
+        public long UserId { get; set; }
         public string PicturePath { get; set; }
         public string Address { get; set; }
         public string Email { get; set; }
@@ -14,7 +14,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string Twitter { get; set; }
         public string Instagram { get; set; }
         public string Title { get; set; }
-        public int InstructorTypeId { get; set; }
+        public long InstructorTypeId { get; set; }
     }
 
 }

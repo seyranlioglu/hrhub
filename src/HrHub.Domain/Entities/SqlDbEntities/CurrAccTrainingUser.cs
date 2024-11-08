@@ -8,8 +8,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             UserCertificates = new HashSet<UserCertificate>();
         }
-        public int CurrAccTrainingsId { get; set; }
-        public int UserId { get; set; }
+        public long CurrAccTrainingsId { get; set; }
+        public long UserId { get; set; }
         public bool IsActive { get; set; }
         public bool QualifiedCertificate { get; set; }
 

@@ -10,7 +10,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ExamQuestions = new HashSet<ExamQuestion>();
         }
         [ForeignKey("ExamId")]
-        public int ExamId { get; set; }
+        public long ExamId { get; set; }
         public string ImgPath { get; set; }
 
         public virtual ICollection<ExamQuestion> ExamQuestions { get; set; }

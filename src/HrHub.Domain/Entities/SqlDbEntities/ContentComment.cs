@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class ContentComment : TypeCardEntity<int>
+    public class ContentComment : TypeCardEntity<long>
     {
         public ContentComment()
         {
@@ -12,7 +12,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         }
         public int ContentId { get; set; }
         public bool Pinned { get; set; }
-        public int UserId { get; set; }
+        public long UserId { get; set; }
         public DateTime ContentDate { get; set; }
         public int MasterContentId { get; set; }
 

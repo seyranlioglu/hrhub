@@ -18,6 +18,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ICollection<ContentComment> ContentComments { get; set; } = null;
 
 
-        public int CurrAccId { get; set; }
+        public long CurrAccId { get; set; }
     }
 }

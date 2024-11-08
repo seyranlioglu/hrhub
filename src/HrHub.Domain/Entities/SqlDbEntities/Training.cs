@@ -2,7 +2,7 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class Training : TypeCardEntity<int>
+    public class Training : TypeCardEntity<long>
     {
 
         public Training()
@@ -22,8 +22,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public decimal TaxRate { get; set; }
         public decimal CertificateOfAchievementRate { get; set; }
         public decimal CertificateOfParticipationRate { get; set; }
-        public int CompletionTime { get; set; }
-        public int CompletionTimeUnitId { get; set; }
-        public int TrainingLevelId { get; set; }
+        public DateTime? CompletionTime { get; set; }
+        public long CompletionTimeUnitId { get; set; }
+        public long TrainingLevelId { get; set; }
     }
 }

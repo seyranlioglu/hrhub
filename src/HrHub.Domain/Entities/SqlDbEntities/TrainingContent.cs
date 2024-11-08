@@ -2,7 +2,7 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingContent : TypeCardEntity<int>
+    public class TrainingContent : TypeCardEntity<long>
     {
         public TrainingContent()
         {
@@ -12,10 +12,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string ContentType { get; set; }
         public int Time { get; set; }
         public int PageCount { get; set; }
-        public float CompletedRate { get; set; }
+        public decimal CompletedRate { get; set; }
         public string FilePath { get; set; }
         public bool Mandatory { get; set; }
-        public int OrderId { get; set; }
+        public long OrderId { get; set; }
         public bool AllowSeeking { get; set; }
         public int PartCount { get; set; }
         public int MinReadTimeThreshold { get; set; }

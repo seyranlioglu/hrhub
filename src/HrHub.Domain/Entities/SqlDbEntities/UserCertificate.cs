@@ -6,10 +6,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     public class UserCertificate : CardEntity<int>
     {
         [ForeignKey("CurrAccTrainingUsersId")]
-        public int CurrAccTrainingUsersId { get; set; }
+        public long CurrAccTrainingUsersId { get; set; }
 
         [ForeignKey("CertificateTemplateId")]
-        public int CertificateTemplateId { get; set; }
+        public long CertificateTemplateId { get; set; }
 
         public DateTime? CertificateDate { get; set; }
         public string ConstructorName { get; set; }
@@ -17,7 +17,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public DateTime? EndDate { get; set; }
         public string TrainerName { get; set; }
         public string TrainerTitle { get; set; }
-        public int NumberOfLecture { get; set; }
+        public long NumberOfLecture { get; set; }
         public string ProviderName { get; set; }
         public string ProviderTitle { get; set; }
         public string VerificationURL { get; set; }

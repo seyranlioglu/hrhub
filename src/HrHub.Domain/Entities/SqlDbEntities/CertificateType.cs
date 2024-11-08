@@ -2,7 +2,7 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CertificateType : TypeCardEntity<int>
+    public class CertificateType : TypeCardEntity<long>
     {
         public CertificateType()
         {

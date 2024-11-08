@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CertificateTemplate : TypeCardEntity<int>
+    public class CertificateTemplate : TypeCardEntity<long>
     {
         public CertificateTemplate()
         {
