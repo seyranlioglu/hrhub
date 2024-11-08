@@ -4,11 +4,18 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class Training : TypeCardEntity<long>
     {
-        public string HeaderImage { get; set; }
-        public string LangCode { get; set; }
-        public long CategoryId { get; set; }
-        public long InstructorId { get; set; }
-        public string TrainingType { get; set; }
+
+        public Training()
+        {
+            CartItems = new HashSet<CartItem>();
+        }
+
+        public virtual ICollection<CartItem> CartItems { get; set; } = null;
+        public string? HeaderImage { get; set; }
+        public string? LangCode { get; set; }
+        public int CategoryId { get; set; }
+        public int InstructorId { get; set; }
+        public string? TrainingType { get; set; }
         public decimal CurrentAmount { get; set; }
         public decimal Amount { get; set; }
         public decimal DiscountRate { get; set; }
