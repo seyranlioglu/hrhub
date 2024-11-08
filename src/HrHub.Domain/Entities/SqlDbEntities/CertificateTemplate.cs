@@ -9,13 +9,14 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             UserCertificates = new HashSet<UserCertificate>();
         }
+        
+        public long CertificateTypeId { get; set; }
+        public string? TemplatePath { get; set; }
+        public string? VerificationURL { get; set; }
+
+
         [ForeignKey("CertificateTypeId")]
-        public int CertificateTypeId { get; set; }
-        public string TemplatePath { get; set; }
-        public string VerificationURL { get; set; }
-
-
-        public virtual CertificateType CertificateType { get; set; }
+        public virtual CertificateType CertificateType { get; set; } = null;
         public virtual ICollection<UserCertificate> UserCertificates { get; set; }
 
     }

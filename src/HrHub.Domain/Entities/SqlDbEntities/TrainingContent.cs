@@ -4,6 +4,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class TrainingContent : TypeCardEntity<int>
     {
+        public TrainingContent()
+        {
+            ContentComments = new HashSet<ContentComment>();
+        }
         public int SectionId { get; set; }
         public string ContentType { get; set; }
         public int Time { get; set; }
@@ -15,6 +19,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public bool AllowSeeking { get; set; }
         public int PartCount { get; set; }
         public int MinReadTimeThreshold { get; set; }
+
+        public virtual ICollection<ContentComment> ContentComments { get; set; } = null;
     }
 
 }

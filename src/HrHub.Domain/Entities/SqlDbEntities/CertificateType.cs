@@ -8,7 +8,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             CertificateTemplates = new HashSet<CertificateTemplate>();
         }
-        public string LangCode { get; set; }
+        public string? LangCode { get; set; }
 
 
         public virtual ICollection<CertificateTemplate> CertificateTemplates { get; set; }
