@@ -4,6 +4,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class User : CardEntity<int>
     {
-        public int CurrAccId { get; set; }
+        public long CurrAccId { get; set; }
     }
 }

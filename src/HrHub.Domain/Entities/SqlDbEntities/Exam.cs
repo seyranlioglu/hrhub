@@ -8,10 +8,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
               ExamTopics = new HashSet<ExamTopic>();
         }
-        public int TrainingId { get; set; }
-        public int ExamTime { get; set; }
-        public int SuccesRate { get; set; }
-        public int ViewQuestionCount { get; set; }
+        public long TrainingId { get; set; }
+        public long ExamTime { get; set; }
+        public long SuccesRate { get; set; }
+        public long ViewQuestionCount { get; set; }
 
         public virtual ICollection<ExamTopic> ExamTopics { get; set; }
     }

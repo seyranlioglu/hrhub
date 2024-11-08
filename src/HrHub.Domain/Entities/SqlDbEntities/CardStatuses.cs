@@ -2,7 +2,7 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CardStatuses : TypeCardEntity<int>
+    public class CardStatuses : TypeCardEntity<long>
     {
 
     }

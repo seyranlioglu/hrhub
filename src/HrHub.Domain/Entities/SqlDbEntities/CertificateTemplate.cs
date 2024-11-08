@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CertificateTemplate : TypeCardEntity<int>
+    public class CertificateTemplate : TypeCardEntity<long>
     {
         public CertificateTemplate()
         {
             UserCertificates = new HashSet<UserCertificate>();
         }
         [ForeignKey("CertificateTypeId")]
-        public int CertificateTypeId { get; set; }
+        public long CertificateTypeId { get; set; }
         public string TemplatePath { get; set; }
         public string VerificationURL { get; set; }
 

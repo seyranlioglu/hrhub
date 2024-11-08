@@ -2,19 +2,19 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingContent : TypeCardEntity<int>
+    public class TrainingContent : TypeCardEntity<long>
     {
-        public int SectionId { get; set; }
+        public long SectionId { get; set; }
         public string ContentType { get; set; }
-        public int Time { get; set; }
-        public int PageCount { get; set; }
+        public long Time { get; set; }
+        public long PageCount { get; set; }
         public float CompletedRate { get; set; }
         public string FilePath { get; set; }
         public bool Mandatory { get; set; }
-        public int OrderId { get; set; }
+        public long OrderId { get; set; }
         public bool AllowSeeking { get; set; }
-        public int PartCount { get; set; }
-        public int MinReadTimeThreshold { get; set; }
+        public long PartCount { get; set; }
+        public long MinReadTimeThreshold { get; set; }
     }
 
 }

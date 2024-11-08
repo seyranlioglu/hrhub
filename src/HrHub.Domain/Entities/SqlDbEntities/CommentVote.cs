@@ -4,7 +4,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class CommentVote : CardEntity<int>
     {
-        public int CommentId { get; set; }
-        public int UserId { get; set; }
+        public long CommentId { get; set; }
+        public long UserId { get; set; }
     }
 }
