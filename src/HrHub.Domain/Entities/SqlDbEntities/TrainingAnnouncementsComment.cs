@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingAnnouncementsComment : TypeCardEntity<int>
+    public class TrainingAnnouncementsComment : TypeCardEntity<long>
     {
         [ForeignKey("TrainingAnnouncementsId")]
-        public int TrainingAnnouncementsId { get; set; }
+        public long TrainingAnnouncementsId { get; set; }
         
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
         public virtual TrainingAnnouncement TrainingAnnouncement { get; set; }
     }

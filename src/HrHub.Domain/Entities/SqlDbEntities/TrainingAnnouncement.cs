@@ -1,14 +1,14 @@
 ﻿using HrHub.Core.Domain.Entity;
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingAnnouncement : TypeCardEntity<int>
+    public class TrainingAnnouncement : TypeCardEntity<long>
     {
         public TrainingAnnouncement()
         {
              TrainingAnnouncementsComments = new HashSet<TrainingAnnouncementsComment>();
         }
-        public int TrainingId { get; set; }
-        public int UserId { get; set; }
+        public long TrainingId { get; set; }
+        public long UserId { get; set; }
 
 
         public virtual ICollection<TrainingAnnouncementsComment> TrainingAnnouncementsComments { get; set; }

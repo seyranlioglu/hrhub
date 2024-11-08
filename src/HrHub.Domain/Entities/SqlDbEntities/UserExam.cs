@@ -8,11 +8,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             UserAnswers = new HashSet<UserAnswer>();
         }
-        public int ExamId { get; set; }
-        public int CurrAccTrainingUserId { get; set; }
-        public int? TotalAnswer { get; set; }
-        public int? TotalCorrectAnswer { get; set; }
-        public int? ExamScore { get; set; }
+        public long ExamId { get; set; }
+        public long CurrAccTrainingUserId { get; set; }
+        public long? TotalAnswer { get; set; }
+        public long? TotalCorrectAnswer { get; set; }
+        public long? ExamScore { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 

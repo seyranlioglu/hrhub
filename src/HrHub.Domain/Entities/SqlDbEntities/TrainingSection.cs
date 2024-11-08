@@ -2,10 +2,10 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingSection : TypeCardEntity<int>
+    public class TrainingSection : TypeCardEntity<long>
     {
-        public int TrainingId { get; set; }
-        public int RowNumber { get; set; }
+        public long TrainingId { get; set; }
+        public long RowNumber { get; set; }
         public string LangCode { get; set; }
     }
 

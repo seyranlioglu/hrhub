@@ -2,8 +2,8 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingCategory : TypeCardEntity<int>
+    public class TrainingCategory : TypeCardEntity<long>
     {
-        public int MasterCategoryId { get; set; }
+        public long MasterCategoryId { get; set; }
     }
 }

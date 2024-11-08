@@ -2,8 +2,8 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class WhatYouWillLearn : TypeCardEntity<int>
+    public class WhatYouWillLearn : TypeCardEntity<long>
     {
-        public int TrainingId { get; set; }
+        public long TrainingId { get; set; }
     }
 }
