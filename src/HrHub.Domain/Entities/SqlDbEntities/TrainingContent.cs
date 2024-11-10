@@ -1,4 +1,5 @@
 ﻿using HrHub.Core.Domain.Entity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -7,9 +8,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public TrainingContent()
         {
             ContentComments = new HashSet<ContentComment>();
+            ContentNotes = new HashSet<ContentNote>();
+            UserContentsViewLogs = new HashSet<UserContentsViewLog>();
         }
         public int SectionId { get; set; }
-        public string ContentType { get; set; }
+        public string ContentTypeId { get; set; }
         public int Time { get; set; }
         public int PageCount { get; set; }
         public decimal CompletedRate { get; set; }
@@ -20,7 +23,16 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public int PartCount { get; set; }
         public int MinReadTimeThreshold { get; set; }
 
+
+        [ForeignKey("SectionId")]
+        public virtual TrainingSection TrainingSection { get; set; } = null;
+
+        [ForeignKey("ContentTypeId")]
+        public virtual ContentType ContentType { get; set; } = null;
+
         public virtual ICollection<ContentComment> ContentComments { get; set; } = null;
+        public virtual ICollection<ContentNote> ContentNotes { get; set; } = null;
+        public virtual ICollection<UserContentsViewLog> UserContentsViewLogs { get; set; } = null;
     }
 
 }

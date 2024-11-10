@@ -5,11 +5,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class ExamAnswer : TypeCardEntity<long>
     {
-        [ForeignKey("QuestionId")]
         public long QuestionId { get; set; }
         public bool IsCorrect { get; set; }
 
 
+        [ForeignKey("QuestionId")]
         public virtual ExamQuestion ExamQuestion { get; set; }
     }
 }

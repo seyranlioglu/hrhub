@@ -1,4 +1,5 @@
 ﻿using HrHub.Core.Domain.Entity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -11,6 +12,12 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string InstructorReview { get; set; }
         public string TrainingReview { get; set; }
         public long CommentedUserId { get; set; }
+
+        [ForeignKey("TrainingId")]
+        public virtual Training Training { get; set; }
+
+        [ForeignKey("CommentedUserId")]
+        public virtual User User { get; set; }
     }
 
 }

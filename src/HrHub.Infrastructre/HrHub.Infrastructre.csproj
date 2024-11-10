@@ -10,8 +10,4 @@
     <ProjectReference Include="..\HrHub.Domain\HrHub.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>

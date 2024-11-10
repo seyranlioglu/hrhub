@@ -30,6 +30,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         [ForeignKey("CurrAccId")]
         public virtual CurrAcc CurrAcc { get; set; }
+
         public virtual ICollection<CartItem> CartItems { get; set; }
     }
 }

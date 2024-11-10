@@ -7,10 +7,11 @@ public class ExamQuestion : TypeCardEntity<long>
     {
         ExamAnswers = new HashSet<ExamAnswer>();
     }
-    [ForeignKey("ExamTopicId")]
     public long ExamTopicId { get; set; }
     public long Question { get; set; }
 
-    public virtual ICollection<ExamAnswer> ExamAnswers { get; set; }
+    [ForeignKey("ExamTopicId")]
     public virtual ExamTopic ExamTopics { get; set; }
+
+    public virtual ICollection<ExamAnswer> ExamAnswers { get; set; }
 }

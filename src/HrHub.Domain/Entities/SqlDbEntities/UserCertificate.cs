@@ -5,10 +5,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class UserCertificate : CardEntity<int>
     {
-        [ForeignKey("CurrAccTrainingUsersId")]
         public long CurrAccTrainingUsersId { get; set; }
 
-        [ForeignKey("CertificateTemplateId")]
         public long CertificateTemplateId { get; set; }
 
         public DateTime? CertificateDate { get; set; }
@@ -24,7 +22,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public Guid CertificateId { get; set; }
 
 
+        [ForeignKey("CertificateTemplateId")]
         public virtual CertificateTemplate CertificateTemplate { get; set; }
+
+        [ForeignKey("CurrAccTrainingUsersId")]
         public virtual CurrAccTrainingUser CurrAccTrainingUser { get; set; }
     }
 }
