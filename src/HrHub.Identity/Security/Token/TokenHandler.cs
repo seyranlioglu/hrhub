@@ -69,7 +69,7 @@ namespace HrHub.Identity.Security.Token
                 new Claim(ClaimTypes.Name,$"{tokenModel.UserName}"),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Acr,tokenModel.Channel),
-                new Claim("IsMainUser", true.ToString())
+                new Claim("IsMainUser", tokenModel.IsMainUser.ToString())
             };
             claims.AddRange(tokenModel.Roles.Select(s => new Claim(ClaimTypes.Role, s)));
             return claims;

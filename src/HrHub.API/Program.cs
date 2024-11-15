@@ -32,6 +32,24 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthorization(opts =>
+{
+    opts.AddPolicy("MainUser", policy =>
+    {
+        policy.RequireAssertion(context =>
+        {
+            if (context.User.IsInRole("admin"))
+            {
+                return true;
+            }
+            if (context.User.IsInRole("user"))
+            {
+                return context.User.HasClaim(c => c.Type == "IsMainUser" && c.Value.ToLower() == "true");
+            }
+            return false;
+        });
+    });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -42,11 +60,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.AddWorkerDashboard();
-
 app.MapControllers();
 
 app.Run();

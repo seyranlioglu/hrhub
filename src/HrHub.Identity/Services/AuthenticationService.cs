@@ -90,7 +90,8 @@ namespace HrHub.Identity.Services
                         ExpirationTime = TokenHelper.TokenOptions.AccessTokenExpiration,
                         Issuer = TokenHelper.TokenOptions.Issuer,
                         SecurityKey = TokenHelper.TokenOptions.SecurityKey,
-                        Roles = roles.ToList()
+                        Roles = roles.ToList(),
+                        IsMainUser = user.IsMainUser
                     }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
@@ -130,7 +131,8 @@ namespace HrHub.Identity.Services
                     ExpirationTime = TokenHelper.TokenOptions.AccessTokenExpiration,
                     Issuer = TokenHelper.TokenOptions.Issuer,
                     SecurityKey = TokenHelper.TokenOptions.SecurityKey,
-                    Roles = roles.ToList()
+                    Roles = roles.ToList(),
+                    IsMainUser = user.IsMainUser
                 }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
@@ -175,7 +177,8 @@ namespace HrHub.Identity.Services
                     ExpirationTime= TokenHelper.TokenOptions.AccessTokenExpiration,
                     Issuer= TokenHelper.TokenOptions.Issuer,
                     SecurityKey= TokenHelper.TokenOptions.SecurityKey,
-                    Roles = roles.ToList()
+                    Roles = roles.ToList(),
+                    IsMainUser = userClaim.Item1.IsMainUser
                 });
 
                 Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);

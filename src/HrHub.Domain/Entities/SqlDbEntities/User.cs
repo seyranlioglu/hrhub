@@ -20,7 +20,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             CurrAccTrainings = new HashSet<CurrAccTraining>();
         }
         public long CurrAccId { get; set; }
-
+        public bool IsMainUser { get; set; }
 
         [ForeignKey("CurrAccId")]
         public virtual CurrAcc CurrAcc { get; set; }

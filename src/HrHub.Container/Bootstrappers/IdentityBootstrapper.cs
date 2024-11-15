@@ -3,6 +3,7 @@ using HrHub.Core.Helpers;
 using HrHub.Core.Utilties.Encryption;
 using HrHub.Identity.IoC;
 using HrHub.Identity.Options;
+using HrHub.Identity.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,11 @@ namespace HrHub.Container.Bootstrappers
                     SecurityKey = tokenOptions.SecurityKey
                 };
             });
+
+
+            services.AddScoped<IAppUserService, AppUserService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IAppRoleService, AppRoleService>();
         }
     }
 }
