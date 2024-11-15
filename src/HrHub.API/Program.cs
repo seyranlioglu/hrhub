@@ -1,18 +1,16 @@
-using HrHub.API.Properties;
-using HrHub.Core.Helpers;
-using HrHub.Container.Bootstrappers;
+using ConnectionProvider.Container.Bootstrappers;
 using HrHub.Abstraction.Data.Context;
 using HrHub.Abstraction.Data.EfCore.Repository;
 using HrHub.Abstraction.Data.EfCore.UnitOfwork;
 using HrHub.Abstraction.Data.MongoDb;
 using HrHub.Abstraction.Domain;
+using HrHub.API.Properties;
+using HrHub.Application.Mappers;
+using HrHub.Container.Bootstrappers;
 using HrHub.Core.Base;
 using HrHub.Core.Domain.Entity;
+using HrHub.Core.Helpers;
 using HrHub.Core.IoC;
-using HrHub.Core.Rules;
-using HrHub.Application.Mappers;
-using HrHub.Worker.IoC;
-using ConnectionProvider.Container.Bootstrappers;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,5 @@
 ﻿using HrHub.Core.Domain.Entity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -20,7 +21,9 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string TaxNumber { get; set; }
         public string IdentityNumber { get; set; }
         public string PostalCode { get; set; }
-
+        public long CurrAccTypeId { get; set; }
+        [ForeignKey("CurrAccTypeId")]
+        public virtual CurrAccType CurrAccType { get; set; }
         public virtual ICollection<Cart> Carts { get; set; } = null;
         public virtual ICollection<User> Users { get; set; } = null;
         public virtual ICollection<UserContentsViewLog> UserContentsViewLogs { get; set; } = null;

@@ -19,6 +19,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HrHub.Abstraction.Result;
+using System.Data;
 
 namespace HrHub.Identity.Services
 {
@@ -74,10 +75,13 @@ namespace HrHub.Identity.Services
             if (user != null)
             {
                 bool isUser = await userManager.CheckPasswordAsync(user, signInViewModel.Password);
+
+                var roles= await userManager.GetRolesAsync(user);
                 if (isUser)
                 {
-                    AccessToken accessToken = tokenHandler.CreateAccessToken(new TokenModel 
-                    { 
+                    
+                    AccessToken accessToken = tokenHandler.CreateAccessToken(new TokenModel
+                    {
                         Channel = "",
                         Email = user.Email,
                         UserId = user.Id,
@@ -85,8 +89,9 @@ namespace HrHub.Identity.Services
                         Audience = TokenHelper.TokenOptions.Audience,
                         ExpirationTime = TokenHelper.TokenOptions.AccessTokenExpiration,
                         Issuer = TokenHelper.TokenOptions.Issuer,
-                        SecurityKey = TokenHelper.TokenOptions.SecurityKey
-                    });
+                        SecurityKey = TokenHelper.TokenOptions.SecurityKey,
+                        Roles = roles.ToList()
+                    }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
                     Claim refreshTokenEndDateClaim = new Claim("refreshTokenEndDate", DateTime.Now.AddMinutes(TokenHelper.TokenOptions.RefreshTokenExpiration).ToString());
@@ -114,18 +119,19 @@ namespace HrHub.Identity.Services
 
             if (user != null)
             {
-                
-                    AccessToken accessToken = tokenHandler.CreateAccessToken(new TokenModel
-                    {
-                        Channel = "",
-                        Email = user.Email,
-                        UserId = user.Id,
-                        UserName = user.UserName,
-                        Audience = TokenHelper.TokenOptions.Audience,
-                        ExpirationTime = TokenHelper.TokenOptions.AccessTokenExpiration,
-                        Issuer = TokenHelper.TokenOptions.Issuer,
-                        SecurityKey = TokenHelper.TokenOptions.SecurityKey
-                    });
+                var roles = await userManager.GetRolesAsync(user);
+                AccessToken accessToken = tokenHandler.CreateAccessToken(new TokenModel
+                {
+                    Channel = "",
+                    Email = user.Email,
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Audience = TokenHelper.TokenOptions.Audience,
+                    ExpirationTime = TokenHelper.TokenOptions.AccessTokenExpiration,
+                    Issuer = TokenHelper.TokenOptions.Issuer,
+                    SecurityKey = TokenHelper.TokenOptions.SecurityKey,
+                    Roles = roles.ToList()
+                }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
                     Claim refreshTokenEndDateClaim = new Claim("refreshTokenEndDate", DateTime.Now.AddMinutes(TokenHelper.TokenOptions.RefreshTokenExpiration).ToString());
@@ -157,6 +163,7 @@ namespace HrHub.Identity.Services
             var userClaim = await userService.GetUserByRefreshToken(refreshTokenViewModel.RefreshToken);
             if (userClaim.Item1 != null)
             {
+                var roles = await userManager.GetRolesAsync(userClaim.Item1);
                 AccessToken accessToken = tokenHandler.CreateAccessToken(new TokenModel
                 {
 
@@ -167,7 +174,8 @@ namespace HrHub.Identity.Services
                     Audience=TokenHelper.TokenOptions.Audience,
                     ExpirationTime= TokenHelper.TokenOptions.AccessTokenExpiration,
                     Issuer= TokenHelper.TokenOptions.Issuer,
-                    SecurityKey= TokenHelper.TokenOptions.SecurityKey
+                    SecurityKey= TokenHelper.TokenOptions.SecurityKey,
+                    Roles = roles.ToList()
                 });
 
                 Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);

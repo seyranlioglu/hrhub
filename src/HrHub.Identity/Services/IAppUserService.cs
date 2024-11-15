@@ -1,12 +1,6 @@
 ﻿using HrHub.Identity.Entities;
 using HrHub.Identity.Model;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HrHub.Identity.Services
 {
@@ -25,5 +19,6 @@ namespace HrHub.Identity.Services
         Task<bool> ResetPasswordAsync(AppUser user, string token, string newPassword);
         Task<AppUser> GetUserByEmailAsync(string email);
         Task<bool> UpdateUser(AppUser userViewModel);
+        Task<bool> AddUserRole(AppUser user, AppRole role);
     }
 }

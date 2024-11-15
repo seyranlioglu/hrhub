@@ -7,5 +7,6 @@ namespace HrHub.Identity.Services
     public interface IAppRoleService 
     {
         Task<List<RoleModel>> GetRoleList();
+        Task AddRole(RoleModel role);
     }
 }

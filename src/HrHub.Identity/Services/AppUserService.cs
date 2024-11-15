@@ -205,5 +205,10 @@ namespace HrHub.Identity.Services
 
             return result.Succeeded;
         }
+        public async Task<bool> AddUserRole(AppUser user, AppRole role)
+        {
+            var result = await userManager.AddToRoleAsync(user, role.Name);
+            return result.Succeeded;
+        }
     }
 }
