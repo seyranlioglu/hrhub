@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HrHub.Abstraction.Domain;
+using HrHub.Core.Data.Repository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -9,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HrHub.Abstraction.Data.EfCore.UnitOfwork
+namespace HrHub.Core.Data.UnitOfWork
 {
     public interface IUnitOfWork<TDBContext> : IDisposable
     {
@@ -43,6 +45,7 @@ namespace HrHub.Abstraction.Data.EfCore.UnitOfwork
 
         Task BeginTransactionAsync(IsolationLevel level, CancellationToken cancellationToken = default);
         Task TryConnectDbAsync();
+        Repository<TEntity> CreateRepository<TEntity>() where TEntity : class, IBaseEntity;
 
         #endregion
     }

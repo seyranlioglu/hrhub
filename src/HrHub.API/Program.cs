@@ -3,7 +3,6 @@ using HrHub.Core.Helpers;
 using HrHub.Container.Bootstrappers;
 using HrHub.Abstraction.Data.Context;
 using HrHub.Abstraction.Data.EfCore.Repository;
-using HrHub.Abstraction.Data.EfCore.UnitOfwork;
 using HrHub.Abstraction.Data.MongoDb;
 using HrHub.Abstraction.Domain;
 using HrHub.Core.Base;
@@ -13,6 +12,7 @@ using HrHub.Core.Rules;
 using HrHub.Application.Mappers;
 using HrHub.Worker.IoC;
 using ConnectionProvider.Container.Bootstrappers;
+using HrHub.Core.Data.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
