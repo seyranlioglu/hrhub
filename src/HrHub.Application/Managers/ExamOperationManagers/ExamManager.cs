@@ -1,4 +1,6 @@
-﻿using HrHub.Core.Base;
+﻿using HrHub.Abstraction.Contracts.Dtos.CommonDtos;
+using HrHub.Application.Managers.TypeManagers;
+using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.Data.UnitOfWork;
 using HrHub.Domain.Entities.SqlDbEntities;
@@ -15,16 +17,16 @@ namespace HrHub.Application.Managers.ExamOperationManagers
     public class ExamManager : ManagerBase, IExamManager
     {
         private readonly IHrUnitOfWork unitOfWork;
-        private readonly Repository<Exam> examRepository;
-        public ExamManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork) : base(httpContextAccessor)
+        private readonly ICommonTypeBaseManager<CertificateType> certificateManager;
+        public ExamManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, ICommonTypeBaseManager<CertificateType> certificateManager) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
-            examRepository = unitOfWork.CreateRepository<Exam>();
+            this.certificateManager = certificateManager;
         }
 
-        public void Deneme()
+        public async Task Deneme()
         {
-            var result = examRepository.Get(w => w.IsDelete == false);
+            var certType = await certificateManager.GetByIdAsync<CommonTypeGetDto>(2);
         }
     }
 }

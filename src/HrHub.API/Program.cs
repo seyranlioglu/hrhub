@@ -30,6 +30,7 @@ builder.Services.RegisterImplementations<IUnitOfWork<DbContextBase>>("HrHub.Infr
 builder.Services.RegisterImplementations<IRepository<IBaseEntity>>("HrHub.Infrastructre");
 builder.Services.RegisterImplementations<IMongoRepository<MongoDbEntity>>("HrHub.Infrastructre");
 builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
+builder.Services.RegisterTypeManagers();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

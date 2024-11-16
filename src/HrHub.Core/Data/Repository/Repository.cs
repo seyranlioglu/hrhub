@@ -25,6 +25,11 @@ namespace HrHub.Core.Data.Repository
 
         #region SyncMethods     
         public virtual void Add(TEntity entity) => DbSet.Add(entity);
+        public virtual TEntity AddAndReturn(TEntity entity)
+        {
+            DbSet.Add(entity);
+            return entity;
+        }
         public virtual void AddList(IEnumerable<TEntity> entities) => DbSet.AddRange(entities);
         public virtual async Task AddOrUpdate(TEntity entity, CancellationToken cancellationToken = default)
         {
@@ -62,6 +67,11 @@ namespace HrHub.Core.Data.Repository
         #region AsyncMethods
         public virtual Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) => DbSet.AddAsync(entity, cancellationToken).AsTask();
         public virtual Task AddListAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default) => DbSet.AddRangeAsync(entities, cancellationToken);
+        public virtual async Task<TEntity> AddAndReturnAsync(TEntity entity, CancellationToken cancellationToken = default)
+        {
+            await DbSet.AddAsync(entity, cancellationToken);
+            return entity;
+        }
         public Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate = null, CancellationToken cancellationToken = default) => DbSet.CountAsync(predicate, cancellationToken);
         public virtual async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
@@ -91,6 +101,7 @@ namespace HrHub.Core.Data.Repository
             var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf);
             return await query.MaxAsync(selector, cancellationToken);
         }
+
         public virtual Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             DbSet.Update(entity);
@@ -233,9 +244,21 @@ namespace HrHub.Core.Data.Repository
                                          CancellationToken cancellationToken = default)
         {
             var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf);
-            return query.Select(selector).SingleOrDefaultAsync(cancellationToken: cancellationToken);
+            return query.Select(selector).FirstOrDefaultAsync(cancellationToken: cancellationToken);
         }
 
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate,
+                   Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+                   Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
+                   Func<IQueryable<TEntity>, IQueryable<TEntity>> whereIf = null,
+                   Expression<Func<TEntity, TEntity>> selector = null)
+        {
+            var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf);
+            if(selector == null)
+                return await query.FirstOrDefaultAsync();
+
+            return await query.Select(selector).FirstOrDefaultAsync();
+        }
 
         public async Task<IEnumerable<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate = null,
                                                              Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,

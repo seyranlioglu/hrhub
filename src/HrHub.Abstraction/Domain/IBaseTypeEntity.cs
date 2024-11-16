@@ -1,11 +1,14 @@
-﻿using HrHub.Abstraction.Domain;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace HrHub.Core.Domain.Entity
+namespace HrHub.Abstraction.Domain
 {
-
-    public class TypeCardEntity<TKey> : IBaseTypeEntity where TKey : struct
+    public interface IBaseTypeEntity : IBaseEntity
     {
         public long Id { get; set; }
         public long? CreateUserId { get; set; }

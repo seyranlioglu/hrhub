@@ -7,12 +7,12 @@ using HrHub.Abstraction.Enums;
 
 namespace HrHub.Abstraction.Attributes
 {
-    public class LifeCircleAttribute : Attribute
+    public class LifeCycleAttribute : Attribute
     {
-        public LifeCircleAttribute(LifeCircleTypes LifeCircleTypes)
+        public LifeCycleAttribute(LifeCycleTypes LifeCycleTypes)
         {
-            this.LifeCircleTypes = LifeCircleTypes;
+            this.LifeCycleTypes = LifeCycleTypes;
         }
-        public LifeCircleTypes LifeCircleTypes { get; set; }
+        public LifeCycleTypes LifeCycleTypes { get; set; }
     }
 }
