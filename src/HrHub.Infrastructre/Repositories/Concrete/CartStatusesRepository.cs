@@ -5,7 +5,7 @@ using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Infrastructre.Repositories.Concrete
 {
-    public class CartStatusesRepository : EntityRepository<CartStatuses>, ICartStatusesRepository
+    public class CartStatusesRepository : EntityRepository<CartStatus>, ICartStatusesRepository
     {
         public CartStatusesRepository(HrHubDbContext dbContext) : base(dbContext)
         {

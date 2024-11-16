@@ -3,7 +3,7 @@ using HrHub.Domain.Entities.SqlDbEntities;
 
 namespace HrHub.Infrastructre.Repositories.Abstract
 {
-    public interface ICartStatusesRepository : IRepository<CartStatuses>
+    public interface ICartStatusesRepository : IRepository<CartStatus>
     {
     }
 }

@@ -2,9 +2,9 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CartStatuses : TypeCardEntity<int>
+    public class CartStatus : TypeCardEntity<long>
     {
-        public CartStatuses()
+        public CartStatus()
         {
             Carts = new HashSet<Cart>();
         }

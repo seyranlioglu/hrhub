@@ -2,7 +2,7 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CurrAcc : CardEntity<int>
+    public class CurrAcc : CardEntity<long>
     {
         public CurrAcc()
         {

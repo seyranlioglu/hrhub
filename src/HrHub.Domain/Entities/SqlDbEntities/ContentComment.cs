@@ -10,11 +10,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             CommentVotes = new HashSet<CommentVote>();
             SubContentComment = new HashSet<ContentComment>();
         }
-        public int ContentId { get; set; }
+        public long ContentId { get; set; }
         public bool Pinned { get; set; }
         public long UserId { get; set; }
         public DateTime ContentDate { get; set; }
-        public int MasterContentId { get; set; }
+        public long MasterContentId { get; set; }
 
 
         [ForeignKey("MasterContentId")]

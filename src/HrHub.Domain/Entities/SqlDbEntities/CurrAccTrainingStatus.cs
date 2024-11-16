@@ -3,9 +3,9 @@ using MongoDB.Driver.Search;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CurrAccTrainingStatu : TypeCardEntity<long>
+    public class CurrAccTrainingStatus : TypeCardEntity<long>
     {
-        public CurrAccTrainingStatu()
+        public CurrAccTrainingStatus()
         {
             CurrAccTrainings = new HashSet<CurrAccTraining>();
         }

@@ -3,7 +3,7 @@ using HrHub.Domain.Entities.SqlDbEntities;
 
 namespace HrHub.Infrastructre.Repositories.Abstract
 {
-    public interface ICurrAccTrainingStatuRepository : IRepository<CurrAccTrainingStatu>
+    public interface ICurrAccTrainingStatuRepository : IRepository<CurrAccTrainingStatus>
     {
     }
 }

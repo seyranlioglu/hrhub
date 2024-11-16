@@ -11,7 +11,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         }
         public long TrainingId { get; set; }
         public long RowNumber { get; set; }
-        public string LangCode { get; set; }
+        public string? LangCode { get; set; }
 
         [ForeignKey("TrainingId")]
         public virtual Training Training { get; set; }
