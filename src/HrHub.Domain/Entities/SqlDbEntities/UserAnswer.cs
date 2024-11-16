@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class UserAnswer : CardEntity<int>
+    public class UserAnswer : CardEntity<long>
     {
         public long UserExamId { get; set; }
         public long QuestionId { get; set; }
@@ -14,5 +14,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         [ForeignKey("UserExamId")]
         public virtual UserExam UserExam { get; set; }
 
+        [ForeignKey("QuestionId")]
+        public virtual ExamQuestion Question { get; set; }
+
+        [ForeignKey("AnswerId")]
+        public virtual ExamAnswer ExamAnswer { get; set; }
     }
 }

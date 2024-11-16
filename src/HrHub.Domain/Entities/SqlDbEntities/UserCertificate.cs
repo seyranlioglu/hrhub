@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class UserCertificate : CardEntity<int>
+    public class UserCertificate : CardEntity<long>
     {
         public long CurrAccTrainingUsersId { get; set; }
 

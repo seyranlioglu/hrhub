@@ -8,7 +8,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             Instructors = new HashSet<Instructor>();
         }
-        public string LangCode { get; set; }
+        public string? LangCode { get; set; }
 
 
         public ICollection<Instructor> Instructors { get; set; }

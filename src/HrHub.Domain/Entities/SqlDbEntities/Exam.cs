@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class Exam : CardEntity<int>
+    public class Exam : CardEntity<long>
     {
         public Exam()
         {
@@ -11,7 +11,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             UserExams = new HashSet<UserExam>();
         }
         public long TrainingId { get; set; }
-        public long ExamTime { get; set; }
+        public TimeSpan ExamTime { get; set; }
         public long SuccesRate { get; set; }
         public long ViewQuestionCount { get; set; }
 

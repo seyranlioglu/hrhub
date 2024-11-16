@@ -15,6 +15,7 @@ namespace HrHub.Core.Domain.Entity
         public string? Code { get; set; }
         [AllowNull]
         public string? Description { get; set; }
+        public bool IsActive { get; set; }
 
     }
 }

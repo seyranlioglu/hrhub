@@ -8,7 +8,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             TrainingContents = new HashSet<TrainingContent>();
         }
-        public string LangCode { get; set; }
+        public string? LangCode { get; set; }
 
 
         public virtual ICollection<TrainingContent> TrainingContents { get; set; }

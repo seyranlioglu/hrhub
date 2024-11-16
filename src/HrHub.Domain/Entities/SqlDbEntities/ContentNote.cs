@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class ContentNote : CardEntity<int>
+    public class ContentNote : CardEntity<long>
     {
         [ForeignKey("ContentId")]
         public long ContentId { get; set; }

@@ -11,9 +11,9 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ContentNotes = new HashSet<ContentNote>();
             UserContentsViewLogs = new HashSet<UserContentsViewLog>();
         }
-        public int SectionId { get; set; }
-        public string ContentTypeId { get; set; }
-        public int Time { get; set; }
+        public long TrainingSectionId { get; set; }
+        public long ContentTypeId { get; set; }
+        public TimeSpan Time { get; set; }
         public int PageCount { get; set; }
         public decimal CompletedRate { get; set; }
         public string FilePath { get; set; }
