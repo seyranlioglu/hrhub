@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace HrHub.Core.Controllers
 {
     [ApiController]
-    [Authorize]
+  //  [Authorize]
     [Route("api/[controller]")]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]

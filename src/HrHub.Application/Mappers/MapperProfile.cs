@@ -1,9 +1,6 @@
-﻿using HrHub.Core.Mapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HrHub.Abstraction.Contracts.Dtos.ContentTypes;
+using HrHub.Core.Mapper;
+using HrHub.Domain.Entities.SqlDbEntities;
 
 namespace HrHub.Application.Mappers
 {
@@ -11,7 +8,7 @@ namespace HrHub.Application.Mappers
     {
         public MapperProfile()
         {
-            
+            CreateMap<ContentTypeDto, ContentType>().ReverseMap();
         }
     }
 }

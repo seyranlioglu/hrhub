@@ -25,6 +25,7 @@ namespace HrHub.Core.Domain.Entity
         [AllowNull]
         public DateTime? DeleteDate { get; set; }
         public bool? IsDelete { get; set; } = false;
+        public bool IsActive { get; set; }
 
 
     }
