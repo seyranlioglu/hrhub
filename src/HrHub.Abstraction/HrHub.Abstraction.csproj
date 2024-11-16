@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Contracts\Dtos\" />
     <Folder Include="Contracts\ViewModels\" />
     <Folder Include="Contracts\Responses\" />
   </ItemGroup>

@@ -8,6 +8,7 @@ public class ExamQuestion : TypeCardEntity<long>
     {
         ExamAnswers = new HashSet<ExamAnswer>();
         UserAnswers = new HashSet<UserAnswer>();
+        ContentExams = new HashSet<ContentExam>();
     }
     public long ExamTopicId { get; set; }
     public long Question { get; set; }
@@ -15,6 +16,7 @@ public class ExamQuestion : TypeCardEntity<long>
     [ForeignKey("ExamTopicId")]
     public virtual ExamTopic ExamTopics { get; set; }
 
-    public virtual ICollection<ExamAnswer> ExamAnswers { get; set; }
-    public virtual ICollection<UserAnswer> UserAnswers { get; set; }
+    public virtual ICollection<ExamAnswer> ExamAnswers { get; set; } = null;
+    public virtual ICollection<UserAnswer> UserAnswers { get; set; } = null;
+    public virtual ICollection<ContentExam> ContentExams { get; set; } = null;
 }

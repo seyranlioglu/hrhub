@@ -47,7 +47,7 @@ namespace HrHub.Core.Data.Repository
         public bool Exists(Expression<Func<TEntity, bool>> predicate)
         {
             return Exists(predicate);
-        } 
+        }
         public TResult Max<TResult>(Expression<Func<TEntity, TResult>> selector)
         {
             return DbSet.Max(selector);
@@ -107,7 +107,7 @@ namespace HrHub.Core.Data.Repository
 
 
         #region SyncGetMethods
-       
+
         public TEntity Get(Expression<Func<TEntity, bool>> predicate,
                            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
                            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
@@ -224,6 +224,19 @@ namespace HrHub.Core.Data.Repository
         #endregion
 
         #region AsyncGetMethods
+
+        public Task<TResult> GetAsync<TResult>(Expression<Func<TEntity, bool>> predicate,
+                                         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+                                         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
+                                         Expression<Func<TEntity, TResult>> selector = null,
+                                         Func<IQueryable<TEntity>, IQueryable<TEntity>> whereIf = null,
+                                         CancellationToken cancellationToken = default)
+        {
+            var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf);
+            return query.Select(selector).SingleOrDefaultAsync(cancellationToken: cancellationToken);
+        }
+
+
         public async Task<IEnumerable<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate = null,
                                                              Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
                                                              Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
@@ -243,7 +256,7 @@ namespace HrHub.Core.Data.Repository
         {
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
-                var query = CreateQuery(predicate: predicate,orderBy: orderBy, include: include, whereIf: whereIf, disableTracking: disableTracking);
+                var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf, disableTracking: disableTracking);
                 return query.FirstOrDefaultAsync(cancellationToken: cancellationToken);
             }
         }
