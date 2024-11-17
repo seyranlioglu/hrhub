@@ -7,7 +7,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public long UserExamId { get; set; }
         public long QuestionId { get; set; }
-        public long AnswerId { get; set; }
+        public long OptionId { get; set; }
         public DateTime? AnswerDate { get; set; }
         public DateTime? SuccessRate { get; set; }
 
@@ -17,7 +17,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         [ForeignKey("QuestionId")]
         public virtual ExamQuestion Question { get; set; }
 
-        [ForeignKey("AnswerId")]
-        public virtual ExamAnswer ExamAnswer { get; set; }
+        [ForeignKey("OptionId")]
+        public virtual ExamOptions ExamOption { get; set; }
     }
 }

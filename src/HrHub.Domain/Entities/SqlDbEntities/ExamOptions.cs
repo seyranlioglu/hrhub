@@ -3,13 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class ExamAnswer : TypeCardEntity<long>
+    public class ExamOptions : TypeCardEntity<long>
     {
-        public ExamAnswer()
+        public ExamOptions()
         {
             UserAnswers = new HashSet<UserAnswer>();
         }
         public long QuestionId { get; set; }
+        public string OptionText { get; set; }
         public bool IsCorrect { get; set; }
 
 

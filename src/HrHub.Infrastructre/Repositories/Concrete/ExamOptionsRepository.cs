@@ -5,9 +5,9 @@ using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Infrastructre.Repositories.Concrete
 {
-    public class ExamAnswerRepository : EntityRepository<ExamAnswer>, IExamAnswerRepository
+    public class ExamOptionsRepository : EntityRepository<ExamOptions>, IExamOptionsRepository
     {
-        public ExamAnswerRepository(HrHubDbContext dbContext) : base(dbContext)
+        public ExamOptionsRepository(HrHubDbContext dbContext) : base(dbContext)
         {
         }
     }

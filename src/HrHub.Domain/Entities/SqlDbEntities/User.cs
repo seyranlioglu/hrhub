@@ -18,6 +18,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             TrainingAnnouncements = new HashSet<TrainingAnnouncement>();
             TrainingAnnouncementsComments = new HashSet<TrainingAnnouncementsComment>();
             CurrAccTrainings = new HashSet<CurrAccTraining>();
+            ExamResults = new HashSet<ExamResult>();
         }
 
         public long CurrAccId { get; set; }
@@ -25,16 +26,17 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         [ForeignKey("CurrAccId")]
         public virtual CurrAcc CurrAcc { get; set; }
 
-        public virtual ICollection<Cart> ConfirmCarts { get; set; }
-        public virtual ICollection<Cart> AddCartUser { get; set; }
-        public virtual ICollection<CommentVote> CommentVotes { get; set; }
-        public virtual ICollection<ContentComment> ContentComments { get; set; }
-        public virtual ICollection<ContentNote> ContentNotes { get; set; }
-        public virtual ICollection<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; }
-        public virtual ICollection<Instructor> Instructors { get; set; }
-        public virtual ICollection<Review> Reviews { get; set; }
-        public virtual ICollection<TrainingAnnouncement> TrainingAnnouncements { get; set; }
-        public virtual ICollection<TrainingAnnouncementsComment> TrainingAnnouncementsComments { get; set; }
-        public virtual ICollection<CurrAccTraining> CurrAccTrainings { get; set; }
+        public virtual ICollection<Cart> ConfirmCarts { get; set; } = null;
+        public virtual ICollection<Cart> AddCartUser { get; set; } = null;
+        public virtual ICollection<CommentVote> CommentVotes { get; set; } = null;
+        public virtual ICollection<ContentComment> ContentComments { get; set; } = null;
+        public virtual ICollection<ContentNote> ContentNotes { get; set; } = null;
+        public virtual ICollection<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; } = null;
+        public virtual ICollection<Instructor> Instructors { get; set; } = null;
+        public virtual ICollection<Review> Reviews { get; set; } = null;
+        public virtual ICollection<TrainingAnnouncement> TrainingAnnouncements { get; set; } = null;
+        public virtual ICollection<TrainingAnnouncementsComment> TrainingAnnouncementsComments { get; set; } = null;
+        public virtual ICollection<CurrAccTraining> CurrAccTrainings { get; set; } = null;
+        public virtual ICollection<ExamResult> ExamResults { get; set; } = null;
     }
 }

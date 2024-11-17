@@ -9,11 +9,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             ExamQuestions = new HashSet<ExamQuestion>();
         }
-        public long ExamId { get; set; }
+        public long ExamVersionId { get; set; }
         public string ImgPath { get; set; }
 
-        [ForeignKey("ExamId")]
-        public virtual Exam Exam { get; set; }
+        [ForeignKey("ExamVersionId")]
+        public virtual ExamVersion ExamVersion { get; set; }
         public virtual ICollection<ExamQuestion> ExamQuestions { get; set; }
     }
 }

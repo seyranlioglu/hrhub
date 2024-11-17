@@ -29,9 +29,11 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<CurrAccTrainingStatus> CurrAccTrainingStatuses { get; set; }
         public virtual DbSet<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; }
         public virtual DbSet<Exam> Exams { get; set; }
-        public virtual DbSet<ExamAnswer> ExamAnswers { get; set; }
+        public virtual DbSet<ExamVersion> ExamVersions { get; set; }
+        public virtual DbSet<ExamOptions> ExamOptions { get; set; }
         public virtual DbSet<ExamQuestion> ExamQuestions { get; set; }
         public virtual DbSet<ExamTopic> ExamTopics { get; set; }
+        public virtual DbSet<ExamResult> ExamResults { get; set; }
         public virtual DbSet<Instructor> Instructors { get; set; }
         public virtual DbSet<InstructorType> InstructorTypes { get; set; }
         public virtual DbSet<Language> Languages { get; set; }
