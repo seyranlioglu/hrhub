@@ -24,9 +24,6 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             this.certificateManager = certificateManager;
         }
 
-        public async Task Deneme()
-        {
-            var certType = await certificateManager.GetByIdAsync<CommonTypeGetDto>(2);
-        }
+
     }
 }

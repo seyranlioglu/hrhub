@@ -2,6 +2,5 @@
 {
     public interface IExamManager
     {
-        Task Deneme();
     }
 }

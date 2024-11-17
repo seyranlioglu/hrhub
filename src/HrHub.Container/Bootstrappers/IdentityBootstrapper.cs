@@ -1,5 +1,6 @@
 ﻿using HrHub.Abstraction.Settings;
 using HrHub.Core.Helpers;
+using HrHub.Core.Interceptors;
 using HrHub.Core.Utilties.Encryption;
 using HrHub.Identity.IoC;
 using HrHub.Identity.Options;
@@ -16,6 +17,8 @@ namespace HrHub.Container.Bootstrappers
     {
         public static void RegisterIdentity(this IServiceCollection services)
         {
+            services.AddScoped<AuditInterceptor>();
+
             var dbSettings = AppSettingsHelper.GetData<IdentityDbSettings>();
             var tokenOptions = AppSettingsHelper.GetData<AsisTokenOptions>();
             var key = ResourceHelper.GetString("TripleDesKey");

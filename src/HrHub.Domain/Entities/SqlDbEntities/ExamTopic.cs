@@ -10,6 +10,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ExamQuestions = new HashSet<ExamQuestion>();
         }
         public long ExamVersionId { get; set; }
+        public string Title { get; set; }
         public string ImgPath { get; set; }
 
         [ForeignKey("ExamVersionId")]

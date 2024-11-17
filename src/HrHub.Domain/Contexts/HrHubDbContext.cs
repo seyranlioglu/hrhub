@@ -1,4 +1,5 @@
 ﻿using HrHub.Abstraction.Data.Context;
+using HrHub.Core.Interceptors;
 using HrHub.Domain.Entities.SqlDbEntities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
@@ -7,14 +8,17 @@ namespace HrHub.Domain.Contexts
 {
     public partial class HrHubDbContext : DbContextBase
     {
+        private readonly AuditInterceptor auditInterceptor;
         public HrHubDbContext()
         {
 
         }
 
-        public HrHubDbContext([NotNull] DbContextOptions<HrHubDbContext> options) : base(options)
+        public HrHubDbContext([NotNull] DbContextOptions<HrHubDbContext> options, AuditInterceptor _auditInterceptor) : base(options)
         {
+            this.auditInterceptor = _auditInterceptor; 
         }
+        #region DbSets
         public virtual DbSet<Cart> Carts { get; set; }
         public virtual DbSet<CartItem> CartItem { get; set; }
         public virtual DbSet<CartStatus> CartStatus { get; set; }
@@ -55,11 +59,13 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<UserContentsViewLog> UserContentsViewLogs { get; set; }
         public virtual DbSet<UserContentsViewLogDetail> UserContentsViewLogDetails { get; set; }
         public virtual DbSet<UserExam> UserExams { get; set; }
-        public virtual DbSet<WhatYouWillLearn> WhatYouWillLearns { get; set; }
+        public virtual DbSet<WhatYouWillLearn> WhatYouWillLearns { get; set; } 
+        #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
+            optionsBuilder.AddInterceptors(auditInterceptor);
             optionsBuilder.LogTo(Console.WriteLine);
         }
 
