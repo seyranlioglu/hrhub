@@ -1,6 +1,4 @@
-﻿
-using HrHub.Abstraction.Data.Context;
-using HrHub.Abstraction.Data.EfCore.UnitOfwork;
+﻿using HrHub.Abstraction.Data.Context;
 using HrHub.Core.Data.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 

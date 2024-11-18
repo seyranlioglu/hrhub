@@ -1,7 +1,6 @@
 using ConnectionProvider.Container.Bootstrappers;
 using HrHub.Abstraction.Data.Context;
 using HrHub.Abstraction.Data.EfCore.Repository;
-using HrHub.Abstraction.Data.EfCore.UnitOfwork;
 using HrHub.Abstraction.Data.MongoDb;
 using HrHub.Abstraction.Domain;
 using HrHub.API.Properties;
@@ -11,6 +10,11 @@ using HrHub.Core.Base;
 using HrHub.Core.Domain.Entity;
 using HrHub.Core.Helpers;
 using HrHub.Core.IoC;
+using HrHub.Core.Rules;
+using HrHub.Application.Mappers;
+using HrHub.Worker.IoC;
+using ConnectionProvider.Container.Bootstrappers;
+using HrHub.Core.Data.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +32,7 @@ builder.Services.RegisterImplementations<IUnitOfWork<DbContextBase>>("HrHub.Infr
 builder.Services.RegisterImplementations<IRepository<IBaseEntity>>("HrHub.Infrastructre");
 builder.Services.RegisterImplementations<IMongoRepository<MongoDbEntity>>("HrHub.Infrastructre");
 builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
+builder.Services.RegisterTypeManagers();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

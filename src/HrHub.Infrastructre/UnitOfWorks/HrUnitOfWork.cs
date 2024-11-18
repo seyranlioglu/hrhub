@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HrHub.Infrastructre.UnitOfWorks
 {
-    [LifeCircle(Abstraction.Enums.LifeCircleTypes.Scoped)]
+    [LifeCycle(Abstraction.Enums.LifeCycleTypes.Scoped)]
     public class HrUnitOfWork : UnitOfWork<HrHubDbContext>, IHrUnitOfWork
     {
         public HrUnitOfWork(HrHubDbContext context) : base(context)

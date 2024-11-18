@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace HrHub.Abstraction.Enums
 {
-    public enum LifeCircleTypes
+    public enum LifeCycleTypes
     {
         Singleton,
         Transient,
-        Scoped
+        Scoped,
+        NotRegister
     }
 }

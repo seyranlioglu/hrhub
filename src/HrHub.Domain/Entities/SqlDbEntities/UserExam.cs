@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class UserExam : CardEntity<int>
+    public class UserExam : CardEntity<long>
     {
         public UserExam()
         {
             UserAnswers = new HashSet<UserAnswer>();
         }
-        public long ExamId { get; set; }
+        public long ExamVersionId { get; set; }
         public long CurrAccTrainingUserId { get; set; }
         public long? TotalAnswer { get; set; }
         public long? TotalCorrectAnswer { get; set; }
@@ -18,8 +18,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public DateTime? EndDate { get; set; }
 
 
-        [ForeignKey("ExamId")]
-        public virtual Exam Exam { get; set; }
+        [ForeignKey("ExamVersionId")]
+        public virtual ExamVersion ExamVersion { get; set; }
 
         [ForeignKey("CurrAccTrainingUserId")]
         public virtual CurrAccTrainingUser CurrAccTrainingUser { get; set; }

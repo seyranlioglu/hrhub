@@ -147,7 +147,7 @@ namespace HrHub.Core.Data.Repository
                            Func<IQueryable<TEntity>, IQueryable<TEntity>> whereIf = null)
         {
             var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf);
-            return query.SingleOrDefault();
+            return query.FirstOrDefault();
         }
 
         public TEntity GetWithNoLock(Expression<Func<TEntity, bool>> predicate,
@@ -157,7 +157,7 @@ namespace HrHub.Core.Data.Repository
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
                 var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf);
-                return query.SingleOrDefault();
+                return query.FirstOrDefault();
             }
         }
 
@@ -190,7 +190,7 @@ namespace HrHub.Core.Data.Repository
                                     Expression<Func<TEntity, TResult>> selector = null)
         {
             var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf);
-            return query.Select(selector).SingleOrDefault();
+            return query.Select(selector).FirstOrDefault();
         }
 
         public TResult GetWithNoLock<TResult>(Expression<Func<TEntity, bool>> predicate,
@@ -201,7 +201,7 @@ namespace HrHub.Core.Data.Repository
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
                 var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf);
-                return query.Select(selector).SingleOrDefault();
+                return query.Select(selector).FirstOrDefault();
             }
         }
 
@@ -212,7 +212,7 @@ namespace HrHub.Core.Data.Repository
                                       CancellationToken cancellationToken = default)
         {
             var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf, disableTracking: disableTracking);
-            return query.SingleOrDefaultAsync(cancellationToken: cancellationToken);
+            return query.FirstOrDefaultAsync(cancellationToken: cancellationToken);
         }
 
         public Task<TEntity> GetWithNoLockAsync(Expression<Func<TEntity, bool>> predicate,
@@ -224,7 +224,7 @@ namespace HrHub.Core.Data.Repository
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
                 var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf, disableTracking: disableTracking);
-                return query.SingleOrDefaultAsync(cancellationToken: cancellationToken);
+                return query.FirstOrDefaultAsync(cancellationToken: cancellationToken);
             }
         }
 
@@ -236,7 +236,7 @@ namespace HrHub.Core.Data.Repository
                                                CancellationToken cancellationToken = default)
         {
             var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf);
-            return query.Select(selector).SingleOrDefaultAsync(cancellationToken: cancellationToken);
+            return query.Select(selector).FirstOrDefaultAsync(cancellationToken: cancellationToken);
         }
 
         public Task<TResult> GetWithNoLockAsync<TResult>(Expression<Func<TEntity, bool>> predicate,
@@ -248,7 +248,7 @@ namespace HrHub.Core.Data.Repository
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
                 var query = CreateQuery(predicate: predicate, include: include, whereIf: whereIf);
-                return query.Select(selector).SingleOrDefaultAsync(cancellationToken: cancellationToken);
+                return query.Select(selector).FirstOrDefaultAsync(cancellationToken: cancellationToken);
             }
         }
 

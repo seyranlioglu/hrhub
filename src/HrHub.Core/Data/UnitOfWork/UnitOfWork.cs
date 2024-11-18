@@ -9,20 +9,33 @@ using System.Data;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using HrHub.Abstraction.Data.EfCore.UnitOfwork;
+using HrHub.Core.Data.Repository;
+using HrHub.Abstraction.Domain;
+using HrHub.Abstraction.Data.Context;
 
 namespace HrHub.Core.Data.UnitOfWork
 {
-    public abstract class UnitOfWork<TDBContext> : IUnitOfWork<TDBContext> where TDBContext : DbContext
+    public abstract class UnitOfWork<TDBContext> : IUnitOfWork<TDBContext> where TDBContext : DbContextBase
     {
         private bool disposedValue = false; // To detect redundant calls
         public TDBContext currentDBContext { get; set; }
 
         public IDbContextTransaction CurrentTransaction { get; set; }
 
+        private readonly ConcurrentDictionary<Type, object> repositories = new();
+
         public UnitOfWork(TDBContext context)
         {
             currentDBContext = context;
+        }
+
+        public Repository<TEntity> CreateRepository<TEntity>() where TEntity : class, IBaseEntity
+        {
+            var entityType = typeof(TEntity);
+
+            var repository = repositories.GetOrAdd(entityType, _ => new Repository<TEntity>(currentDBContext));
+
+            return (Repository<TEntity>)repository;
         }
 
         public void BeginTransaction()

@@ -3,16 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class CurrAccTraining : CardEntity<int>
+    public class CurrAccTraining : CardEntity<long>
     {
-        public int CurrAccId { get; set; }
-        public int TrainingId { get; set; }
-        public int StatusId { get; set; }
+        public long CurrAccId { get; set; }
+        public long TrainingId { get; set; }
+        public long CurrAccTrainingStatusId { get; set; }
         public DateTime ConfirmDate { get; set; }
-        public int ConfirmUserId { get; set; }
+        public long ConfirmUserId { get; set; }
         public string ConfirmNotes { get; set; }
         public int LicenceCount { get; set; }
-        public int CartItemId { get; set; }
+        public long CartItemId { get; set; }
 
 
         [ForeignKey("CurrAccId")]
@@ -22,7 +22,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual Training Training { get; set; }
 
         [ForeignKey("StatusId")]
-        public virtual CurrAccTrainingStatu CurrAccTrainingStatus { get; set; }
+        public virtual CurrAccTrainingStatus CurrAccTrainingStatus { get; set; }
 
         [ForeignKey("ConfirmUserId")]
         public virtual User User { get; set; }

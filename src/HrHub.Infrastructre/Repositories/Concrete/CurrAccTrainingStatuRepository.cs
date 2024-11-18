@@ -5,7 +5,7 @@ using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Infrastructre.Repositories.Concrete
 {
-    public class CurrAccTrainingStatuRepository : EntityRepository<CurrAccTrainingStatu>, ICurrAccTrainingStatuRepository
+    public class CurrAccTrainingStatuRepository : EntityRepository<CurrAccTrainingStatus>, ICurrAccTrainingStatuRepository
     {
         public CurrAccTrainingStatuRepository(HrHubDbContext dbContext) : base(dbContext)
         {

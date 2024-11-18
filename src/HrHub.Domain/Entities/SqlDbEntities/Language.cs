@@ -4,6 +4,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class Language : TypeCardEntity<long>
     {
-        public string LangCode { get; set; }
+        public string? LangCode { get; set; }
     }
 }

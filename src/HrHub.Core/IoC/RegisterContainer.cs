@@ -23,9 +23,9 @@ namespace HrHub.Core.IoC
 
             var baseInterfaceType = typeof(TBaseInterface);
             var typesGeneral = assembly.GetTypes();
-            
+
             var types = typesGeneral.Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces()
-                                                                                           .Any(w => w.Name == baseInterfaceType.Name || w.Name.Contains("Manager"))) 
+                                                                                           .Any(w => w.Name == baseInterfaceType.Name || w.Name.Contains("Manager")))
                                                                                            .ToList();
 
             foreach (var type in types)
@@ -34,13 +34,14 @@ namespace HrHub.Core.IoC
                 var implementedInterface = type.GetInterfaces().FirstOrDefault(i => i.Name.Contains(intName));
                 if (implementedInterface != null)
                 {
-                    var lifeCircleAttribute = type.GetCustomAttribute<LifeCircleAttribute>();
-                    LifeCircleTypes lifeCircleType = LifeCircleTypes.Scoped;
+                    var lifeCircleAttribute = type.GetCustomAttribute<LifeCycleAttribute>();
+                    LifeCycleTypes lifeCircleType = LifeCycleTypes.Scoped;
                     if (lifeCircleAttribute != null)
-                        lifeCircleType = lifeCircleAttribute.LifeCircleTypes;
+                        lifeCircleType = lifeCircleAttribute.LifeCycleTypes;
 
                     var serviceDescriptor = GetServiceDescriptor(type, implementedInterface, lifeCircleType);
-                    services.Add(serviceDescriptor);
+                    if (serviceDescriptor != null)
+                        services.Add(serviceDescriptor);
                 }
             }
         }
@@ -57,16 +58,18 @@ namespace HrHub.Core.IoC
             //return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == name);
         }
 
-        private static ServiceDescriptor GetServiceDescriptor(Type implementationType, Type interfaceType, LifeCircleTypes lifeCircleType)
+        private static ServiceDescriptor GetServiceDescriptor(Type implementationType, Type interfaceType, LifeCycleTypes lifeCircleType)
         {
             switch (lifeCircleType)
             {
-                case LifeCircleTypes.Singleton:
+                case LifeCycleTypes.Singleton:
                     return ServiceDescriptor.Singleton(interfaceType, implementationType);
-                case LifeCircleTypes.Transient:
+                case LifeCycleTypes.Transient:
                     return ServiceDescriptor.Transient(interfaceType, implementationType);
-                case LifeCircleTypes.Scoped:
+                case LifeCycleTypes.Scoped:
                     return ServiceDescriptor.Scoped(interfaceType, implementationType);
+                case LifeCycleTypes.NotRegister:
+                    return null;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(lifeCircleType), lifeCircleType, null);
             }

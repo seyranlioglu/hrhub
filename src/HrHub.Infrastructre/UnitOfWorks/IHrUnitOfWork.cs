@@ -1,4 +1,4 @@
-﻿using HrHub.Abstraction.Data.EfCore.UnitOfwork;
+﻿using HrHub.Core.Data.UnitOfWork;
 using HrHub.Domain.Contexts;
 using System;
 using System.Collections.Generic;

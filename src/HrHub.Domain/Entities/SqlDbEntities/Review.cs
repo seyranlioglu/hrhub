@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class Review : CardEntity<int> 
+    public class Review : CardEntity<long> 
     {
         public long TrainingId { get; set; }
         public long InstructorPoint { get; set; }

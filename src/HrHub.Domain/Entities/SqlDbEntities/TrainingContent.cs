@@ -10,10 +10,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ContentComments = new HashSet<ContentComment>();
             ContentNotes = new HashSet<ContentNote>();
             UserContentsViewLogs = new HashSet<UserContentsViewLog>();
+            ContentExams = new HashSet<ContentExam>();
         }
-        public int SectionId { get; set; }
-        public string ContentTypeId { get; set; }
-        public int Time { get; set; }
+        public long TrainingSectionId { get; set; }
+        public long ContentTypeId { get; set; }
+        public TimeSpan Time { get; set; }
         public int PageCount { get; set; }
         public decimal CompletedRate { get; set; }
         public string FilePath { get; set; }
@@ -33,6 +34,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ICollection<ContentComment> ContentComments { get; set; } = null;
         public virtual ICollection<ContentNote> ContentNotes { get; set; } = null;
         public virtual ICollection<UserContentsViewLog> UserContentsViewLogs { get; set; } = null;
+        public virtual ICollection<ContentExam> ContentExams { get; set; } = null;
     }
 
 }
