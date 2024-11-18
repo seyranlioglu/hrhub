@@ -11,6 +11,9 @@ namespace HrHub.Abstraction.Enums
         Singleton,
         Transient,
         Scoped,
+        ScopedAlone,
+        SingletonAlone,
+        TransientAlone,
         NotRegister
     }
 }

@@ -13,6 +13,7 @@ using HrHub.Application.Mappers;
 using HrHub.Worker.IoC;
 using ConnectionProvider.Container.Bootstrappers;
 using HrHub.Core.Data.UnitOfWork;
+using HrHub.Abstraction.BusinessRules;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ builder.Services.RegisterImplementations<IUnitOfWork<DbContextBase>>("HrHub.Infr
 builder.Services.RegisterImplementations<IRepository<IBaseEntity>>("HrHub.Infrastructre");
 builder.Services.RegisterImplementations<IMongoRepository<MongoDbEntity>>("HrHub.Infrastructre");
 builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
+builder.Services.RegisterImplementations<IBusinessRule>("HrHub.Application");
 builder.Services.RegisterTypeManagers();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

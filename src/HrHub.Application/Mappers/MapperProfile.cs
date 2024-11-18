@@ -1,4 +1,4 @@
-﻿using HrHub.Abstraction.Contracts.Dtos.ContentTypes;
+﻿using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Core.Mapper;
 using HrHub.Domain.Entities.SqlDbEntities;
 

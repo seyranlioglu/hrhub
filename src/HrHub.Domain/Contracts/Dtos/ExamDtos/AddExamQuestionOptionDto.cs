@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HrHub.Abstraction.Contracts.Dtos.ExamDtos
+namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
     public class AddExamQuestionOptionDto
     {

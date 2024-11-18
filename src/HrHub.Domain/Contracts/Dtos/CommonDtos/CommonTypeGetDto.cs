@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HrHub.Abstraction.Contracts.Dtos.CommonDtos
+namespace HrHub.Domain.Contracts.Dtos.CommonDtos
 {
     public class CommonTypeGetDto : CommonTypeDto
     {

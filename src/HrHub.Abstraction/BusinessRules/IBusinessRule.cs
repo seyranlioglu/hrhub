@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HrHub.Core.Rules
+namespace HrHub.Abstraction.BusinessRules
 {
     public interface IBusinessRule
     {
-        int ErrorCode { get; }
-        string Message { get; }
-        List<object> Args { get; }
-        bool IsBroken();
+        (bool IsValid, string ErrorMessage) Validate(object value, string fieldName);
     }
 }

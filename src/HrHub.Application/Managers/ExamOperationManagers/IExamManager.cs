@@ -1,6 +1,8 @@
-﻿namespace HrHub.Application.Managers.ExamOperationManagers
+﻿using HrHub.Core.Base;
+
+namespace HrHub.Application.Managers.ExamOperationManagers
 {
-    public interface IExamManager
+    public interface IExamManager : IBaseManager
     {
     }
 }

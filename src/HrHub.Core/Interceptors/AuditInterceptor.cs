@@ -44,23 +44,26 @@ namespace HrHub.Core.Interceptors
                     (entry.Entity.GetType().GetGenericTypeDefinition() == typeof(CardEntity<>) ||
                      entry.Entity.GetType().GetGenericTypeDefinition() == typeof(TypeCardEntity<>)));
 
-                var userId = GetCurrentUserId();
-
-                foreach (var entry in entries)
+                if (entries.Any()) 
                 {
-                    dynamic entity = entry.Entity;
-                    switch (entry.State)
+                    var userId = GetCurrentUserId();
+
+                    foreach (var entry in entries)
                     {
-                        case EntityState.Modified:
-                            entity.UpdateDate = DateTime.UtcNow;
-                            entity.UpdateUserId = userId;
-                            break;
-                        case EntityState.Added:
-                            entity.CreatedDate = DateTime.UtcNow;
-                            entity.CreateUserId = userId;
-                            break;
-                        default:
-                            break;
+                        dynamic entity = entry.Entity;
+                        switch (entry.State)
+                        {
+                            case EntityState.Modified:
+                                entity.UpdateDate = DateTime.UtcNow;
+                                entity.UpdateUserId = userId;
+                                break;
+                            case EntityState.Added:
+                                entity.CreatedDate = DateTime.UtcNow;
+                                entity.CreateUserId = userId;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
