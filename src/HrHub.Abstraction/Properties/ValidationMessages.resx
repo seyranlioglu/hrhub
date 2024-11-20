@@ -126,4 +126,7 @@
   <data name="ZeroCheck" xml:space="preserve">
     <value>The field cannot be zero</value>
   </data>
+  <data name="PositiveTimeSpanError" xml:space="preserve">
+    <value>Time field must be positive</value>
+  </data>
 </root>

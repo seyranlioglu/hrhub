@@ -79,6 +79,15 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Time field must be positive.
+        /// </summary>
+        internal static string PositiveTimeSpanError {
+            get {
+                return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The field cannot be zero.
         /// </summary>
         internal static string ZeroCheck {

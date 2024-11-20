@@ -8,7 +8,7 @@ using HrHub.Abstraction.Domain;
 using HrHub.Core.Base;
 using HrHub.Core.Domain.Entity;
 using HrHub.Core.IoC;
-using HrHub.Core.Rules;
+using HrHub.Core.BusinessRules;
 using HrHub.Application.Mappers;
 using HrHub.Worker.IoC;
 using ConnectionProvider.Container.Bootstrappers;

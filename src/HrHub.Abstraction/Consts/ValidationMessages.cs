@@ -11,6 +11,7 @@ namespace HrHub.Abstraction.Consts
         public static string NullError => Properties.ValidationMessages.NullCheck;
         public static string InvalidEmailError => Properties.ValidationMessages.InvalidEmail;
         public static string ZeroCheckError => Properties.ValidationMessages.ZeroCheck;
+        public static string PositiveTimeSpanError => Properties.ValidationMessages.PositiveTimeSpanError;
 
     }
 }

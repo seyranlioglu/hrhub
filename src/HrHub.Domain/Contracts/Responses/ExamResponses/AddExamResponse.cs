@@ -9,5 +9,7 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
     public class AddExamResponse
     {
         public long Id { get; set; }
+        public long ExamVersionId { get; set; }
+        public int VersionNumber { get; set; }
     }
 }

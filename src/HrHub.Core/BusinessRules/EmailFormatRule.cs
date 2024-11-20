@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HrHub.Core.Rules
+namespace HrHub.Core.BusinessRules
 {
     public class EmailFormatRule : IBusinessRule
     {
