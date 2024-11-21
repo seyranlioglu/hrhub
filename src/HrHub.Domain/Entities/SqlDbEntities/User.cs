@@ -23,6 +23,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         }
 
         public long CurrAccId { get; set; }
+        public bool IsMainUser { get; set; }
 
         [ForeignKey("CurrAccId")]
         public virtual CurrAcc CurrAcc { get; set; }

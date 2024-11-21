@@ -7,8 +7,10 @@ using HrHub.Core.Data.Repository;
 using HrHub.Core.Domain.Entity;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -79,9 +81,10 @@ namespace HrHub.Application.Managers.TypeManagers
         {
             var entity = DynamicMapper<TTypeEntity, TSource>(data);
             var result = await repository.AddAndReturnAsync(entity);
+            await unitOfWork.SaveChangesAsync();
             return DynamicMapper<TResponse, TTypeEntity>(result);
         }
-
+       
         public async Task<IEnumerable<TResponse>> GetList<TResponse>(Expression<Func<TTypeEntity, bool>> predicate = null) where TResponse : class
         {
             var result = await repository
@@ -108,6 +111,14 @@ namespace HrHub.Application.Managers.TypeManagers
 
         private TTarget DynamicMapper<TTarget, TSource>(TSource data)
         {
+            //if (data is JObject jObject)
+            //{
+            //    return jObject.ToObject<TTarget>();
+            //}
+            //if (typeof(TTarget) == typeof(object))
+            //{
+            //    return (TTarget)(object)data;
+            //}
             var configuration = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap(typeof(TSource), typeof(TTarget));

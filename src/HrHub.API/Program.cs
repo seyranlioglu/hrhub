@@ -1,12 +1,15 @@
-using HrHub.API.Properties;
-using HrHub.Core.Helpers;
-using HrHub.Container.Bootstrappers;
+using ConnectionProvider.Container.Bootstrappers;
 using HrHub.Abstraction.Data.Context;
 using HrHub.Abstraction.Data.EfCore.Repository;
 using HrHub.Abstraction.Data.MongoDb;
 using HrHub.Abstraction.Domain;
+using HrHub.API.Properties;
+using HrHub.Application.Mappers;
+using HrHub.Container.Bootstrappers;
 using HrHub.Core.Base;
+using HrHub.Core.Data.UnitOfWork;
 using HrHub.Core.Domain.Entity;
+using HrHub.Core.Helpers;
 using HrHub.Core.IoC;
 using HrHub.Core.BusinessRules;
 using HrHub.Application.Mappers;
@@ -37,7 +40,24 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+builder.Services.AddAuthorization(opts =>
+{
+    opts.AddPolicy("MainUser", policy =>
+    {
+        policy.RequireAssertion(context =>
+        {
+            if (context.User.IsInRole("admin"))
+            {
+                return true;
+            }
+            if (context.User.IsInRole("user"))
+            {
+                return context.User.HasClaim(c => c.Type == "IsMainUser" && c.Value.ToLower() == "true");
+            }
+            return false;
+        });
+    });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,11 +68,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.AddWorkerDashboard();
-
 app.MapControllers();
 
 app.Run();

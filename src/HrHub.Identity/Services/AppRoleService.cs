@@ -30,5 +30,18 @@ namespace HrHub.Identity.Services
                         }).ToListAsync();
             return result;
         }
+        public async Task AddRole(RoleModel role)
+        {
+            try
+            {
+                var result = await roleManager.CreateAsync(new AppRole { Name = role.Name });
+            }
+            catch (Exception e)
+            {
+
+               
+            }
+           
+        }
     }
 }

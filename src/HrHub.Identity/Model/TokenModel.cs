@@ -16,6 +16,8 @@ namespace HrHub.Identity.Model
         public string SecurityKey { get; set; }
         public string Issuer { get; set; }
         public string Audience { get; set; }
+        public List<string> Roles { get; set; }
+        public bool IsMainUser { get; set; }
 
     }
 }
