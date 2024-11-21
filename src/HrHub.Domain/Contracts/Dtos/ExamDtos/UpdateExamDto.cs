@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class AddExamQuestionOptionDto
+    public class UpdateExamDto : AddExamDto
     {
-        [ValidationRules(typeof(NullCheckRule))]
-        public string OptionText { get; set; }
-        public bool IsCorrect { get; set; } = false;
+        [ValidationRules(typeof(ZeroCheckRule))]
+        public int Id { get; set; }
+        public List<UpdateExamTopicDto> Topics { get; set; }
     }
 }

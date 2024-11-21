@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class ExamOptions : TypeCardEntity<long>
+    public class QuestionOption : TypeCardEntity<long>
     {
-        public ExamOptions()
+        public QuestionOption()
         {
             UserAnswers = new HashSet<UserAnswer>();
         }

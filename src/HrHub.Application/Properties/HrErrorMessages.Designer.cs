@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HrHub.Abstraction.Properties {
+namespace HrHub.Application.Properties {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace HrHub.Abstraction.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ValidationMessages {
+    internal class HrErrorMessages {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ValidationMessages() {
+        internal HrErrorMessages() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace HrHub.Abstraction.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HrHub.Abstraction.Properties.ValidationMessages", typeof(ValidationMessages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HrHub.Application.Properties.HrErrorMessages", typeof(HrErrorMessages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,60 +57,6 @@ namespace HrHub.Abstraction.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The question must have at least two options.
-        /// </summary>
-        internal static string ExamQuestionOptionsCountError {
-            get {
-                return ResourceManager.GetString("ExamQuestionOptionsCountError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Exam User Exists.
-        /// </summary>
-        internal static string ExamUserExistsError {
-            get {
-                return ResourceManager.GetString("ExamUserExistsError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid email format..
-        /// </summary>
-        internal static string InvalidEmail {
-            get {
-                return ResourceManager.GetString("InvalidEmail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The field cannot be null..
-        /// </summary>
-        internal static string NullCheck {
-            get {
-                return ResourceManager.GetString("NullCheck", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Time field must be positive.
-        /// </summary>
-        internal static string PositiveTimeSpanError {
-            get {
-                return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The field cannot be zero.
-        /// </summary>
-        internal static string ZeroCheck {
-            get {
-                return ResourceManager.GetString("ZeroCheck", resourceCulture);
             }
         }
     }

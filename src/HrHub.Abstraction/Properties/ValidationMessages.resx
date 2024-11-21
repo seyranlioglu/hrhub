@@ -129,4 +129,10 @@
   <data name="PositiveTimeSpanError" xml:space="preserve">
     <value>Time field must be positive</value>
   </data>
+  <data name="ExamQuestionOptionsCountError" xml:space="preserve">
+    <value>The question must have at least two options</value>
+  </data>
+  <data name="ExamUserExistsError" xml:space="preserve">
+    <value>Exam User Exists</value>
+  </data>
 </root>

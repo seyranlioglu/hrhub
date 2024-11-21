@@ -24,6 +24,8 @@ using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Core.Helpers;
 using HrHub.Abstraction.Settings;
 using FluentValidation;
+using FluentValidation.Results;
+using HrHub.Application.BusinessRules.ExamBusinessRules;
 
 namespace HrHub.Application.Managers.ExamOperationManagers
 {
@@ -82,8 +84,6 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 ExamVersionId = lastVersion.Id,
                 VersionNumber = lastVersion.VersionNumber
             });
-            //var validator2 = new ClassBasedValidator<AddExamDto>();
-            //var result2 = validator2.Validate(data, typeof(UserBusinessRule));
         }
 
         public async Task<Response<ReturnIdResponse>> AddExamTopic(AddExamTopicDto data)
@@ -102,6 +102,23 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             return ProduceSuccessResponse(new ReturnIdResponse
             {
                 Id = addResponse.Id
+            });
+        }
+
+        public async Task<Response<ReturnIdResponse>> AddExamQuestion(AddExamQuestionDto question)
+        {
+            if (ValidationHelper.FieldBasedValidator<AddExamQuestionDto>(question) is ValidationResult validationResult && !validationResult.IsValid)
+                return validationResult.SendResponse<ReturnIdResponse>();
+
+            if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question,typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<ReturnIdResponse>();
+
+            var newQuestion = mapper.Map<ExamQuestion>(question);
+            var result = await examQuestionRepository.AddAndReturnAsync(newQuestion);
+            await unitOfWork.SaveChangesAsync();
+            return ProduceSuccessResponse(new ReturnIdResponse
+            {
+                Id = result.Id
             });
         }
     }

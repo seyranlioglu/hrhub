@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class AddExamQuestionDto
+    public class UpdateExamQuestionDto
     {
+        public long Id { get; set; }
         [ValidationRules(typeof(NullCheckRule))]
         public string QuestionText { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
         public decimal Score { get; set; }
         [ValidationRules(typeof(NullCheckRule))]
-        public List<AddExamQuestionOptionDto> QuestionOptions { get; set; } = null;
+        public List<UpdateExamQuestionOptionsDto> QuestionOptions { get; set; } = null;
     }
 }

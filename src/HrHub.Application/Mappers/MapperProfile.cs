@@ -12,6 +12,9 @@ namespace HrHub.Application.Mappers
             CreateMap<ContentTypeDto, ContentType>().ReverseMap();
             CreateMap<Exam, AddExamDto>().ReverseMap();
             CreateMap<ExamTopic, AddExamTopicDto>().ReverseMap();
+            CreateMap<AddExamQuestionDto, ExamQuestion>()
+                .ForMember(dest => dest.QuestionOptions, opt => opt.MapFrom(src => src.QuestionOptions))
+                .ReverseMap();
         }
     }
 }
