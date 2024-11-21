@@ -11,6 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Contracts\Responses\ExamResponses\" />
+    <Folder Include="Contracts\ViewModels\" />
     <Folder Include="Entities\NoSqlEntities\" />
   </ItemGroup>
 

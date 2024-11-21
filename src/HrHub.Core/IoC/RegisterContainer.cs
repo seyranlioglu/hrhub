@@ -25,8 +25,9 @@ namespace HrHub.Core.IoC
             var typesGeneral = assembly.GetTypes();
 
             var types = typesGeneral.Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces()
-                                                                                           .Any(w => w.Name == baseInterfaceType.Name || w.Name.Contains("Manager")))
+                                                                                           .Any(w => w.Name == baseInterfaceType.Name))
                                                                                            .ToList();
+            //|| w.Name.Contains("Manager")
 
             foreach (var type in types)
             {

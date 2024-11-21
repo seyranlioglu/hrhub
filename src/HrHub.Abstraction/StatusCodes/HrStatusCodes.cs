@@ -28,6 +28,8 @@ namespace HrHub.Abstraction.StatusCodes
         public static readonly int Status117FileFormatError = 117;
         [Display(ResourceType = typeof(HrHub.Abstraction.StatusCodes.Resources.StatusCodeResource), Name = "Status118FTPError")]
         public static readonly int Status118FTPError = 118;
+        [Display(ResourceType = typeof(HrHub.Abstraction.StatusCodes.Resources.StatusCodeResource), Name = "Status119ValidationError")]
+        public static readonly int Status119ValidationError = 119;
         #endregion
 
         #region 2xx_SuccessStatusCodes

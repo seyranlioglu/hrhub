@@ -5,7 +5,7 @@ using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Infrastructre.Repositories.Concrete
 {
-    public class ExamOptionsRepository : EntityRepository<ExamOptions>, IExamOptionsRepository
+    public class ExamOptionsRepository : EntityRepository<QuestionOption>, IExamOptionsRepository
     {
         public ExamOptionsRepository(HrHubDbContext dbContext) : base(dbContext)
         {

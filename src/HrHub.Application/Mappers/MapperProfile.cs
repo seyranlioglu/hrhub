@@ -1,6 +1,7 @@
-﻿using HrHub.Abstraction.Contracts.Dtos.ContentTypes;
+﻿using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Core.Mapper;
 using HrHub.Domain.Entities.SqlDbEntities;
+using HrHub.Domain.Contracts.Dtos.ExamDtos;
 
 namespace HrHub.Application.Mappers
 {
@@ -9,6 +10,11 @@ namespace HrHub.Application.Mappers
         public MapperProfile()
         {
             CreateMap<ContentTypeDto, ContentType>().ReverseMap();
+            CreateMap<Exam, AddExamDto>().ReverseMap();
+            CreateMap<ExamTopic, AddExamTopicDto>().ReverseMap();
+            CreateMap<AddExamQuestionDto, ExamQuestion>()
+                .ForMember(dest => dest.QuestionOptions, opt => opt.MapFrom(src => src.QuestionOptions))
+                .ReverseMap();
         }
     }
 }
