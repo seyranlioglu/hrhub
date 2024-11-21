@@ -1,4 +1,5 @@
-﻿using HrHub.Abstraction.Extensions;
+﻿using HrHub.Abstraction.Enums;
+using HrHub.Abstraction.Extensions;
 using HrHub.Identity.Entities;
 using HrHub.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace HrHub.API.Controllers
     public class TestController : ControllerBase
     {
 
-        [Authorize(Roles = "admin,user", Policy = "MainUser")]
+        [Authorize(Roles = $"{TypeEntity.Language},{ TypeEntity.TrainingContent}", Policy = "MainUser")]
         [HttpGet("[Action]")]
         public IActionResult OnlyAdminAndMainUser()
         {
@@ -20,8 +21,9 @@ namespace HrHub.API.Controllers
             return Ok();
         }
 
-
-        [Authorize(Roles = "admin")]
+        // user id ile Instructor içinde varsa eğitim tnımlama yetkisini yapabilecek bir policy eklenecek
+        //Instructor lar ilkaçılışta cache atılacak ve devamında cache de yapılacak
+        [Authorize(Roles = "admin,user")]
         [HttpGet("[Action]")]
         public IActionResult OnlyAdmin()
         {
