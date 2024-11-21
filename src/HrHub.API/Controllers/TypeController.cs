@@ -1,13 +1,5 @@
-﻿using HrHub.Abstraction.Contracts.Dtos.ContentTypes;
-using HrHub.Abstraction.Enums;
-using HrHub.Application.Helpers;
-using HrHub.Application.Managers.TypeManagers;
-using Microsoft.AspNetCore.Http;
+﻿using HrHub.Application.Helpers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace HrHub.API.Controllers
 {
@@ -24,7 +16,7 @@ namespace HrHub.API.Controllers
         [HttpPost("[Action]")]
         public async Task<IActionResult> Add([FromQuery] string typeEntity, [FromBody] object requestData)
         {
-            var result =await  EntityHelper.ExecuteAddAsync(typeEntity, requestData, _serviceProvider);
+            var result = await EntityHelper.ExecuteAddAsync(typeEntity, requestData, _serviceProvider);
             return Ok(result);
 
         }

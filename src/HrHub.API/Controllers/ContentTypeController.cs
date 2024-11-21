@@ -1,7 +1,8 @@
-﻿using HrHub.Domain.Contracts.Dtos.ContentTypes;
+﻿
 using HrHub.Abstraction.Result;
 using HrHub.Application.Managers.ContentTypes;
 using HrHub.Core.Controllers;
+using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrHub.API.Controllers
