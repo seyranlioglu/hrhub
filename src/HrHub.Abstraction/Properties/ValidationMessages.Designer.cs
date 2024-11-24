@@ -61,6 +61,42 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Amount must be greater than zero.
+        /// </summary>
+        internal static string AmountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("AmountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Category Not Found.
+        /// </summary>
+        internal static string CategoryNotFound {
+            get {
+                return ResourceManager.GetString("CategoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CompletionTime and unit must be provided.
+        /// </summary>
+        internal static string CompletionTimeAndUnitMustBeProvided {
+            get {
+                return ResourceManager.GetString("CompletionTimeAndUnitMustBeProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CurrentAmount must be greater than zero.
+        /// </summary>
+        internal static string CurrentAmountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("CurrentAmountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The question must have at least two options.
         /// </summary>
         internal static string ExamQuestionOptionsCountError {
@@ -75,6 +111,15 @@ namespace HrHub.Abstraction.Properties {
         internal static string ExamUserExistsError {
             get {
                 return ResourceManager.GetString("ExamUserExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instructor Not Found.
+        /// </summary>
+        internal static string InstructorNotFound {
+            get {
+                return ResourceManager.GetString("InstructorNotFound", resourceCulture);
             }
         }
         
@@ -102,6 +147,42 @@ namespace HrHub.Abstraction.Properties {
         internal static string PositiveTimeSpanError {
             get {
                 return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TimeUnit Not Found.
+        /// </summary>
+        internal static string TimeUnitNotFound {
+            get {
+                return ResourceManager.GetString("TimeUnitNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Exists.
+        /// </summary>
+        internal static string TrainingExistsError {
+            get {
+                return ResourceManager.GetString("TrainingExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Level Not Found.
+        /// </summary>
+        internal static string TrainingLevelNotFound {
+            get {
+                return ResourceManager.GetString("TrainingLevelNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingStatus Not Found.
+        /// </summary>
+        internal static string TrainingStatusNotFound {
+            get {
+                return ResourceManager.GetString("TrainingStatusNotFound", resourceCulture);
             }
         }
         

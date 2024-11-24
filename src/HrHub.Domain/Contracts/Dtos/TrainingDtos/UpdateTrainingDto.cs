@@ -1,7 +1,8 @@
-﻿namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
+﻿namespace HrHub.Domain.Contracts.Dtos.TrainingDtos
 {
-    public class AddTrainingDto
+    public class UpdateTrainingDto
     {
+        public long Id { get; set; }
         public string? Title { get; set; }
         public string? Abbreviation { get; set; }
         public string? Code { get; set; }
@@ -20,5 +21,6 @@
         public DateTime? CompletionTime { get; set; }
         public long CompletionTimeUnitId { get; set; }
         public long TrainingLevelId { get; set; }
+        public long TrainingStatusId { get; set; }
     }
 }
