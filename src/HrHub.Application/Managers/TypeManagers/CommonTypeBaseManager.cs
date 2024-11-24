@@ -1,19 +1,11 @@
 ﻿using AutoMapper;
 using HrHub.Abstraction.Attributes;
 using HrHub.Abstraction.Domain;
-using HrHub.Abstraction.Result;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
-using HrHub.Core.Domain.Entity;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using static Dapper.SqlMapper;
 
 namespace HrHub.Application.Managers.TypeManagers
 {
@@ -96,7 +88,7 @@ namespace HrHub.Application.Managers.TypeManagers
         public async Task UpdateAsync<TData>(long id, TData data)
         {
             var oldEntity = await repository.GetAsync(w => w.Id == id);
-            var newEntity = DynamicMapper<TTypeEntity,TData>(oldEntity,data);
+            var newEntity = DynamicMapper<TTypeEntity, TData>(oldEntity, data);
             await repository.UpdateAsync(newEntity);
         }
 
@@ -116,7 +108,7 @@ namespace HrHub.Application.Managers.TypeManagers
             return dynamicMapper.Map<TTarget>(data);
         }
 
-        private TTarget DynamicMapper<TTarget, TSource>(TTarget target,TSource data)
+        private TTarget DynamicMapper<TTarget, TSource>(TTarget target, TSource data)
         {
             var configuration = new MapperConfiguration(cfg =>
             {

@@ -34,7 +34,6 @@
 
   <ItemGroup>
     <Folder Include="Contracts\ViewModels\" />
-    <Folder Include="Contracts\Responses\" />
   </ItemGroup>
 
   <ItemGroup>
