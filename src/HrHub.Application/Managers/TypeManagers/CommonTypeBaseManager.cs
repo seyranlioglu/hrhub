@@ -95,7 +95,16 @@ namespace HrHub.Application.Managers.TypeManagers
                 );
             return result;
         }
-
+        public async Task<TResponse> Get<TResponse>(Expression<Func<TTypeEntity, bool>> predicate = null) where TResponse : class
+        {
+            var result = await repository
+                .GetAsync
+                (
+                predicate: predicate,
+                selector: s => DynamicMapper<TResponse, TTypeEntity>(s)
+                );
+            return result;
+        }
         public async Task UpdateAsync<TData>(long id, TData data)
         {
             var oldEntity = await repository.GetAsync(w => w.Id == id);
@@ -109,7 +118,7 @@ namespace HrHub.Application.Managers.TypeManagers
             await repository.DeleteAsync(oldEntity);
         }
 
-        private TTarget DynamicMapper<TTarget, TSource>(TSource data)
+        private static TTarget DynamicMapper<TTarget, TSource>(TSource data)
         {
             //if (data is JObject jObject)
             //{

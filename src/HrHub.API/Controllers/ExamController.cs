@@ -14,26 +14,26 @@ namespace HrHub.API.Controllers
     [ApiController]
     public class ExamController : ApiControllerBase
     {
-        private readonly IExamManager examManager;
+        //private readonly IExamManager examManager;
 
-        public ExamController(IExamManager examManager)
-        {
-            this.examManager = examManager;
-        }
-        [HttpPost("[Action]")]
-        [Authorize(Roles ="Admin", Policy = "Instructior")]
-        public async Task<Response<AddExamResponse>> AddExam([FromBody]AddExamDto data)
-        {
-            var response = await examManager.AddExamAsync(data).ConfigureAwait(false);
-            return response;
-        }
+        //public ExamController(IExamManager examManager)
+        //{
+        //    this.examManager = examManager;
+        //}
+        //[HttpPost("[Action]")]
+        //[Authorize(Roles ="Admin", Policy = "Instructior")]
+        //public async Task<Response<AddExamResponse>> AddExam([FromBody]AddExamDto data)
+        //{
+        //    var response = await examManager.AddExamAsync(data).ConfigureAwait(false);
+        //    return response;
+        //}
 
-        [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<ReturnIdResponse>> AddExamTopic([FromBody]AddExamTopicDto data)
-        {
-            var response = await examManager.AddExamTopic(data).ConfigureAwait(false);
-            return response;
-        }
+        //[HttpPost("[Action]")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
+        //public async Task<Response<ReturnIdResponse>> AddExamTopic([FromBody]AddExamTopicDto data)
+        //{
+        //    var response = await examManager.AddExamTopic(data).ConfigureAwait(false);
+        //    return response;
+        //}
     }
 }
