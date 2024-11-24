@@ -1,8 +1,8 @@
-﻿using HrHub.Abstraction.Contracts.Dtos.ContentTypes;
-using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Core.Mapper;
-using HrHub.Domain.Entities.SqlDbEntities;
+using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
+using HrHub.Domain.Entities.SqlDbEntities;
 
 namespace HrHub.Application.Mappers
 {
