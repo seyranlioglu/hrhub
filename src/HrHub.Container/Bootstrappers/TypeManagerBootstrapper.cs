@@ -15,7 +15,6 @@ namespace HrHub.Container.Bootstrappers
         public static void RegisterTypeManagers(this IServiceCollection services)
         {
             services.AddScoped(typeof(ICommonTypeBaseManager<>), typeof(CommonTypeBaseManager<>));
-            services.AddScoped<IExamManager,ExamManager>();
             
         }
     }
