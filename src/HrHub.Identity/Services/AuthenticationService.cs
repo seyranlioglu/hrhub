@@ -91,7 +91,8 @@ namespace HrHub.Identity.Services
                         Issuer = TokenHelper.TokenOptions.Issuer,
                         SecurityKey = TokenHelper.TokenOptions.SecurityKey,
                         Roles = roles.ToList(),
-                        IsMainUser = user.IsMainUser
+                        IsMainUser = user.IsMainUser,
+                        CurAccId= user.CurAccId
                     }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
@@ -132,7 +133,8 @@ namespace HrHub.Identity.Services
                     Issuer = TokenHelper.TokenOptions.Issuer,
                     SecurityKey = TokenHelper.TokenOptions.SecurityKey,
                     Roles = roles.ToList(),
-                    IsMainUser = user.IsMainUser
+                    IsMainUser = user.IsMainUser,
+                    CurAccId = user.CurAccId
                 }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
@@ -168,7 +170,7 @@ namespace HrHub.Identity.Services
                 var roles = await userManager.GetRolesAsync(userClaim.Item1);
                 AccessToken accessToken = tokenHandler.CreateAccessToken(new TokenModel
                 {
-
+                   
                     Channel = "",
                     Email = userClaim.Item1.Email,
                     UserId = userClaim.Item1.Id,
@@ -178,7 +180,8 @@ namespace HrHub.Identity.Services
                     Issuer= TokenHelper.TokenOptions.Issuer,
                     SecurityKey= TokenHelper.TokenOptions.SecurityKey,
                     Roles = roles.ToList(),
-                    IsMainUser = userClaim.Item1.IsMainUser
+                    IsMainUser = userClaim.Item1.IsMainUser,
+                    CurAccId = userClaim.Item1.CurAccId
                 });
 
                 Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
