@@ -11,7 +11,7 @@ namespace HrHub.Core.Domain.Entity
 
         [AllowNull]
         public long? CreateUserId { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow.ToUniversalTime();
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         [AllowNull]
         public long? UpdateUserId { get; set; }
@@ -25,7 +25,7 @@ namespace HrHub.Core.Domain.Entity
         [AllowNull]
         public DateTime? DeleteDate { get; set; }
         public bool? IsDelete { get; set; } = false;
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
 
     }

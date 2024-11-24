@@ -1,4 +1,5 @@
-﻿using HrHub.Core.Domain.Entity;
+﻿using HrHub.Abstraction.Attributes;
+using HrHub.Core.Domain.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
@@ -22,6 +23,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         }
 
         public long CurrAccId { get; set; }
+        public bool IsMainUser { get; set; }
 
         [ForeignKey("CurrAccId")]
         public virtual CurrAcc CurrAcc { get; set; }

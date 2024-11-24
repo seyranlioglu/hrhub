@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HrHub.Abstraction.Contracts.Dtos.ContentTypes;
+using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Abstraction.Result;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;

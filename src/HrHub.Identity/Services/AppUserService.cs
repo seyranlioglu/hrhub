@@ -68,19 +68,19 @@ namespace HrHub.Identity.Services
                 Name = userViewModel.Name,
                 SurName = userViewModel.SurName,
                 UserShortName = userViewModel.Name.Substring(0, 1).ToUpper() + userViewModel.SurName.Substring(0, 1).ToUpper(),
-                DepartmentId = userViewModel.DepartmentId,
-                JobTitleId = userViewModel.JobTitleId,
-                RoleId = userViewModel.RoleId,
-                EmailConfirmed = false,
-                PhoneNumberConfirmed = false,
+                //DepartmentId = userViewModel.DepartmentId,
+                //JobTitleId = userViewModel.JobTitleId,
+                //RoleId = userViewModel.RoleId,
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
                 LockoutEnabled = true,
-                UserTypeId = userViewModel.UserTypeId,
-                AdminFlag = userViewModel.AdminFlag,
-                IncorrectPinCount = userViewModel.IncorrectPinCount,
-                UserStatusId = userViewModel.UserStatusId,
-                IsDelete = userViewModel.IsDelete,
+                //UserTypeId = userViewModel.UserTypeId,
+                //AdminFlag = userViewModel.AdminFlag,
+                //IncorrectPinCount = userViewModel.IncorrectPinCount,
+                //UserStatusId = userViewModel.UserStatusId,
+                //IsDelete = userViewModel.IsDelete,
                 AuthCode = userViewModel.AuthCode,
-                CreatedDate = DateTime.UtcNow
+                //CreatedDate = DateTime.UtcNow
             };
             IdentityResult result = await this.userManager.CreateAsync(user, userViewModel.Password);
 
@@ -150,18 +150,18 @@ namespace HrHub.Identity.Services
             {
                 throw new BusinessException("Bu telefon numarası başka bir üyeye ait");
             }
-
+           
             user.PhoneNumber = userViewModel.PhoneNumber;
             user.Name = userViewModel.Name;
             user.SurName = userViewModel.SurName;
             user.Email = userViewModel.Email;
             user.UserName = userViewModel.Email;
-            user.RoleId = userViewModel.RoleId;
-            user.DepartmentId = userViewModel.DepartmentId;
-            user.JobTitleId = userViewModel.JobTitleId;
-            user.UserStatusId = userViewModel.UserStatusId;
-            user.AdminFlag = userViewModel.AdminFlag;
-            user.IncorrectPinCount = userViewModel.IncorrectPinCount;
+            //user.RoleId = userViewModel.RoleId;
+            //user.DepartmentId = userViewModel.DepartmentId;
+            //user.JobTitleId = userViewModel.JobTitleId;
+            //user.UserStatusId = userViewModel.UserStatusId;
+            //user.AdminFlag = userViewModel.AdminFlag;
+            //user.IncorrectPinCount = userViewModel.IncorrectPinCount;
             user.UserShortName = userViewModel.Name.Substring(0, 1).ToUpper() + userViewModel.SurName.Substring(0, 1).ToUpper();
 
             IdentityResult result = await userManager.UpdateAsync(user);
@@ -203,6 +203,11 @@ namespace HrHub.Identity.Services
 
             var result = await userManager.DeleteAsync(user);
 
+            return result.Succeeded;
+        }
+        public async Task<bool> AddUserRole(AppUser user, AppRole role)
+        {
+            var result = await userManager.AddToRoleAsync(user, role.Name);
             return result.Succeeded;
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace HrHub.Abstraction.Contracts.Dtos.ContentTypes
+﻿namespace HrHub.Domain.Contracts.Dtos.ContentTypes
 {
     public class ContentTypeDto
     {

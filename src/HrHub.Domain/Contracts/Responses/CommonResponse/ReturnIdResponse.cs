@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HrHub.Abstraction.Contracts.Dtos.CommonDtos
+namespace HrHub.Domain.Contracts.Responses.CommonResponse
 {
-    public class CommonTypeGetDto : CommonTypeDto
+    public class ReturnIdResponse
     {
         public long Id { get; set; }
     }

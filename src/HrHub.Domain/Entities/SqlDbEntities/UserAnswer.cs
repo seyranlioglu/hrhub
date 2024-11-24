@@ -18,6 +18,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ExamQuestion Question { get; set; }
 
         [ForeignKey("OptionId")]
-        public virtual ExamOptions ExamOption { get; set; }
+        public virtual QuestionOption ExamOption { get; set; }
     }
 }
