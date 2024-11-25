@@ -1,4 +1,5 @@
-﻿using HrHub.Abstraction.Exceptions;
+﻿using HrHub.Abstraction.Consts;
+using HrHub.Abstraction.Exceptions;
 using HrHub.Abstraction.Result;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -37,19 +38,45 @@ namespace HrHub.Core.Base
 
         public bool IsAuthenticate()
         {
-            return true;
-            //return httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
+            return httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
         }
 
         public long GetCurrentUserId()
         {
+
+            var user = GetUser();
+            return Convert.ToInt64(user.FindFirst(ClaimTypes.NameIdentifier).Value);
+        }
+
+        public ClaimsPrincipal GetUser()
+        {
             if (IsAuthenticate())
             {
-                return Convert.ToInt64(httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                return httpContextAccessor.HttpContext.User;
             }
-
             throw new BusinessException(StatusCodes.Status401Unauthorized, "Unauthorized User");
         }
+
+        public long GetCurrAccId()
+        {
+            var user = GetUser();
+            return Convert.ToInt64(user.FindFirst("CurrAccId").Value);
+        }
+        public bool IsMainUser()
+        {
+            return GetUser().HasClaim("Policy", Policies.MainUser);
+        }
+
+        public bool IsInstructor()
+        {
+            return GetUser().HasClaim("Policy", Policies.Instructor);
+        }
+
+        public bool IsSuperAdmin()
+        {
+            return GetUser().IsInRole(Roles.SuperAdmin);
+        }
+
 
         public string GetCurrentIpAddress()
         {
@@ -62,5 +89,7 @@ namespace HrHub.Core.Base
 
             throw new BusinessException(StatusCodes.Status401Unauthorized, "IpAddress not found!");
         }
+
+
     }
 }

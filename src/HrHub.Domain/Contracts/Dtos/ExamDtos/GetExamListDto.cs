@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class UpdateExamTopicDto : AddExamTopicDto
+    public class GetExamListDto
     {
-        public long Id { get; set; }
-        //public List<UpdateExamQuestionDto> Questions { get; set; }
+        public long? TrainingId { get; set; }
+        public long? ContentId { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

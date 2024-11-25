@@ -12,6 +12,6 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
     {
         [ValidationRules(typeof(ZeroCheckRule))]
         public int Id { get; set; }
-        public List<UpdateExamTopicDto> Topics { get; set; }
+        //public List<UpdateExamTopicDto> Topics { get; set; }
     }
 }
