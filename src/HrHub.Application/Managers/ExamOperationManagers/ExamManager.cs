@@ -26,11 +26,14 @@ using HrHub.Abstraction.Settings;
 using FluentValidation;
 using FluentValidation.Results;
 using HrHub.Application.BusinessRules.ExamBusinessRules;
+using LinqKit;
+using Microsoft.EntityFrameworkCore;
 
 namespace HrHub.Application.Managers.ExamOperationManagers
 {
     public class ExamManager : ManagerBase, IExamManager
     {
+
         private readonly IHrUnitOfWork unitOfWork;
         private readonly Repository<Exam> examRepository;
         private readonly Repository<ExamVersion> examVersionRepository;
@@ -58,7 +61,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             this.examQuestionRepository = examQuestionRepository;
         }
 
-        public async Task<Response<AddExamResponse>> AddExamAsync(AddExamDto data,CancellationToken cancellationToken = default)
+        public async Task<Response<AddExamResponse>> AddExamAsync(AddExamDto data, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<AddExamDto>();
             var validateResult = validator.Validate(data);
@@ -67,12 +70,19 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 return validateResult.SendResponse<AddExamResponse>();
 
             var entity = mapper.Map<Exam>(data);
-            entity.ExamVersions.Add(new ExamVersion
-            {
-                EffectiveFrom = DateTime.Now.AddDays(AppSettingsHelper.GetData<ApplicationSettings>().ExamValidityTime),
-                IsPublished = false,
-                VersionNumber = 1
-            });
+            entity.InstructorId = GetCurrentUserId();
+            //entity.ExamVersions.Add(new ExamVersion
+            //{
+            //    IsPublished = false,
+            //    VersionNumber = 1,
+            //    ExamTime = data.VersionInfo.ExamTime,
+            //    IsActive = true,
+            //    PassingScore = data.VersionInfo.PassingScore,
+            //    SuccessRate = data.VersionInfo.SuccesRate,
+            //    VersionDescription = data.VersionInfo.VersionDescription,
+            //    TotalQuestionCount = data.VersionInfo.TotalQuestionCount,
+
+            //});
             var addResponse = await examRepository.AddAndReturnAsync(entity, cancellationToken);
             await unitOfWork.SaveChangesAsync();
 
@@ -110,7 +120,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.FieldBasedValidator<AddExamQuestionDto>(question) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<ReturnIdResponse>();
 
-            if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question,typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question, typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var newQuestion = mapper.Map<ExamQuestion>(question);
@@ -121,5 +131,69 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 Id = result.Id
             });
         }
+        // TODO Şükrü: Parametreler için TrainingList ve ContentList merthodları yazılmalı 
+        public async Task<Response<List<GetExamListResponse>>> GetExamListForGrid(GetExamListDto filter)
+        {
+            long userId = GetCurrentUserId();
+            ExpressionStarter<Exam> predicateBuilder = PredicateBuilder.New<Exam>();
+
+            if (filter.ContentId is not null)
+                predicateBuilder = predicateBuilder.And(w => w.ContentExams.Any(w => w.TrainingContentId == filter.ContentId));
+            if (filter.TrainingId is not null)
+                predicateBuilder = predicateBuilder.And(w => w.TrainingId == filter.TrainingId);
+            if (filter.IsActive is not null)
+                predicateBuilder = predicateBuilder.And(w => w.IsActive == filter.IsActive);
+
+            if (IsMainUser())
+            {
+                predicateBuilder = predicateBuilder.And(w => w.Instructor.CurrAcc.Users.Any());
+            }
+            else if (IsInstructor())
+            {
+                predicateBuilder = predicateBuilder.And(w => w.InstructorId == userId);
+            }
+
+            var examQuery = await examRepository
+                .GetListAsync
+                (predicate: predicateBuilder,
+                include: i => i.Include(w => w.Instructor)
+                .ThenInclude(w => w.CurrAcc)
+                .Include(w => w.ContentExams)
+                .Include(w => w.ExamVersions)
+                .Include(w => w.ExamStatus)
+                .Include(w => w.Training));
+
+            var examList = examQuery
+                .Select(exam =>
+                {
+                    var publishedVersion = exam.ExamVersions
+                        .Where(ev => ev.IsPublished)
+                        .FirstOrDefault();
+                    return new GetExamListResponse
+                    {
+                        ExamStatus = exam.ExamStatus.Title,
+                        ExamTimeInMin = publishedVersion.ExamTime.TotalMinutes,
+                        PassingScore = publishedVersion.PassingScore,
+                        SuccessRate = publishedVersion.SuccessRate,
+                        Title = exam.Title,
+                        TotalQuestionCount = publishedVersion.TotalQuestionCount,
+                        TrainingTitle = exam.Training.Title,
+                        Versions = exam.ExamVersions.Select(vers => new GetExamVersionListResponse
+                        {
+                            ExamId = vers.ExamId,
+                            ExamTimeInMin = vers.ExamTime.TotalMinutes,
+                            PassingScore = vers.PassingScore,
+                            SuccessRate = vers.SuccessRate,
+                            TotalQuestionCount = vers.TotalQuestionCount,
+                            VersionId = vers.Id,
+                            VersionNo = vers.VersionNumber
+                        }).ToList()
+                    };
+                }
+                );
+            return ProduceSuccessResponse(examList.ToList());
+        }
+
+
     }
 }

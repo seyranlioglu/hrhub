@@ -5,11 +5,6 @@ using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace HrHub.Application.Managers.TypeManagers
@@ -79,7 +74,7 @@ namespace HrHub.Application.Managers.TypeManagers
             await unitOfWork.SaveChangesAsync();
             return DynamicMapper<TResponse, TTypeEntity>(result);
         }
-       
+
         public async Task<IEnumerable<TResponse>> GetList<TResponse>(Expression<Func<TTypeEntity, bool>> predicate = null) where TResponse : class
         {
             var result = await repository
@@ -90,21 +85,35 @@ namespace HrHub.Application.Managers.TypeManagers
                 );
             return result;
         }
-
+        public async Task<TResponse> Get<TResponse>(Expression<Func<TTypeEntity, bool>> predicate = null) where TResponse : class
+        {
+            var result = await repository
+                .GetAsync
+                (
+                predicate: predicate,
+                selector: s => DynamicMapper<TResponse, TTypeEntity>(s)
+                );
+            return result;
+        }
         public async Task UpdateAsync<TData>(long id, TData data)
         {
             var oldEntity = await repository.GetAsync(w => w.Id == id);
             var newEntity = DynamicMapper<TTypeEntity, TData>(oldEntity, data);
             await repository.UpdateAsync(newEntity);
+            await unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(long id)
         {
             var oldEntity = await repository.GetAsync(w => w.Id == id);
-            await repository.DeleteAsync(oldEntity);
+            oldEntity.IsDelete = true;
+            oldEntity.DeleteDate = DateTime.UtcNow;
+            oldEntity.IsActive = false;
+            await repository.UpdateAsync(oldEntity);
+            await unitOfWork.SaveChangesAsync();
         }
 
-        private TTarget DynamicMapper<TTarget, TSource>(TSource data)
+        private static TTarget DynamicMapper<TTarget, TSource>(TSource data)
         {
             //if (data is JObject jObject)
             //{

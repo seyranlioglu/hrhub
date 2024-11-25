@@ -18,6 +18,7 @@ namespace HrHub.Identity.Model
         public string Audience { get; set; }
         public List<string> Roles { get; set; }
         public bool IsMainUser { get; set; }
+        public long CurAccId { get; set; }
 
     }
 }

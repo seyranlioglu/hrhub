@@ -5,13 +5,13 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class ContentExam : CardEntity<long>
     {
-        public long ExamQuestionId { get; set; }
+        public long ExamId { get; set; }
         public long TrainingContentId { get; set; }
         public long ContentExamActionId { get; set; }
 
 
-        [ForeignKey("ExamQuestionId")]
-        public virtual ExamQuestion ExamQuestion { get; set; }
+        [ForeignKey("ExamId")]
+        public virtual Exam Exam { get; set; }
 
         [ForeignKey("TrainingContentId")]
         public virtual TrainingContent TrainingContent { get; set; }

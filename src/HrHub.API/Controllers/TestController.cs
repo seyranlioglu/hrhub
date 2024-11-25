@@ -13,7 +13,7 @@ namespace HrHub.API.Controllers
     public class TestController : ControllerBase
     {
 
-        [Authorize(Roles = $"{TypeEntity.Language},{ TypeEntity.TrainingContent}", Policy = "MainUser")]
+        [Authorize(Roles = "admin,user", Policy = "MainUser,Instractor")]
         [HttpGet("[Action]")]
         public IActionResult OnlyAdminAndMainUser()
         {

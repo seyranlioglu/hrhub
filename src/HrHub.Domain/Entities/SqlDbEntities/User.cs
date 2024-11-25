@@ -20,6 +20,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             TrainingAnnouncementsComments = new HashSet<TrainingAnnouncementsComment>();
             CurrAccTrainings = new HashSet<CurrAccTraining>();
             ExamResults = new HashSet<ExamResult>();
+            Exams = new HashSet<Exam>();
         }
 
         public long CurrAccId { get; set; }
@@ -40,5 +41,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ICollection<TrainingAnnouncementsComment> TrainingAnnouncementsComments { get; set; } = null;
         public virtual ICollection<CurrAccTraining> CurrAccTrainings { get; set; } = null;
         public virtual ICollection<ExamResult> ExamResults { get; set; } = null;
+        public virtual ICollection<Exam> Exams { get; set; } = null;
     }
 }

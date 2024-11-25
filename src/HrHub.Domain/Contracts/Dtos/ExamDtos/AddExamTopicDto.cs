@@ -14,7 +14,11 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
         public long ExamVersionId { get; set; }
         [ValidationRules(typeof(NullCheckRule))]
         public string Title { get; set; }
+        [ValidationRules(typeof(ZeroCheckRule))]
+        public int QuestionCount { get; set; }
         [ValidationRules(typeof(NullCheckRule))]
         public string ImgPath { get; set; }
+        [ValidationRules(typeof(ZeroCheckRule))]
+        public int SeqNumber { get; set; }
     }
 }
