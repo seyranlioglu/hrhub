@@ -42,7 +42,8 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
 
         var trainingEntity = mapper.Map<Training>(data);
-        trainingEntity.CurrentAmount = data.Amount - (data.Amount * data.DiscountRate / 100); // Bunu konuşuruz!!!
+        trainingEntity.CurrentAmount = data.Amount - (data.Amount * data.DiscountRate / 100); // Bunu konuşuruz!!! 
+        //CompletionTime hesaplanacak, elle girilmeyecek. Konuşacağız
         trainingEntity.TrainingStatusId = await trainingStatuRepository.GetAsync(predicate: p => p.Code == TrainingStatuConst.Preparing,
                                                                                  selector: s => s.Id);
         var result = await trainingRepository.AddAndReturnAsync(trainingEntity);
