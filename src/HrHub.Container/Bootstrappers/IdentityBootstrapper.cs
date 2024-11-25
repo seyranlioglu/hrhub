@@ -1,10 +1,12 @@
 ﻿using HrHub.Abstraction.Settings;
+using HrHub.Application.Policies;
 using HrHub.Core.Helpers;
 using HrHub.Core.Interceptors;
 using HrHub.Core.Utilties.Encryption;
 using HrHub.Identity.IoC;
 using HrHub.Identity.Options;
 using HrHub.Identity.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -44,6 +46,8 @@ namespace HrHub.Container.Bootstrappers
             services.AddScoped<IAppUserService, AppUserService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IAppRoleService, AppRoleService>();
+
+            services.AddScoped<IAuthorizationHandler, InstractorRequirementHandler>();
         }
     }
 }
