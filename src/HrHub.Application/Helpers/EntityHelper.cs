@@ -81,7 +81,59 @@ namespace HrHub.Application.Helpers
             var result = resultProperty?.GetValue(task);
             return result;
         }
+        public static async Task<object> ExecuteUpdateAsync(string typeEntity, object requestData, IServiceProvider _serviceProvider)
+        {
 
+            var validType = typeof(TypeEntity)
+         .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+         .Select(f => f.GetValue(null)?.ToString())
+         .FirstOrDefault(s => s.Contains(typeEntity));
+
+            var entityType = GetEntityType(validType);
+            if (entityType == null)
+                return null;
+            var data = JsonConvert.DeserializeObject<CommonTypeEntityDto>(requestData.ToString());
+            var serviceType = typeof(CommonTypeBaseManager<>).MakeGenericType(entityType);
+            var constructor = serviceType.GetConstructors().FirstOrDefault();
+            var constructorParameters = constructor.GetParameters()
+                                                   .Select(param => _serviceProvider.GetService(param.ParameterType))
+                                                   .ToArray();
+            var serviceInstance = Activator.CreateInstance(serviceType, constructorParameters);
+            var method = serviceType.GetMethods()
+                                    .FirstOrDefault(m => m.Name == "UpdateAsync" && m.IsGenericMethod);
+            var genericMethod = method.MakeGenericMethod(typeof(CommonTypeEntityDto));
+            var task = (Task)genericMethod.Invoke(serviceInstance, new object[] { data.Id, data });
+            await task.ConfigureAwait(false);
+            var resultProperty = task.GetType().GetProperty("Result");
+            var result = resultProperty?.GetValue(task);
+            return result;
+        }
+        public static async Task<object> ExecuteDeleteAsync(string typeEntity, object requestData, IServiceProvider _serviceProvider)
+        {
+
+            var validType = typeof(TypeEntity)
+         .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+         .Select(f => f.GetValue(null)?.ToString())
+         .FirstOrDefault(s => s.Contains(typeEntity));
+
+            var entityType = GetEntityType(validType);
+            if (entityType == null)
+                return null;
+            var data = JsonConvert.DeserializeObject<CommonTypeEntityDto>(requestData.ToString());
+            var serviceType = typeof(CommonTypeBaseManager<>).MakeGenericType(entityType);
+            var constructor = serviceType.GetConstructors().FirstOrDefault();
+            var constructorParameters = constructor.GetParameters()
+                                                   .Select(param => _serviceProvider.GetService(param.ParameterType))
+                                                   .ToArray();
+            var serviceInstance = Activator.CreateInstance(serviceType, constructorParameters);
+            var method = serviceType.GetMethods()
+                                    .FirstOrDefault(m => m.Name == "DeleteAsync" );
+            var task = (Task)method.Invoke(serviceInstance, new object[] { data.Id });
+            await task.ConfigureAwait(false);
+            var resultProperty = task.GetType().GetProperty("Result");
+            var result = resultProperty?.GetValue(task);
+            return result;
+        }
         public static async Task<object> ExecuteGetAsync(string typeEntity, object requestData, IServiceProvider _serviceProvider)
         {
             try
