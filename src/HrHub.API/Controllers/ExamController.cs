@@ -34,6 +34,6 @@ namespace HrHub.API.Controllers
         {
             var response = await examManager.AddExamTopic(data).ConfigureAwait(false);
             return response;
-            //}
         }
+    }
 }
