@@ -8,7 +8,6 @@ public class ExamQuestion : TypeCardEntity<long>
     {
         QuestionOptions = new HashSet<QuestionOption>();
         UserAnswers = new HashSet<UserAnswer>();
-        ContentExams = new HashSet<ContentExam>();
     }
     public long ExamTopicId { get; set; }
     public string QuestionText { get; set; }
@@ -19,5 +18,4 @@ public class ExamQuestion : TypeCardEntity<long>
 
     public virtual ICollection<QuestionOption> QuestionOptions { get; set; } = null;
     public virtual ICollection<UserAnswer> UserAnswers { get; set; } = null;
-    public virtual ICollection<ContentExam> ContentExams { get; set; } = null;
 }

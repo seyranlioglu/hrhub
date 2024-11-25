@@ -10,7 +10,8 @@ namespace HrHub.Application.Mappers
         public MapperProfile()
         {
             CreateMap<ContentTypeDto, ContentType>().ReverseMap();
-            CreateMap<Exam, AddExamDto>().ReverseMap();
+            CreateMap<AddExamDto, Exam>()
+            .ForMember(dest => dest.ExamVersions, opt => opt.MapFrom(src => new List<AddExamVersionDto> { src.VersionInfo }));
             CreateMap<ExamTopic, AddExamTopicDto>().ReverseMap();
             CreateMap<AddExamQuestionDto, ExamQuestion>()
                 .ForMember(dest => dest.QuestionOptions, opt => opt.MapFrom(src => src.QuestionOptions))
