@@ -38,7 +38,7 @@ namespace HrHub.Application.BusinessRules.TrainingBusinessRules
                                     && p.Description == trainingDto.Description
                                     && p.Code == trainingDto.Code
                                     && p.Abbreviation == trainingDto.Abbreviation);
-                if (!isTrainingExist)
+                if (isTrainingExist)
                     return (false, ValidationMessages.TrainingExistsError);
 
                 var isInstructorExist = instructorRepository

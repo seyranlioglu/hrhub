@@ -23,5 +23,8 @@ namespace HrHub.Abstraction.Consts
         public static string CurrentAmountMustBeGreaterThanZero => Properties.ValidationMessages.CurrentAmountMustBeGreaterThanZero;
         public static string CompletionTimeAndUnitMustBeProvided => Properties.ValidationMessages.CompletionTimeAndUnitMustBeProvided;
         public static string TrainingStatusNotFound => Properties.ValidationMessages.TrainingStatusNotFound;
+        public static string WhatYouWillLearnExistsError => Properties.ValidationMessages.WhatYouWillLearnExistsError;
+        public static string TrainingNotExistsError => Properties.ValidationMessages.TrainingNotExistsError;
+        public static string WhatYouWillLearnNotExistsError => Properties.ValidationMessages.WhatYouWillLearnNotExistsError;
     }
 }

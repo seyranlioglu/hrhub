@@ -3,6 +3,7 @@ using HrHub.Core.Mapper;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
+using HrHub.Domain.Contracts.Dtos.WhatYouWillLearns;
 using HrHub.Domain.Entities.SqlDbEntities;
 
 namespace HrHub.Application.Mappers
@@ -50,10 +51,16 @@ namespace HrHub.Application.Mappers
            .ForMember(dest => dest.CertificateOfAchievementRate, opt => opt.MapFrom(src => src.CertificateOfAchievementRate))
            .ForMember(dest => dest.CertificateOfParticipationRate, opt => opt.MapFrom(src => src.CertificateOfParticipationRate))
            .ForMember(dest => dest.CompletionTime, opt => opt.MapFrom(src => src.CompletionTime));
-        
 
 
-        #endregion
-    }
+
+            #endregion
+
+            #region
+            CreateMap<AddWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
+            CreateMap<UpdateWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
+            CreateMap<DeleteWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
+            #endregion
+        }
     }
 }
