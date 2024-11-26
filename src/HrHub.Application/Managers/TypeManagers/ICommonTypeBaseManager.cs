@@ -12,6 +12,7 @@ namespace HrHub.Application.Managers.TypeManagers
         Task<TResult> GetByIdAsync<TResult>(long id) where TResult : class;
         Task<TResult> GetByTitleAsync<TResult>(string title) where TResult : class;
         Task<long> GetIdByCodeAsync(string code);
+        Task<TResponse> Get<TResponse>(Expression<Func<TTypeEntity, bool>> predicate = null) where TResponse : class;
         Task<IEnumerable<TResponse>> GetList<TResponse>(Expression<Func<TTypeEntity, bool>> predicate = null) where TResponse : class;
         Task UpdateAsync<TData>(long id, TData data);
     }

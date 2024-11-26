@@ -17,6 +17,7 @@ using HrHub.Worker.IoC;
 using ConnectionProvider.Container.Bootstrappers;
 using HrHub.Core.Data.UnitOfWork;
 using HrHub.Abstraction.BusinessRules;
+using HrHub.Application.Policies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,16 +47,18 @@ builder.Services.AddAuthorization(opts =>
     {
         policy.RequireAssertion(context =>
         {
-            if (context.User.IsInRole("admin"))
-            {
-                return true;
-            }
             if (context.User.IsInRole("user"))
             {
                 return context.User.HasClaim(c => c.Type == "IsMainUser" && c.Value.ToLower() == "true");
             }
-            return false;
+            return true;
         });
+    });
+
+
+    opts.AddPolicy("Instractor", policy =>
+    {
+        policy.Requirements.Add(new InstractorRequirement());
     });
 });
 var app = builder.Build();

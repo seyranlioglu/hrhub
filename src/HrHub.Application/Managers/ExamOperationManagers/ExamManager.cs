@@ -34,6 +34,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 {
     public class ExamManager : ManagerBase, IExamManager
     {
+
         private readonly IHrUnitOfWork unitOfWork;
         private readonly Repository<Exam> examRepository;
         private readonly Repository<ExamVersion> examVersionRepository;
