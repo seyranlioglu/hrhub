@@ -1,5 +1,13 @@
-@HrHub.API_HostAddress = http://localhost:5225
+@HrHub.API_HostAddress = https://localhost:7080
 
 Accept: application/json
+
+###
+
+GET {{HrHub.API_HostAddress}}/api/contenttype/[Action]
+
+###
+
+GET {{HrHub.API_HostAddress}}/api/contenttype/[Action]?id=0
 
 ###

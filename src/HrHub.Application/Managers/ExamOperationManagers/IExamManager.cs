@@ -9,6 +9,9 @@ namespace HrHub.Application.Managers.ExamOperationManagers
     public interface IExamManager : IBaseManager
     {
         Task<Response<AddExamResponse>> AddExamAsync(AddExamDto data, CancellationToken cancellationToken = default);
-        Task<Response<ReturnIdResponse>> AddExamTopic(AddExamTopicDto data);
+        Task<Response<ReturnIdResponse>> AddExamQuestionAsync(AddExamQuestionDto question, CancellationToken cancellationToken = default);
+        Task<Response<ReturnIdResponse>> AddExamTopicAsync(AddExamTopicDto data, CancellationToken cancellationToken = default);
+        Task<Response<GetExamResponse>> GetExamByContentIdAsync(GetExamDto filter, CancellationToken cancellationToken = default);
+        Task<Response<List<GetExamListResponse>>> GetExamListForGridAsync(GetExamListDto filter, CancellationToken cancellationToken = default);
     }
 }

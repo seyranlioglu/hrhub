@@ -34,6 +34,8 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; }
         public virtual DbSet<Exam> Exams { get; set; }
         public virtual DbSet<ExamVersion> ExamVersions { get; set; }
+
+        public virtual DbSet<ExamVersionStatus> ExamVersionStatuses { get; set; }
         public virtual DbSet<QuestionOption> ExamOptions { get; set; }
         public virtual DbSet<ExamQuestion> ExamQuestions { get; set; }
         public virtual DbSet<ExamTopic> ExamTopics { get; set; }
@@ -65,7 +67,7 @@ namespace HrHub.Domain.Contexts
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseNpgsql("Server=188.132.128.38;Port=5432;Database=HrHubDb;User Id=hrhub_user;Password=SoOm2024*;");
+            //optionsBuilder.UseNpgsql("Server=188.132.128.38;Port=5432;Database=HrHubDb;User Id=hrhub_user;Password=SoOm2024*;");
             optionsBuilder.AddInterceptors(auditInterceptor);
             optionsBuilder.LogTo(Console.WriteLine);
         }

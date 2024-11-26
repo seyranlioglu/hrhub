@@ -32,7 +32,7 @@ namespace HrHub.API.Controllers
         [Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<ReturnIdResponse>> AddExamTopic([FromBody]AddExamTopicDto data)
         {
-            var response = await examManager.AddExamTopic(data).ConfigureAwait(false);
+            var response = await examManager.AddExamTopicAsync(data).ConfigureAwait(false);
             return response;
         }
     }

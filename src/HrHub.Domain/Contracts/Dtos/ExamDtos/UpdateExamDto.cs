@@ -8,10 +8,19 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class UpdateExamDto : AddExamDto
+    public class UpdateExamDto
     {
         [ValidationRules(typeof(ZeroCheckRule))]
         public int Id { get; set; }
-        //public List<UpdateExamTopicDto> Topics { get; set; }
+        [ValidationRules(typeof(NullCheckRule))]
+        public string Title { get; set; }
+        [ValidationRules(typeof(NullCheckRule))]
+        public string Description { get; set; }
+        [ValidationRules(typeof(ZeroCheckRule))]
+        public long TrainingId { get; set; }
+        [ValidationRules(typeof(ZeroCheckRule))]
+        public long ExamStatusId { get; set; }
+        [ValidationRules(typeof(NullCheckRule))]
+        public UpdateExamVersionDto VersionInfo { get; set; }
     }
 }

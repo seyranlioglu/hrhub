@@ -13,8 +13,6 @@ namespace HrHub.Core.Extensions
             services.AddDbContext<TContext>(optionsBuilder =>
             {
                 var databaseType = config.DatabaseType;
-                Console.WriteLine(databaseType);
-                Console.WriteLine(config.ConnectionString);
                 switch (databaseType)
                 {
                     case DatabaseType.Postgre:
