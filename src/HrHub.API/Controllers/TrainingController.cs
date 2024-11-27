@@ -3,6 +3,7 @@ using HrHub.Abstraction.Result;
 using HrHub.Application.Managers.ContentTypes;
 using HrHub.Application.Managers.ExamOperationManagers;
 using HrHub.Application.Managers.Trainings;
+using HrHub.Core.Controllers;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
@@ -16,7 +17,7 @@ namespace HrHub.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TrainingController : ControllerBase
+    public class TrainingController : ApiControllerBase
     {
         private readonly ITrainingManager trainingManager;
 

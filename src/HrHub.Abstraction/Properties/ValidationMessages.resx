@@ -163,12 +163,18 @@
     <value>TrainingStatus Not Found</value>
   </data>
   <data name="TrainingNotExistsError" xml:space="preserve">
-    <value>Training not exist</value>
+    <value>Training Not Found</value>
   </data>
   <data name="WhatYouWillLearnExistsError" xml:space="preserve">
-    <value>WhatYouWillLearn exists</value>
+    <value>WhatYouWillLearn Exists</value>
   </data>
   <data name="WhatYouWillLearnNotExistsError" xml:space="preserve">
-    <value>WhatYouWillLearn not exists</value>
+    <value>WhatYouWillLearn Not Found</value>
+  </data>
+  <data name="TrainingSectionExistsError" xml:space="preserve">
+    <value>TrainingSection Exists </value>
+  </data>
+  <data name="TrainingSectionNotExistsError" xml:space="preserve">
+    <value>TrainingSection Not Found</value>
   </data>
 </root>

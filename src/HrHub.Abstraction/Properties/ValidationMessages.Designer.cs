@@ -178,11 +178,29 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Training not exist.
+        ///   Looks up a localized string similar to Training Not Found.
         /// </summary>
         internal static string TrainingNotExistsError {
             get {
                 return ResourceManager.GetString("TrainingNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingSection Exists .
+        /// </summary>
+        internal static string TrainingSectionExistsError {
+            get {
+                return ResourceManager.GetString("TrainingSectionExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingSection Not Found.
+        /// </summary>
+        internal static string TrainingSectionNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingSectionNotExistsError", resourceCulture);
             }
         }
         
@@ -196,7 +214,7 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WhatYouWillLearn exists.
+        ///   Looks up a localized string similar to WhatYouWillLearn Exists.
         /// </summary>
         internal static string WhatYouWillLearnExistsError {
             get {
@@ -205,7 +223,7 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WhatYouWillLearn not exists.
+        ///   Looks up a localized string similar to WhatYouWillLearn Not Found.
         /// </summary>
         internal static string WhatYouWillLearnNotExistsError {
             get {

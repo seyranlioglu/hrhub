@@ -3,6 +3,7 @@ using HrHub.Core.Mapper;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
+using HrHub.Domain.Contracts.Dtos.TrainingSectionDtos;
 using HrHub.Domain.Contracts.Dtos.WhatYouWillLearns;
 using HrHub.Domain.Entities.SqlDbEntities;
 
@@ -59,7 +60,14 @@ namespace HrHub.Application.Mappers
             #region
             CreateMap<AddWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
             CreateMap<UpdateWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
-            CreateMap<DeleteWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
+            CreateMap<DeleteWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();  
+            #endregion
+
+            #region TrainingSection
+            CreateMap<AddTrainingSectionDto, TrainingSection>().ReverseMap();
+            CreateMap<UpdateTrainingSectionDto, TrainingSection>().ReverseMap();
+            CreateMap<DeleteTrainingSectionDto, TrainingSection>().ReverseMap();
+            CreateMap<GetTrainingSectionDto, TrainingSection>().ReverseMap();
             #endregion
         }
     }

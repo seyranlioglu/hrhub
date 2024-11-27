@@ -62,10 +62,10 @@ public class TrainingManager : ManagerBase, ITrainingManager
         if (ValidationHelper.RuleBasedValidator<UpdateTrainingDto>(dto, typeof(UpdateTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
             return cBasedValidResult.SendResponse<CommonResponse>();
 
-        mapper.Map(dto, training);
+       var mapperData = mapper.Map(dto, training);
         training.CurrentAmount = dto.Amount - (dto.Amount * dto.DiscountRate / 100);
 
-        trainingRepository.Update(training);
+        trainingRepository.Update(mapperData);
         await hrUnitOfWork.SaveChangesAsync(cancellationToken);
 
         return ProduceSuccessResponse(new CommonResponse
