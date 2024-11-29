@@ -11,6 +11,6 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
     public class GetExamDto
     {
         [ValidationRules(typeof(ZeroCheckRule))]
-        public long ContentId { get; set; }
+        public long ExamId { get; set; }
     }
 }

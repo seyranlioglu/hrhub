@@ -40,14 +40,13 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         private readonly Repository<ExamVersion> examVersionRepository;
         private readonly Repository<ExamTopic> examTopicRepository;
         private readonly Repository<ExamQuestion> examQuestionRepository;
-        private readonly Repository<ContentExam> contentExamRepository;
         private readonly Repository<QuestionOption> questionOptionsRepository;
         private readonly Repository<Instructor> instructorRepository;
-        private readonly ICommonTypeBaseManager<CertificateType> certificateManager;
+        private readonly ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus;
         private readonly IMapper mapper;
         public ExamManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork unitOfWork,
-                           ICommonTypeBaseManager<CertificateType> certificateManager,
+                           ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus,
                            IMapper mapper) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
@@ -55,10 +54,9 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             this.examVersionRepository = unitOfWork.CreateRepository<ExamVersion>();
             this.examTopicRepository = unitOfWork.CreateRepository<ExamTopic>();
             this.examQuestionRepository = unitOfWork.CreateRepository<ExamQuestion>();
-            this.contentExamRepository = unitOfWork.CreateRepository<ContentExam>();
             this.questionOptionsRepository = unitOfWork.CreateRepository<QuestionOption>();
             this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
-            this.certificateManager = certificateManager;
+            this.ExamVersionStatus = ExamVersionStatus;
             this.mapper = mapper;
         }
 
@@ -139,8 +137,8 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             long userId = GetCurrentUserId();
             ExpressionStarter<Exam> predicateBuilder = PredicateBuilder.New<Exam>();
 
-            if (filter.ContentId is not null)
-                predicateBuilder = predicateBuilder.And(w => w.ContentExams.Any(w => w.TrainingContentId == filter.ContentId));
+            //if (filter.ContentId is not null)
+            //    predicateBuilder = predicateBuilder.And(w => w.ContentExams.Any(w => w.TrainingContentId == filter.ContentId));
             if (filter.TrainingId is not null)
                 predicateBuilder = predicateBuilder.And(w => w.TrainingId == filter.TrainingId);
             if (filter.IsActive is not null)
@@ -167,7 +165,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 (predicate: predicateBuilder,
                 include: i => i.Include(w => w.Instructor)
                 .ThenInclude(w => w.CurrAcc)
-                .Include(w => w.ContentExams)
+                //.Include(w => w.ContentExams)
                 .Include(w => w.ExamVersions)
                 .Include(w => w.ExamStatus)
                 .Include(w => w.Training));
@@ -214,6 +212,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 
             if (oldVersion is null)
                 return ProduceFailResponse<AddExamVersionReponse>("Active Version Not Found", HrStatusCodes.Status111DataNotFound);
+
             var newEntity = mapper.Map<ExamVersion>(oldVersion);
 
             var response = await examVersionRepository.AddAndReturnAsync(newEntity, cancellationToken);
@@ -226,7 +225,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             });
         }
 
-        public async Task<Response<CommonResponse>> UpdateExamInfoASync(UpdateExamDto updateData)
+        public async Task<Response<CommonResponse>> UpdateExamInfoAsync(UpdateExamDto updateData, CancellationToken cancellationToken = default)
         {
             if (ValidationHelper.FieldBasedValidator<UpdateExamDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<CommonResponse>();
@@ -234,13 +233,15 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.RuleBasedValidator<UpdateExamDto>(updateData, typeof(ExistUserExamBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
+
+
             var oldExam = await examRepository.GetAsync(
                 predicate: p => p.Id == updateData.Id,
                 include: i => i.Include(w => w.ExamVersions.Where(v => v.IsPublished)));
             return null;
         }
 
-        public async Task<Response<GetExamResponse>> GetExamByContentIdAsync(GetExamDto filter, CancellationToken cancellationToken = default)
+        public async Task<Response<GetExamResponse>> GetExamByIdAsync(GetExamDto filter, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<GetExamDto>();
             var validateResult = validator.Validate(filter);
@@ -249,7 +250,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 return validateResult.SendResponse<GetExamResponse>();
 
             var examData = await examRepository.GetQuery(
-                    e => e.ContentExams.Any(w => w.TrainingContentId == filter.ContentId)
+                    e => e.Id == filter.ExamId
                     && e.IsActive == true
                     && (e.IsDelete == false || e.IsDelete == null)
                     && e.ExamVersions.Any(ev => ev.IsPublished == true
@@ -341,7 +342,6 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 
             return ProduceSuccessResponse(response);
         }
-
 
     }
 }
