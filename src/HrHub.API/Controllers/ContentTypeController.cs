@@ -24,6 +24,7 @@ namespace HrHub.API.Controllers
             return await contentTypeManager.GetListForContentTypeAsync();
         }
 
+
         [HttpGet("[Action]")]
         public async Task<Response<ContentTypeDto>> GetByIdAsync(long id)
         {

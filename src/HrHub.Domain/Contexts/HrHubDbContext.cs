@@ -16,7 +16,7 @@ namespace HrHub.Domain.Contexts
 
         public HrHubDbContext([NotNull] DbContextOptions<HrHubDbContext> options, AuditInterceptor _auditInterceptor) : base(options)
         {
-            this.auditInterceptor = _auditInterceptor; 
+            this.auditInterceptor = _auditInterceptor;
         }
         #region DbSets
         public virtual DbSet<Cart> Carts { get; set; }
@@ -61,7 +61,8 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<UserContentsViewLog> UserContentsViewLogs { get; set; }
         public virtual DbSet<UserContentsViewLogDetail> UserContentsViewLogDetails { get; set; }
         public virtual DbSet<UserExam> UserExams { get; set; }
-        public virtual DbSet<WhatYouWillLearn> WhatYouWillLearns { get; set; } 
+        public virtual DbSet<WhatYouWillLearn> WhatYouWillLearns { get; set; }
+        public virtual DbSet<ContentLibrary> ContentLibraries { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

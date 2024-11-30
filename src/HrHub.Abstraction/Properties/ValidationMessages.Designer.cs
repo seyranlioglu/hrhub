@@ -61,6 +61,42 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Amount must be greater than zero.
+        /// </summary>
+        internal static string AmountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("AmountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Category Not Found.
+        /// </summary>
+        internal static string CategoryNotFound {
+            get {
+                return ResourceManager.GetString("CategoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CompletionTime and unit must be provided.
+        /// </summary>
+        internal static string CompletionTimeAndUnitMustBeProvided {
+            get {
+                return ResourceManager.GetString("CompletionTimeAndUnitMustBeProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CurrentAmount must be greater than zero.
+        /// </summary>
+        internal static string CurrentAmountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("CurrentAmountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Data Already Exists!.
         /// </summary>
         internal static string DataAlreadyExists {
@@ -106,6 +142,15 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Instructor Not Found.
+        /// </summary>
+        internal static string InstructorNotFound {
+            get {
+                return ResourceManager.GetString("InstructorNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exam Version Not Found!.
         /// </summary>
         internal static string ExamVersionNotFoundError {
@@ -138,6 +183,114 @@ namespace HrHub.Abstraction.Properties {
         internal static string PositiveTimeSpanError {
             get {
                 return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TimeUnit Not Found.
+        /// </summary>
+        internal static string TimeUnitNotFound {
+            get {
+                return ResourceManager.GetString("TimeUnitNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingContent Not Found.
+        /// </summary>
+        internal static string TrainingContentNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingContentNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingContentType Exist.
+        /// </summary>
+        internal static string TrainingContentTypeExistsError {
+            get {
+                return ResourceManager.GetString("TrainingContentTypeExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingContentType Not Found.
+        /// </summary>
+        internal static string TrainingContentTypeNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingContentTypeNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Exists.
+        /// </summary>
+        internal static string TrainingExistsError {
+            get {
+                return ResourceManager.GetString("TrainingExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Level Not Found.
+        /// </summary>
+        internal static string TrainingLevelNotFound {
+            get {
+                return ResourceManager.GetString("TrainingLevelNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Not Found.
+        /// </summary>
+        internal static string TrainingNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingSection Exists .
+        /// </summary>
+        internal static string TrainingSectionExistsError {
+            get {
+                return ResourceManager.GetString("TrainingSectionExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingSection Not Found.
+        /// </summary>
+        internal static string TrainingSectionNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingSectionNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingStatus Not Found.
+        /// </summary>
+        internal static string TrainingStatusNotFound {
+            get {
+                return ResourceManager.GetString("TrainingStatusNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WhatYouWillLearn Exists.
+        /// </summary>
+        internal static string WhatYouWillLearnExistsError {
+            get {
+                return ResourceManager.GetString("WhatYouWillLearnExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WhatYouWillLearn Not Found.
+        /// </summary>
+        internal static string WhatYouWillLearnNotExistsError {
+            get {
+                return ResourceManager.GetString("WhatYouWillLearnNotExistsError", resourceCulture);
             }
         }
         

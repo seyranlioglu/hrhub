@@ -1,5 +1,7 @@
-﻿using HrHub.Identity.Model;
-using HrHub.Identity.Services;
+﻿using HrHub.Abstraction.Result;
+using HrHub.Application.Managers.UserManagers;
+using HrHub.Domain.Contracts.Dtos.UserDtos;
+using HrHub.Domain.Contracts.Responses.UserResponses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrHub.API.Controllers
@@ -9,21 +11,43 @@ namespace HrHub.API.Controllers
     public class UserController : ControllerBase
     {
 
-        private readonly IAppUserService appUserService;
-        private readonly IAuthenticationService authenticationService;
-        private readonly IAppRoleService appRoleService;
-        public UserController(IAuthenticationService authenticationService, IAppRoleService appRoleService, IAppUserService appUserService)
+        private readonly IUserManager userManager;
+        public UserController(IUserManager userManager)
         {
-            this.authenticationService = authenticationService;
-            this.appRoleService = appRoleService;
-            this.appUserService = appUserService;
+            this.userManager = userManager;
         }
 
         [HttpPost("[Action]")]
-        public async Task<IActionResult> SignIn([FromBody]SignInViewModelResource signInQuery)
+        public async Task<Response<UserSignInResponse>> SignIn([FromBody] UserSignInDto signIn)
         {
-            var token = await authenticationService.SignIn(signInQuery);
-            return Ok(token);
+            var result = await userManager.SignIn(signIn);
+            return result;
+        }
+        [HttpPost("[Action]")]
+        public async Task<Response<VerifySignInResponse>> VerifySignIn([FromBody] VerifySignInDto verifyDto)
+        {
+            var result = await userManager.VerifyCodeAndSignIn(verifyDto);
+            return result;
+        }
+        [HttpPost("[Action]")]
+        public async Task<Response<UserSignUpResponse>> SignUp([FromBody] UserSignUpDto dto)
+        {
+            var result = await userManager.SignUp(dto);
+            return result;
+        }
+
+        [HttpPost("[Action]")]
+        public async Task<Response<VerifySendResponse>> VerifyCodeSend([FromBody] VerifySendDto verifySendDto)
+        {
+            var result = await userManager.VerifyCodeSend(verifySendDto);
+            return result;
+        }
+
+        [HttpPost("[Action]")]
+        public async Task<Response<VerifyResponse>> VerifyConfirm([FromBody] VerifyDto verifyDto)
+        {
+            var result = await userManager.VerifyCodeAndConfirm(verifyDto);
+            return result;
         }
     }
 }
