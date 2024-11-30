@@ -28,5 +28,8 @@ namespace HrHub.Abstraction.Consts
         public static string WhatYouWillLearnNotExistsError => Properties.ValidationMessages.WhatYouWillLearnNotExistsError;
         public static string TrainingSectionExistsError => Properties.ValidationMessages.TrainingSectionExistsError;
         public static string TrainingSectionNotExistsError => Properties.ValidationMessages.TrainingSectionNotExistsError;
+        public static string TrainingContentTypeNotExistsError => Properties.ValidationMessages.TrainingContentTypeNotExistsError;
+        public static string TrainingContentNotExistsError => Properties.ValidationMessages.TrainingContentNotExistsError;
+        public static string TrainingContentTypeExistsError => Properties.ValidationMessages.TrainingContentTypeExistsError;
     }
 }

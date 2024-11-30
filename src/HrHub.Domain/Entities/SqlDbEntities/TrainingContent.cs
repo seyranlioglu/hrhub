@@ -11,6 +11,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ContentNotes = new HashSet<ContentNote>();
             UserContentsViewLogs = new HashSet<UserContentsViewLog>();
             ContentExams = new HashSet<ContentExam>();
+            ContentLibraries = new HashSet<ContentLibrary>();
         }
         public long TrainingSectionId { get; set; }
         public long ContentTypeId { get; set; }
@@ -35,6 +36,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ICollection<ContentNote> ContentNotes { get; set; } = null;
         public virtual ICollection<UserContentsViewLog> UserContentsViewLogs { get; set; } = null;
         public virtual ICollection<ContentExam> ContentExams { get; set; } = null;
+        public virtual ICollection<ContentLibrary> ContentLibraries { get; set; } = null;
     }
 
 }

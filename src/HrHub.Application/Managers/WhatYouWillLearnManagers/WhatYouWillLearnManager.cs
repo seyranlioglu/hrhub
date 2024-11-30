@@ -28,11 +28,10 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
 
         public WhatYouWillLearnManager(IHttpContextAccessor httpContextAccessor,
                                        IHrUnitOfWork hrUnitOfWork,
-                                       Repository<WhatYouWillLearn> whatYouWillLearnRepository,
                                        IMapper mapper) : base(httpContextAccessor)
         {
             this.hrUnitOfWork = hrUnitOfWork;
-            this.whatYouWillLearnRepository = whatYouWillLearnRepository;
+            this.whatYouWillLearnRepository = hrUnitOfWork.CreateRepository<WhatYouWillLearn>();
             this.mapper = mapper;
         }
         public async Task<Response<ReturnIdResponse>> AddWhatYouWillLearnAsync(AddWhatYouWillLearnDto data, CancellationToken cancellationToken = default)

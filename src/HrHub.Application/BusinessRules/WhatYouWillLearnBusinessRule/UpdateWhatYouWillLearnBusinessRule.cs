@@ -12,13 +12,12 @@ namespace HrHub.Application.BusinessRules.WhatYouWillLearnBusinessRule
         private readonly Repository<Training> trainingRepository;
         private readonly Repository<WhatYouWillLearn> whatYouWillLearnRepository;
 
-        public UpdateWhatYouWillLearnBusinessRule(IHrUnitOfWork hrUnitOfWork,
-                                                  Repository<Training> trainingRepository,
-                                                  Repository<WhatYouWillLearn> whatYouWillLearnRepository)
+        public UpdateWhatYouWillLearnBusinessRule(IHrUnitOfWork hrUnitOfWork
+                                               )
         {
             this.hrUnitOfWork = hrUnitOfWork;
-            this.trainingRepository = trainingRepository;
-            this.whatYouWillLearnRepository = whatYouWillLearnRepository;
+            this.trainingRepository = hrUnitOfWork.CreateRepository<Training>();
+            this.whatYouWillLearnRepository = hrUnitOfWork.CreateRepository<WhatYouWillLearn>();
         }
 
         public (bool IsValid, string ErrorMessage) Validate(object value, string fieldName)

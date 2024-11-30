@@ -177,4 +177,13 @@
   <data name="TrainingSectionNotExistsError" xml:space="preserve">
     <value>TrainingSection Not Found</value>
   </data>
+  <data name="TrainingContentNotExistsError" xml:space="preserve">
+    <value>TrainingContent Not Found</value>
+  </data>
+  <data name="TrainingContentTypeExistsError" xml:space="preserve">
+    <value>TrainingContentType Exist</value>
+  </data>
+  <data name="TrainingContentTypeNotExistsError" xml:space="preserve">
+    <value>TrainingContentType Not Found</value>
+  </data>
 </root>
