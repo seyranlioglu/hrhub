@@ -41,7 +41,11 @@ namespace HrHub.Application.Managers.UserManagers
            // this.cacheService = cacheService;
             this.authenticationService = authenticationService;
         }
-
+        public async Task<bool> IsMainUser()
+        {
+            bool isMainUser = await userRepository.ExistsAsync(user => user.Id == this.GetCurrentUserId());
+            return isMainUser;
+        }
         public async Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<UserSignUpDto>();
