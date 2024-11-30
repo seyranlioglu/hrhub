@@ -92,7 +92,7 @@ namespace HrHub.Identity.Services
                         SecurityKey = TokenHelper.TokenOptions.SecurityKey,
                         Roles = roles.ToList(),
                         IsMainUser = user.IsMainUser,
-                        CurAccId= user.CurAccId
+                        CurrAccId= user.CurrAccId
                     }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
@@ -134,7 +134,7 @@ namespace HrHub.Identity.Services
                     SecurityKey = TokenHelper.TokenOptions.SecurityKey,
                     Roles = roles.ToList(),
                     IsMainUser = user.IsMainUser,
-                    CurAccId = user.CurAccId
+                    CurrAccId = user.CurrAccId
                 }); 
 
                     Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);
@@ -181,7 +181,7 @@ namespace HrHub.Identity.Services
                     SecurityKey= TokenHelper.TokenOptions.SecurityKey,
                     Roles = roles.ToList(),
                     IsMainUser = userClaim.Item1.IsMainUser,
-                    CurAccId = userClaim.Item1.CurAccId
+                    CurrAccId = userClaim.Item1.CurrAccId
                 });
 
                 Claim refreshTokenClaim = new Claim("refreshToken", accessToken.RefreshToken);

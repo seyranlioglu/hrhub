@@ -1,23 +1,19 @@
 using ConnectionProvider.Container.Bootstrappers;
+using HrHub.Abstraction.BusinessRules;
+using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Data.Context;
 using HrHub.Abstraction.Data.EfCore.Repository;
 using HrHub.Abstraction.Data.MongoDb;
 using HrHub.Abstraction.Domain;
 using HrHub.API.Properties;
 using HrHub.Application.Mappers;
+using HrHub.Application.Policies;
 using HrHub.Container.Bootstrappers;
 using HrHub.Core.Base;
 using HrHub.Core.Data.UnitOfWork;
 using HrHub.Core.Domain.Entity;
 using HrHub.Core.Helpers;
 using HrHub.Core.IoC;
-using HrHub.Core.BusinessRules;
-using HrHub.Application.Mappers;
-using HrHub.Worker.IoC;
-using ConnectionProvider.Container.Bootstrappers;
-using HrHub.Core.Data.UnitOfWork;
-using HrHub.Abstraction.BusinessRules;
-using HrHub.Application.Policies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,26 +33,27 @@ builder.Services.RegisterImplementations<IMongoRepository<MongoDbEntity>>("HrHub
 builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
 builder.Services.RegisterImplementations<IBusinessRule>("HrHub.Application");
 builder.Services.RegisterTypeManagers();
+builder.Services.RegisterManagers();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthorization(opts =>
 {
-    opts.AddPolicy("MainUser", policy =>
+    opts.AddPolicy(Policies.MainUser, policy =>
     {
         policy.RequireAssertion(context =>
         {
-            if (context.User.IsInRole("user"))
+            if (context.User.IsInRole(Roles.User))
             {
-                return context.User.HasClaim(c => c.Type == "IsMainUser" && c.Value.ToLower() == "true");
+                return context.User.HasClaim(c => c.Type == Policies.MainUser && c.Value.ToLower() == "true");
             }
             return true;
         });
     });
 
 
-    opts.AddPolicy("Instractor", policy =>
+    opts.AddPolicy(Policies.Instructor, policy =>
     {
         policy.Requirements.Add(new InstractorRequirement());
     });

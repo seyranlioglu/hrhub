@@ -16,6 +16,6 @@ namespace HrHub.Identity.Entities
         public string UserShortName { get; set; }
         public bool IsMainUser { get; set; }
         public string? AuthCode { get; set; }
-        public long CurAccId { get; set; }
+        public long CurrAccId { get; set; }
     }
 }

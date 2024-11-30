@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using HrHub.Abstraction.Extensions;
 
 namespace HrHub.Identity.Services
 {
@@ -68,19 +69,12 @@ namespace HrHub.Identity.Services
                 Name = userViewModel.Name,
                 SurName = userViewModel.SurName,
                 UserShortName = userViewModel.Name.Substring(0, 1).ToUpper() + userViewModel.SurName.Substring(0, 1).ToUpper(),
-                //DepartmentId = userViewModel.DepartmentId,
-                //JobTitleId = userViewModel.JobTitleId,
-                //RoleId = userViewModel.RoleId,
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true,
+                EmailConfirmed = false,
+                PhoneNumberConfirmed = false,
                 LockoutEnabled = true,
-                //UserTypeId = userViewModel.UserTypeId,
-                //AdminFlag = userViewModel.AdminFlag,
-                //IncorrectPinCount = userViewModel.IncorrectPinCount,
-                //UserStatusId = userViewModel.UserStatusId,
-                //IsDelete = userViewModel.IsDelete,
                 AuthCode = userViewModel.AuthCode,
-                //CreatedDate = DateTime.UtcNow
+                CurrAccId = userViewModel.CurrAccId
+
             };
             IdentityResult result = await this.userManager.CreateAsync(user, userViewModel.Password);
 
@@ -91,8 +85,6 @@ namespace HrHub.Identity.Services
             else
             {
                 return Tuple.Create(result.Errors.FirstOrDefault().Description, false);
-
-                //throw new BusinessException(result.Errors.FirstOrDefault().Description);
             }
         }
         
