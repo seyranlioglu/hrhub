@@ -20,8 +20,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         public string? HeaderImage { get; set; }
         public string? LangCode { get; set; }
-        public int CategoryId { get; set; }
-        public int InstructorId { get; set; }
+        public long CategoryId { get; set; }
+        public long InstructorId { get; set; }
         public string? TrainingType { get; set; }
         public decimal CurrentAmount { get; set; }
         public decimal Amount { get; set; }
@@ -32,6 +32,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public DateTime? CompletionTime { get; set; }
         public long CompletionTimeUnitId { get; set; }
         public long TrainingLevelId { get; set; }
+        public long TrainingStatusId { get; set; }
 
         [ForeignKey("CategoryId")]
         public virtual ICollection<TrainingCategory> TrainingCategories { get; set; }
@@ -44,6 +45,9 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         [ForeignKey("TrainingLevelId")]
         public virtual ICollection<TrainingLevel> TrainingLevels { get; set; }
+
+        [ForeignKey("TrainingStatusId")]
+        public virtual ICollection<TrainingStatus> TrainingStatuses{ get; set; }
 
 
 
