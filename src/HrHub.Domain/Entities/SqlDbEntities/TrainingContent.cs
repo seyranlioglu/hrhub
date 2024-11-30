@@ -10,8 +10,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             ContentComments = new HashSet<ContentComment>();
             ContentNotes = new HashSet<ContentNote>();
-            UserContentsViewLogs = new HashSet<UserContentsViewLog>();
-            ContentExams = new HashSet<ContentExam>();
+            UserContentsViewLogs = new HashSet<UserContentsViewLog>();      
             ContentLibraries = new HashSet<ContentLibrary>();
         }
         public long TrainingSectionId { get; set; }

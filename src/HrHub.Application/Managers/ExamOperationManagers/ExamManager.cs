@@ -100,6 +100,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             var validator = new FieldBasedValidator<AddExamTopicDto>();
             var validateResult = validator.Validate(data);
 
+            return null;
         //    if (validateResult.IsValid is false)
         //        return validateResult.SendResponse<ReturnIdResponse>();
 
@@ -112,7 +113,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         //    {
         //        Id = addResponse.Id
         //    });
-        //}
+        }
 
         public async Task<Response<ReturnIdResponse>> AddExamQuestionAsync(AddExamQuestionDto question, CancellationToken cancellationToken = default)
         {
@@ -170,36 +171,37 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 .Include(w => w.ExamStatus)
                 .Include(w => w.Training));
 
-        //    var examList = examQuery
-        //        .Select(exam =>
-        //        {
-        //            var publishedVersion = exam.ExamVersions
-        //                .Where(ev => ev.IsPublished)
-        //                .FirstOrDefault();
-        //            return new GetExamListResponse
-        //            {
-        //                ExamStatus = exam.ExamStatus.Title,
-        //                ExamTimeInMin = publishedVersion.ExamTime.TotalMinutes,
-        //                PassingScore = publishedVersion.PassingScore,
-        //                SuccessRate = publishedVersion.SuccessRate,
-        //                Title = exam.Title,
-        //                TotalQuestionCount = publishedVersion.TotalQuestionCount,
-        //                TrainingTitle = exam.Training.Title,
-        //                Versions = exam.ExamVersions.Select(vers => new GetExamVersionListResponse
-        //                {
-        //                    ExamId = vers.ExamId,
-        //                    ExamTimeInMin = vers.ExamTime.TotalMinutes,
-        //                    PassingScore = vers.PassingScore,
-        //                    SuccessRate = vers.SuccessRate,
-        //                    TotalQuestionCount = vers.TotalQuestionCount,
-        //                    VersionId = vers.Id,
-        //                    VersionNo = vers.VersionNumber
-        //                }).ToList()
-        //            };
-        //        }
-        //        );
-        //    return ProduceSuccessResponse(examList.ToList());
-        //}
+            //    var examList = examQuery
+            //        .Select(exam =>
+            //        {
+            //            var publishedVersion = exam.ExamVersions
+            //                .Where(ev => ev.IsPublished)
+            //                .FirstOrDefault();
+            //            return new GetExamListResponse
+            //            {
+            //                ExamStatus = exam.ExamStatus.Title,
+            //                ExamTimeInMin = publishedVersion.ExamTime.TotalMinutes,
+            //                PassingScore = publishedVersion.PassingScore,
+            //                SuccessRate = publishedVersion.SuccessRate,
+            //                Title = exam.Title,
+            //                TotalQuestionCount = publishedVersion.TotalQuestionCount,
+            //                TrainingTitle = exam.Training.Title,
+            //                Versions = exam.ExamVersions.Select(vers => new GetExamVersionListResponse
+            //                {
+            //                    ExamId = vers.ExamId,
+            //                    ExamTimeInMin = vers.ExamTime.TotalMinutes,
+            //                    PassingScore = vers.PassingScore,
+            //                    SuccessRate = vers.SuccessRate,
+            //                    TotalQuestionCount = vers.TotalQuestionCount,
+            //                    VersionId = vers.Id,
+            //                    VersionNo = vers.VersionNumber
+            //                }).ToList()
+            //            };
+            //        }
+            //        );
+            //   return ProduceSuccessResponse(examList.ToList());
+            return null;
+        }
 
         public async Task<Response<AddExamVersionReponse>> AddNewVersionAsync(AddNewVersionDto versionData, CancellationToken cancellationToken = default)
         {
