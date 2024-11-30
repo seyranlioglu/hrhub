@@ -8,7 +8,6 @@ namespace HrHub.Container.Bootstrappers
     {
         public static void RegisterManagers(this IServiceCollection services)
         {
-            services.AddScoped<IExamManager, ExamManager>();
             services.AddScoped<IUserManager, UserManager>();
         }
     }
