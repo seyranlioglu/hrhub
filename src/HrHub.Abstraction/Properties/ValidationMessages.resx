@@ -135,4 +135,55 @@
   <data name="ExamUserExistsError" xml:space="preserve">
     <value>Exam User Exists</value>
   </data>
+  <data name="AmountMustBeGreaterThanZero" xml:space="preserve">
+    <value>Amount must be greater than zero</value>
+  </data>
+  <data name="CategoryNotFound" xml:space="preserve">
+    <value>Category Not Found</value>
+  </data>
+  <data name="CompletionTimeAndUnitMustBeProvided" xml:space="preserve">
+    <value>CompletionTime and unit must be provided</value>
+  </data>
+  <data name="CurrentAmountMustBeGreaterThanZero" xml:space="preserve">
+    <value>CurrentAmount must be greater than zero</value>
+  </data>
+  <data name="InstructorNotFound" xml:space="preserve">
+    <value>Instructor Not Found</value>
+  </data>
+  <data name="TimeUnitNotFound" xml:space="preserve">
+    <value>TimeUnit Not Found</value>
+  </data>
+  <data name="TrainingExistsError" xml:space="preserve">
+    <value>Training Exists</value>
+  </data>
+  <data name="TrainingLevelNotFound" xml:space="preserve">
+    <value>Training Level Not Found</value>
+  </data>
+  <data name="TrainingStatusNotFound" xml:space="preserve">
+    <value>TrainingStatus Not Found</value>
+  </data>
+  <data name="TrainingNotExistsError" xml:space="preserve">
+    <value>Training Not Found</value>
+  </data>
+  <data name="WhatYouWillLearnExistsError" xml:space="preserve">
+    <value>WhatYouWillLearn Exists</value>
+  </data>
+  <data name="WhatYouWillLearnNotExistsError" xml:space="preserve">
+    <value>WhatYouWillLearn Not Found</value>
+  </data>
+  <data name="TrainingSectionExistsError" xml:space="preserve">
+    <value>TrainingSection Exists </value>
+  </data>
+  <data name="TrainingSectionNotExistsError" xml:space="preserve">
+    <value>TrainingSection Not Found</value>
+  </data>
+  <data name="TrainingContentNotExistsError" xml:space="preserve">
+    <value>TrainingContent Not Found</value>
+  </data>
+  <data name="TrainingContentTypeExistsError" xml:space="preserve">
+    <value>TrainingContentType Exist</value>
+  </data>
+  <data name="TrainingContentTypeNotExistsError" xml:space="preserve">
+    <value>TrainingContentType Not Found</value>
+  </data>
 </root>
