@@ -1,5 +1,6 @@
 ﻿using HrHub.Core.Domain.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -9,10 +10,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             ExamVersions = new HashSet<ExamVersion>();
             ExamResults = new HashSet<ExamResult>();
-
+            TrainingContents = new HashSet<TrainingContent>();
         }
         public string Title { get; set; }
-        public string Description { get; set; }
+        [AllowNull]
+        public string? Description { get; set; }
         public long TrainingId { get; set; }
         public long ExamStatusId { get; set; }
         public long InstructorId { get; set; }
@@ -29,5 +31,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ExamStatus ExamStatus { get; set; }
         public virtual ICollection<ExamVersion> ExamVersions { get; set; } = null;
         public virtual ICollection<ExamResult> ExamResults { get; set; } = null;
+        public virtual ICollection<TrainingContent> TrainingContents { get; set; } = null;
     }
 }

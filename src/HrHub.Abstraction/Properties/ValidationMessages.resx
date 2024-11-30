@@ -135,4 +135,19 @@
   <data name="ExamUserExistsError" xml:space="preserve">
     <value>Exam User Exists</value>
   </data>
+  <data name="ExamNotFoundError" xml:space="preserve">
+    <value>Exam Not Found!</value>
+  </data>
+  <data name="ExamVersionNotFoundError" xml:space="preserve">
+    <value>Exam Version Not Found!</value>
+  </data>
+  <data name="WrongValidationModelError" xml:space="preserve">
+    <value>Wrong Validation Model Type!</value>
+  </data>
+  <data name="DataAlreadyExists" xml:space="preserve">
+    <value>Data Already Exists!</value>
+  </data>
+  <data name="DataNotFoundError" xml:space="preserve">
+    <value>Data Not Found!</value>
+  </data>
 </root>

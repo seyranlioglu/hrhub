@@ -40,8 +40,8 @@ namespace HrHub.Application.BusinessRules.ExamBusinessRules
 
                 return result;
             }
-
-            return (true, string.Empty);
+            else
+                return (false, ValidationMessages.WrongValidationModelError);
         }
     }
 }

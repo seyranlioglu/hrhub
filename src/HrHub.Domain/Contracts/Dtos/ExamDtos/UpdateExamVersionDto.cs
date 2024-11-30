@@ -18,7 +18,7 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
         [ValidationRules(typeof(ZeroCheckRule))]
         public long ExamId { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
-        public int VersionNumber { get; set; } = 1;
+        public int VersionNumber { get; set; }
         public bool IsPublished { get; set; }
         [ValidationRules(typeof(PositiveTimeSpanRule))]
         public TimeSpan ExamTime { get; set; }
@@ -28,5 +28,6 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
         public decimal PassingScore { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
         public int TotalQuestionCount { get; set; }
+        public long StatusId { get; set; }
     }
 }

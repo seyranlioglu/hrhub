@@ -13,12 +13,12 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
     {
         [ValidationRules(typeof(NullCheckRule))]
         public string Title { get; set; }
-        [ValidationRules(typeof(NullCheckRule))]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
         public long TrainingId { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
         public long ExamStatusId { get; set; }
+        public long ActionId { get; set; }
         [ValidationRules(typeof(NullCheckRule))]
         public AddExamVersionDto VersionInfo { get; set; }
     }

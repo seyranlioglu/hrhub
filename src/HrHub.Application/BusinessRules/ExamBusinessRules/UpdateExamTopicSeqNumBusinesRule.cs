@@ -8,19 +8,21 @@ using System.Threading.Tasks;
 
 namespace HrHub.Application.BusinessRules.ExamBusinessRules
 {
-    public class GetExamFilterBusinessRule : IGetExamFilterBusinessRule
+    public class UpdateExamTopicSeqNumBusinesRule : IUpdateExamTopicSeqNumBusinesRule
     {
         public (bool IsValid, string ErrorMessage) Validate(object value, string fieldName)
         {
-            var result = (true, string.Empty);
-            if (value is Exam exam) 
+            (bool IsValid, string ErrorMessage) result = (true, string.Empty);
+            if (value is Tuple<ExamTopic, int> examTopic)
             {
-                result = exam is null ? (false, ValidationMessages.ExamNotFoundError) :
-                    exam.ExamVersions is null || !exam.ExamVersions.Any() ? (false, ValidationMessages.ExamVersionNotFoundError) :
-                    (true, string.Empty);
+                return examTopic.Item1 is null ? (false, ValidationMessages.DataNotFound) :
+                    (examTopic.Item2 < 1 || examTopic.Item2 > examTopic.Item1.ExamVersion.ExamTopics.Count) ?
+                    (false, "Invalid Sequesnce Number!") :
+                    result;
             }
             else
                 result = (false, ValidationMessages.WrongValidationModelError);
+
             return result;
         }
     }

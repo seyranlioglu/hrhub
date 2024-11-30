@@ -13,10 +13,10 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
         /// <summary>
         /// Dakika Cinsinden Sınav Süresi
         /// </summary>
-        public double ExamTimeInMin { get; set; }
-        public decimal SuccessRate { get; set; }
-        public decimal PassingScore { get; set; }
-        public int TotalQuestionCount { get; set; }
+        public double? ExamTimeInMin { get; set; }
+        public decimal? SuccessRate { get; set; }
+        public decimal? PassingScore { get; set; }
+        public int? TotalQuestionCount { get; set; }
         public string ExamStatus { get; set; }
         public List<GetExamVersionListResponse> Versions { get; set; } = null;
 

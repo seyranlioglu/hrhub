@@ -61,6 +61,33 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Data Already Exists!.
+        /// </summary>
+        internal static string DataAlreadyExists {
+            get {
+                return ResourceManager.GetString("DataAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data Not Found!.
+        /// </summary>
+        internal static string DataNotFoundError {
+            get {
+                return ResourceManager.GetString("DataNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exam Not Found!.
+        /// </summary>
+        internal static string ExamNotFoundError {
+            get {
+                return ResourceManager.GetString("ExamNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The question must have at least two options.
         /// </summary>
         internal static string ExamQuestionOptionsCountError {
@@ -75,6 +102,15 @@ namespace HrHub.Abstraction.Properties {
         internal static string ExamUserExistsError {
             get {
                 return ResourceManager.GetString("ExamUserExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exam Version Not Found!.
+        /// </summary>
+        internal static string ExamVersionNotFoundError {
+            get {
+                return ResourceManager.GetString("ExamVersionNotFoundError", resourceCulture);
             }
         }
         
@@ -102,6 +138,15 @@ namespace HrHub.Abstraction.Properties {
         internal static string PositiveTimeSpanError {
             get {
                 return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong Validation Model Type!.
+        /// </summary>
+        internal static string WrongValidationModelError {
+            get {
+                return ResourceManager.GetString("WrongValidationModelError", resourceCulture);
             }
         }
         

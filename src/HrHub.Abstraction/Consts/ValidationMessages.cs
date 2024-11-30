@@ -14,5 +14,11 @@ namespace HrHub.Abstraction.Consts
         public static string PositiveTimeSpanError => Properties.ValidationMessages.PositiveTimeSpanError;
         public static string ExamQuestionCountError => Properties.ValidationMessages.ExamQuestionOptionsCountError;
         public static string ExamUserExistsError => Properties.ValidationMessages.ExamUserExistsError;
+        public static string ExamNotFoundError => Properties.ValidationMessages.ExamNotFoundError;
+        public static string ExamVersionNotFoundError => Properties.ValidationMessages.ExamVersionNotFoundError;
+        public static string WrongValidationModelError => Properties.ValidationMessages.WrongValidationModelError;
+        public static string DataAlreadyExists => Properties.ValidationMessages.DataAlreadyExists;
+        public static string DataNotFound => Properties.ValidationMessages.DataNotFoundError;
+
     }
 }

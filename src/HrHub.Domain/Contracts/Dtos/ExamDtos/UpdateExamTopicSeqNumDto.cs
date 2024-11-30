@@ -8,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class AddExamTopicDto
+    public class UpdateExamTopicSeqNumDto
     {
         [ValidationRules(typeof(ZeroCheckRule))]
-        public long ExamVersionId { get; set; }
-        [ValidationRules(typeof(NullCheckRule))]
-        public string Title { get; set; }
-        public int? QuestionCount { get; set; }
-        public string? ImgPath { get; set; }
+        public long TopicId { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
-        public int SeqNumber { get; set; }
+        public int NewSeqNumber { get; set; }
     }
 }

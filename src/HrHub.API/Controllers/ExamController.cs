@@ -7,6 +7,7 @@ using HrHub.Domain.Contracts.Responses.ExamResponses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HrHub.API.Controllers
 {
@@ -33,6 +34,86 @@ namespace HrHub.API.Controllers
         public async Task<Response<ReturnIdResponse>> AddExamTopic([FromBody] AddExamTopicDto data)
         {
             var response = await examManager.AddExamTopicAsync(data).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPost("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<ReturnIdResponse>> AddExamQuestionAsync(AddExamQuestionDto data)
+        {
+            var response = await examManager.AddExamQuestionAsync(data).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPost("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<List<GetExamListResponse>>> GetExamListForGridAsync(GetExamListDto filter)
+        {
+            var response = await examManager.GetExamListForGridAsync(filter).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPost("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<AddExamVersionReponse>> AddNewVersionAsync(AddNewVersionDto versionData)
+        {
+            var response = await examManager.AddNewVersionAsync(versionData).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> UpdateExamInfoAsync(UpdateExamDto updateData)
+        {
+            var response = await examManager.UpdateExamInfoAsync(updateData).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> UpdateTopicInfoAsync(UpdateExamTopicDto updateData)
+        {
+            var response = await examManager.UpdateTopicInfoAsync(updateData).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> UpdateSeqNoAsync(UpdateExamTopicSeqNumDto updateData)
+        {
+            var response = await examManager.UpdateSeqNoAsync(updateData).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> UpdateQuestionAsync(UpdateExamQuestionDto updateData)
+        {
+            var response = await examManager.UpdateQuestionAsync(updateData).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "User")]
+        public async Task<Response<GetExamResponse>> GetExamByIdWithStudentAsync(GetExamDto filter)
+        {
+            var response = await examManager.GetExamByIdWithStudentAsync(filter).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> PublishVersionAsync(PublishVersionDto data)
+        {
+            var response = await examManager.PublishVersionAsync(data).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "User")]
+        public async Task<Response<CalculateExamResultResponse>> CalculateExamResultAsync(CalculateExamResultDto examResult)
+        {
+            var response = await examManager.CalculateExamResultAsync(examResult).ConfigureAwait(false);
             return response;
         }
     }

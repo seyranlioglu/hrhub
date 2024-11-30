@@ -18,7 +18,8 @@ namespace HrHub.Application.BusinessRules.ExamBusinessRules
                 return (!examQuestion.QuestionOptions.Any() && examQuestion.QuestionOptions.Count < 2)
                     ? (false, ValidationMessages.ExamQuestionCountError) : (true ,string.Empty);
             }
-            return (true, string.Empty);
+            else
+                return (false, ValidationMessages.WrongValidationModelError);
         }
     }
 }

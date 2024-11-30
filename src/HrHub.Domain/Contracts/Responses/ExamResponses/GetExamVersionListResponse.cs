@@ -11,10 +11,10 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
         public long VersionId { get; set; }
         public long ExamId { get; set; }
         public int VersionNo { get; set; }
-        public double ExamTimeInMin { get; set; }
-        public decimal SuccessRate { get; set; }
-        public decimal PassingScore { get; set; }
-        public int TotalQuestionCount { get; set; }
+        public double? ExamTimeInMin { get; set; }
+        public decimal? SuccessRate { get; set; }
+        public decimal? PassingScore { get; set; }
+        public int? TotalQuestionCount { get; set; }
 
     }
 }

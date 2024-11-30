@@ -1,5 +1,6 @@
 ﻿using HrHub.Core.Domain.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -13,11 +14,13 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         /// <summary>
         /// Her bir başlıkta görüntülecek soru sayısını tutuyor.
         /// </summary>
-        public int QuestionCount { get; set; }
+        [AllowNull]
+        public int? QuestionCount { get; set; }
         public string Title { get; set; }
-        public string ImgPath { get; set; }
+        [AllowNull]
+        public string? ImgPath { get; set; }
         /// <summary>
-        /// Sıra Numarası
+        /// Sıra Numarası. UI da açılan sıraya göre verilecek.
         /// </summary>
         public int SeqNumber { get; set; }
 

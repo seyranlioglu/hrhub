@@ -17,18 +17,23 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ExamTopics = new HashSet<ExamTopic>();
             UserExams = new HashSet<UserExam>();
         }
-        public string VersionDescription { get; set; }
+        [AllowNull]
+        public string? VersionDescription { get; set; }
         public long ExamId { get; set; }
         public int VersionNumber { get; set; }
         [DefaultValue(false)]
         public bool IsPublished { get; set; }
-        public TimeSpan ExamTime { get; set; }
-        public decimal SuccessRate { get; set; }
-        public decimal PassingScore { get; set; }
+        [AllowNull]
+        public TimeSpan? ExamTime { get; set; }
+        [AllowNull]
+        public decimal? SuccessRate { get; set; }
+        [AllowNull]
+        public decimal? PassingScore { get; set; }
         /// <summary>
         /// Sınavda görüntülenecek toplam soru sayısını belirtiyor.
         /// </summary>
-        public int TotalQuestionCount { get; set; }
+        [AllowNull]
+        public int? TotalQuestionCount { get; set; }
         public long ExamVersionStatusId { get; set; }
 
         [ForeignKey("ExamVersionStatusId")]
