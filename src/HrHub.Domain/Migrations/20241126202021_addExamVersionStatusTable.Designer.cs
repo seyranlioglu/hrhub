@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241126202021_addExamVersionStatusTable")]
+    partial class addExamVersionStatusTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -437,6 +440,107 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("ContentComments", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentExam", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ContentExamActionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ExamId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("TrainingContentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentExamActionId");
+
+                    b.HasIndex("ExamId");
+
+                    b.HasIndex("TrainingContentId");
+
+                    b.ToTable("ContentExam", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentExamAction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContentExamAction", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentNote", b =>
                 {
                     b.Property<long>("Id")
@@ -837,9 +941,6 @@ namespace HrHub.Domain.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("ActionId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("CreateUserId")
                         .HasColumnType("bigint");
 
@@ -883,8 +984,6 @@ namespace HrHub.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActionId");
-
                     b.HasIndex("ExamStatusId");
 
                     b.HasIndex("InstructorId");
@@ -892,55 +991,6 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("TrainingId");
 
                     b.ToTable("Exams", "public");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamAction", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Abbreviation")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<long?>("CreateUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeleteDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExamAction", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamQuestion", b =>
@@ -1989,7 +2039,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Abbreviation")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("AllowSeeking")
+                    b.Property<bool>("AllowSeeking")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Code")
@@ -2016,9 +2066,6 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<long?>("ExamId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("text");
@@ -2032,13 +2079,13 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool>("Mandatory")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("MinReadTimeThreshold")
+                    b.Property<int>("MinReadTimeThreshold")
                         .HasColumnType("integer");
 
                     b.Property<long>("OrderId")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("PageCount")
+                    b.Property<int>("PageCount")
                         .HasColumnType("integer");
 
                     b.Property<int>("PartCount")
@@ -2065,8 +2112,6 @@ namespace HrHub.Domain.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContentTypeId");
-
-                    b.HasIndex("ExamId");
 
                     b.HasIndex("SectionId");
 
@@ -2858,6 +2903,33 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentExam", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.ContentExamAction", "ContentExamAction")
+                        .WithMany("ContentExams")
+                        .HasForeignKey("ContentExamActionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Exam", "Exam")
+                        .WithMany("ContentExams")
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", "TrainingContent")
+                        .WithMany("ContentExams")
+                        .HasForeignKey("TrainingContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContentExamAction");
+
+                    b.Navigation("Exam");
+
+                    b.Navigation("TrainingContent");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentNote", b =>
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", "TrainingContent")
@@ -2944,12 +3016,6 @@ namespace HrHub.Domain.Migrations
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Exam", b =>
                 {
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.ExamAction", "ExamAction")
-                        .WithMany("Exams")
-                        .HasForeignKey("ActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.ExamStatus", "ExamStatus")
                         .WithMany("Exams")
                         .HasForeignKey("ExamStatusId")
@@ -2967,8 +3033,6 @@ namespace HrHub.Domain.Migrations
                         .HasForeignKey("TrainingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ExamAction");
 
                     b.Navigation("ExamStatus");
 
@@ -3166,10 +3230,6 @@ namespace HrHub.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Exam", "Exam")
-                        .WithMany()
-                        .HasForeignKey("ExamId");
-
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", "TrainingSection")
                         .WithMany("TrainingContents")
                         .HasForeignKey("SectionId")
@@ -3177,8 +3237,6 @@ namespace HrHub.Domain.Migrations
                         .IsRequired();
 
                     b.Navigation("ContentType");
-
-                    b.Navigation("Exam");
 
                     b.Navigation("TrainingSection");
                 });
@@ -3385,6 +3443,11 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("SubContentComment");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentExamAction", b =>
+                {
+                    b.Navigation("ContentExams");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentType", b =>
                 {
                     b.Navigation("TrainingContents");
@@ -3420,14 +3483,11 @@ namespace HrHub.Domain.Migrations
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Exam", b =>
                 {
+                    b.Navigation("ContentExams");
+
                     b.Navigation("ExamResults");
 
                     b.Navigation("ExamVersions");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamAction", b =>
-                {
-                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamQuestion", b =>
@@ -3505,6 +3565,8 @@ namespace HrHub.Domain.Migrations
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", b =>
                 {
                     b.Navigation("ContentComments");
+
+                    b.Navigation("ContentExams");
 
                     b.Navigation("ContentNotes");
 

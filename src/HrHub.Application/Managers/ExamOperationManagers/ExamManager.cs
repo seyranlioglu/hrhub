@@ -28,6 +28,7 @@ using FluentValidation.Results;
 using HrHub.Application.BusinessRules.ExamBusinessRules;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HrHub.Application.Managers.ExamOperationManagers
 {
@@ -39,26 +40,24 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         private readonly Repository<ExamVersion> examVersionRepository;
         private readonly Repository<ExamTopic> examTopicRepository;
         private readonly Repository<ExamQuestion> examQuestionRepository;
-        private readonly ICommonTypeBaseManager<CertificateType> certificateManager;
+        private readonly Repository<QuestionOption> questionOptionsRepository;
+        private readonly Repository<Instructor> instructorRepository;
+        private readonly ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus;
         private readonly IMapper mapper;
         public ExamManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork unitOfWork,
-                           ICommonTypeBaseManager<CertificateType> certificateManager,
-                           IMapper mapper,
-                           Repository<ExamVersion> examVersionRepository,
-                           Repository<ExamTopic> examTopicRepository,
-                           Repository<ExamQuestion> examQuestionRepository) : base(httpContextAccessor)
+                           ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus,
+                           IMapper mapper) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.examRepository = unitOfWork.CreateRepository<Exam>();
             this.examVersionRepository = unitOfWork.CreateRepository<ExamVersion>();
             this.examTopicRepository = unitOfWork.CreateRepository<ExamTopic>();
             this.examQuestionRepository = unitOfWork.CreateRepository<ExamQuestion>();
-            this.certificateManager = certificateManager;
+            this.questionOptionsRepository = unitOfWork.CreateRepository<QuestionOption>();
+            this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
+            this.ExamVersionStatus = ExamVersionStatus;
             this.mapper = mapper;
-            this.examVersionRepository = examVersionRepository;
-            this.examTopicRepository = examTopicRepository;
-            this.examQuestionRepository = examQuestionRepository;
         }
 
         //public async Task<Response<AddExamResponse>> AddExamAsync(AddExamDto data, CancellationToken cancellationToken = default)
@@ -96,10 +95,10 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         //    });
         //}
 
-        //public async Task<Response<ReturnIdResponse>> AddExamTopic(AddExamTopicDto data)
-        //{
-        //    var validator = new FieldBasedValidator<AddExamTopicDto>();
-        //    var validateResult = validator.Validate(data);
+        public async Task<Response<ReturnIdResponse>> AddExamTopicAsync(AddExamTopicDto data, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<AddExamTopicDto>();
+            var validateResult = validator.Validate(data);
 
         //    if (validateResult.IsValid is false)
         //        return validateResult.SendResponse<ReturnIdResponse>();
@@ -115,53 +114,61 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         //    });
         //}
 
-        //public async Task<Response<ReturnIdResponse>> AddExamQuestion(AddExamQuestionDto question)
-        //{
-        //    if (ValidationHelper.FieldBasedValidator<AddExamQuestionDto>(question) is ValidationResult validationResult && !validationResult.IsValid)
-        //        return validationResult.SendResponse<ReturnIdResponse>();
+        public async Task<Response<ReturnIdResponse>> AddExamQuestionAsync(AddExamQuestionDto question, CancellationToken cancellationToken = default)
+        {
+            if (ValidationHelper.FieldBasedValidator<AddExamQuestionDto>(question) is ValidationResult validationResult && !validationResult.IsValid)
+                return validationResult.SendResponse<ReturnIdResponse>();
 
         //    if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question, typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
         //        return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
-        //    var newQuestion = mapper.Map<ExamQuestion>(question);
-        //    var result = await examQuestionRepository.AddAndReturnAsync(newQuestion);
-        //    await unitOfWork.SaveChangesAsync();
-        //    return ProduceSuccessResponse(new ReturnIdResponse
-        //    {
-        //        Id = result.Id
-        //    });
-        //}
-        //// TODO Şükrü: Parametreler için TrainingList ve ContentList merthodları yazılmalı 
-        //public async Task<Response<List<GetExamListResponse>>> GetExamListForGrid(GetExamListDto filter)
-        //{
-        //    long userId = GetCurrentUserId();
-        //    ExpressionStarter<Exam> predicateBuilder = PredicateBuilder.New<Exam>();
+            var newQuestion = mapper.Map<ExamQuestion>(question);
+            var result = await examQuestionRepository.AddAndReturnAsync(newQuestion);
+            await unitOfWork.SaveChangesAsync();
+            return ProduceSuccessResponse(new ReturnIdResponse
+            {
+                Id = result.Id
+            });
+        }
 
-        //    if (filter.ContentId is not null)
-        //        predicateBuilder = predicateBuilder.And(w => w.ContentExams.Any(w => w.TrainingContentId == filter.ContentId));
-        //    if (filter.TrainingId is not null)
-        //        predicateBuilder = predicateBuilder.And(w => w.TrainingId == filter.TrainingId);
-        //    if (filter.IsActive is not null)
-        //        predicateBuilder = predicateBuilder.And(w => w.IsActive == filter.IsActive);
+        // TODO Şükrü: Parametreler için TrainingList ve ContentList merthodları yazılmalı 
+        public async Task<Response<List<GetExamListResponse>>> GetExamListForGridAsync(GetExamListDto filter, CancellationToken cancellationToken = default)
+        {
+            long userId = GetCurrentUserId();
+            ExpressionStarter<Exam> predicateBuilder = PredicateBuilder.New<Exam>();
 
-        //    if (IsMainUser())
-        //    {
-        //        predicateBuilder = predicateBuilder.And(w => w.Instructor.CurrAcc.Users.Any());
-        //    }
-        //    else if (IsInstructor())
-        //    {
-        //        predicateBuilder = predicateBuilder.And(w => w.InstructorId == userId);
-        //    }
+            //if (filter.ContentId is not null)
+            //    predicateBuilder = predicateBuilder.And(w => w.ContentExams.Any(w => w.TrainingContentId == filter.ContentId));
+            if (filter.TrainingId is not null)
+                predicateBuilder = predicateBuilder.And(w => w.TrainingId == filter.TrainingId);
+            if (filter.IsActive is not null)
+                predicateBuilder = predicateBuilder.And(w => w.IsActive == filter.IsActive);
 
-        //    var examQuery = await examRepository
-        //        .GetListAsync
-        //        (predicate: predicateBuilder,
-        //        include: i => i.Include(w => w.Instructor)
-        //        .ThenInclude(w => w.CurrAcc)
-        //        .Include(w => w.ContentExams)
-        //        .Include(w => w.ExamVersions)
-        //        .Include(w => w.ExamStatus)
-        //        .Include(w => w.Training));
+            if (IsMainUser())
+            {
+                var currAccId = GetCurrAccId();
+
+                var instructorList = instructorRepository
+                .GetListWithNoLock(
+                    predicate: ins => ins.User.CurrAccId == currAccId,
+                    selector: s => s.Id).ToList();
+
+                predicateBuilder = predicateBuilder.And(w => instructorList.Contains(w.InstructorId));
+            }
+            else if (IsInstructor())
+            {
+                predicateBuilder = predicateBuilder.And(w => w.InstructorId == userId);
+            }
+
+            var examQuery = await examRepository
+                .GetListAsync
+                (predicate: predicateBuilder,
+                include: i => i.Include(w => w.Instructor)
+                .ThenInclude(w => w.CurrAcc)
+                //.Include(w => w.ContentExams)
+                .Include(w => w.ExamVersions)
+                .Include(w => w.ExamStatus)
+                .Include(w => w.Training));
 
         //    var examList = examQuery
         //        .Select(exam =>
@@ -194,6 +201,147 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         //    return ProduceSuccessResponse(examList.ToList());
         //}
 
+        public async Task<Response<AddExamVersionReponse>> AddNewVersionAsync(AddNewVersionDto versionData, CancellationToken cancellationToken = default)
+        {
+            var oldVersion = await examVersionRepository.GetAsync(
+                predicate: p => p.ExamId == versionData.ExamId
+                && p.IsPublished == true,
+                include: i => i.Include(w => w.ExamTopics)
+                .ThenInclude(w => w.ExamQuestions)
+                .ThenInclude(w => w.QuestionOptions));
+
+            if (oldVersion is null)
+                return ProduceFailResponse<AddExamVersionReponse>("Active Version Not Found", HrStatusCodes.Status111DataNotFound);
+
+            var newEntity = mapper.Map<ExamVersion>(oldVersion);
+
+            var response = await examVersionRepository.AddAndReturnAsync(newEntity, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return ProduceSuccessResponse(new AddExamVersionReponse
+            {
+                NewVersionId = response.Id,
+                NewVersionNumber = response.VersionNumber
+            });
+        }
+
+        public async Task<Response<CommonResponse>> UpdateExamInfoAsync(UpdateExamDto updateData, CancellationToken cancellationToken = default)
+        {
+            if (ValidationHelper.FieldBasedValidator<UpdateExamDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
+                return validationResult.SendResponse<CommonResponse>();
+
+            if (ValidationHelper.RuleBasedValidator<UpdateExamDto>(updateData, typeof(ExistUserExamBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
+
+
+
+            var oldExam = await examRepository.GetAsync(
+                predicate: p => p.Id == updateData.Id,
+                include: i => i.Include(w => w.ExamVersions.Where(v => v.IsPublished)));
+            return null;
+        }
+
+        public async Task<Response<GetExamResponse>> GetExamByIdAsync(GetExamDto filter, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<GetExamDto>();
+            var validateResult = validator.Validate(filter);
+
+            if (validateResult.IsValid is false)
+                return validateResult.SendResponse<GetExamResponse>();
+
+            var examData = await examRepository.GetQuery(
+                    e => e.Id == filter.ExamId
+                    && e.IsActive == true
+                    && (e.IsDelete == false || e.IsDelete == null)
+                    && e.ExamVersions.Any(ev => ev.IsPublished == true
+                                            && ev.IsActive == true
+                                            && (ev.IsDelete == false || ev.IsDelete == null))
+                    , include: q => q.Include(e => e.ExamVersions)
+                                    .ThenInclude(ev => ev.ExamTopics)
+                                    .ThenInclude(et => et.ExamQuestions)
+                ).Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    e.Description,
+                    PublishedVersion = e.ExamVersions
+                        .Where(ev => ev.IsPublished)
+                        .Select(ev => new
+                        {
+                            ev.ExamTime,
+                            ev.SuccessRate,
+                            ev.PassingScore,
+                            ev.TotalQuestionCount,
+                            Topics = ev.ExamTopics.Select(et => new
+                            {
+                                et.Id,
+                                et.QuestionCount,
+                                et.Title,
+                                et.ImgPath,
+                                Questions = et.ExamQuestions
+                                    .OrderBy(q => Guid.NewGuid()) // Rastgele sıralama
+                                    .Take(et.QuestionCount) // Başlıktaki soru sayısına göre al
+                                    .Select(q => new
+                                    {
+                                        q.Id,
+                                        q.QuestionText
+                                    }).ToList()
+                            }).ToList()
+                        }).FirstOrDefault()
+                }).FirstOrDefaultAsync();
+
+            if (examData is null
+                || examData.PublishedVersion is null
+                || examData.PublishedVersion.Topics is null
+                || examData.PublishedVersion.Topics.Count == 0)
+                ProduceFailResponse<GetExamResponse>("Exam Not Ready!", HrStatusCodes.Status111DataNotFound);
+
+            var questionIds = examData.PublishedVersion.Topics
+                    .SelectMany(t => t.Questions)
+                    .Select(q => q.Id)
+                    .ToList();
+
+            var questionOptions = await questionOptionsRepository.GetQuery(
+                o => questionIds.Contains(o.QuestionId)
+            ).Select(o => new
+            {
+                o.Id,
+                o.OptionText,
+                o.QuestionId
+            }).ToListAsync();
+
+            var response = new GetExamResponse
+            {
+                ExamId = examData.Id,
+                Title = examData.Title,
+                Description = examData.Description,
+                ExamTime = examData.PublishedVersion.ExamTime,
+                SuccessRate = examData.PublishedVersion.SuccessRate,
+                PassingScore = examData.PublishedVersion.PassingScore,
+                TotalQuestionCount = examData.PublishedVersion.TotalQuestionCount,
+                Topics = examData.PublishedVersion.Topics.Select(t => new GetExamTopicResponse
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    ImgPath = t.ImgPath,
+                    QuestionCount = t.QuestionCount,
+                    Questions = t.Questions.Select(q => new GetQuestionResponse
+                    {
+                        Id = q.Id,
+                        QuestionText = q.QuestionText,
+                        Options = questionOptions
+                            .Where(o => o.QuestionId == q.Id)
+                            .Select(o => new GetQuestionOptionsResponse
+                            {
+                                Id = o.Id,
+                                OptionText = o.OptionText
+                            }).ToList()
+                    }).ToList()
+                }).ToList()
+            };
+
+            return ProduceSuccessResponse(response);
+        }
 
     }
 }

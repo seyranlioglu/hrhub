@@ -9,14 +9,18 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             ExamVersions = new HashSet<ExamVersion>();
             ExamResults = new HashSet<ExamResult>();
-            ContentExams = new HashSet<ContentExam>();
+
         }
         public string Title { get; set; }
         public string Description { get; set; }
         public long TrainingId { get; set; }
         public long ExamStatusId { get; set; }
         public long InstructorId { get; set; }
+        public long ActionId { get; set; }
 
+
+        [ForeignKey("ActionId")]
+        public virtual ExamAction ExamAction { get; set; }
         [ForeignKey("InstructorId")]
         public User Instructor { get; set; }
         [ForeignKey("TrainingId")]
@@ -25,6 +29,5 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ExamStatus ExamStatus { get; set; }
         public virtual ICollection<ExamVersion> ExamVersions { get; set; } = null;
         public virtual ICollection<ExamResult> ExamResults { get; set; } = null;
-        public virtual ICollection<ContentExam> ContentExams { get; set; } = null;
     }
 }

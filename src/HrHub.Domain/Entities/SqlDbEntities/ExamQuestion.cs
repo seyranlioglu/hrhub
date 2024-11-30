@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 namespace HrHub.Domain.Entities.SqlDbEntities;
-public class ExamQuestion : TypeCardEntity<long>
+public class ExamQuestion : CardEntity<long>
 {
     public ExamQuestion()
     {

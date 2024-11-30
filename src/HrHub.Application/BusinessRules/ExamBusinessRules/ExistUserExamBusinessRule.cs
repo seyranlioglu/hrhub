@@ -34,6 +34,7 @@ namespace HrHub.Application.BusinessRules.ExamBusinessRules
                 var existUserExam = userExamRepository
                     .Exists(
                     predicate: p => p.ExamVersion.ExamId == exam.Id);
+
                 (bool isValid, string errorMessage) result = existUserExam ? (false, ValidationMessages.ExamUserExistsError)
                 : (true, string.Empty);
 

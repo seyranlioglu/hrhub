@@ -1,0 +1,19 @@
+﻿using HrHub.Core.Domain.Entity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HrHub.Domain.Entities.SqlDbEntities
+{
+    public class ExamVersionStatus : TypeCardEntity<long>
+    {
+        public virtual ICollection<ExamVersion> ExamVersions { get; set; }
+
+        public ExamVersionStatus()
+        {
+            ExamVersions = new HashSet<ExamVersion>();
+        }
+    }
+}

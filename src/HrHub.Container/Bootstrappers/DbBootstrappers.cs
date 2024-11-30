@@ -27,7 +27,6 @@ namespace HrHub.Container.Bootstrappers
                 throw new BusinessException(HrStatusCodes.Status111DataNotFound, "Triple Des Key Not Found!");
 
             string decryptStr = TripleDesEncryption.Decrypt(dbSettings.ConnectionString, key);
-            Console.WriteLine(decryptStr);
             services.AddBackendDataEF<HrHubDbContext>(new ContextConfiguration
             {
                 ConnectionString = decryptStr,
