@@ -5,7 +5,6 @@ using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.TrainingBusinessRules;
-using HrHub.Application.Managers.Users;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.Helpers;
