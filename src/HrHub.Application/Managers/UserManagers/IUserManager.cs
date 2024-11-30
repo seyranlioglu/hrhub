@@ -8,6 +8,7 @@ namespace HrHub.Application.Managers.UserManagers
 {
     public interface IUserManager : IBaseManager
     {
+        Task<bool> IsMainUser();
         Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default);
         Task<Response<UserSignInResponse>> SignIn(UserSignInDto data, CancellationToken cancellationToken = default);
         Task<Response<VerifySendResponse>> VerifyCodeSend(VerifySendDto verifySendDto, CancellationToken cancellationToken = default);
