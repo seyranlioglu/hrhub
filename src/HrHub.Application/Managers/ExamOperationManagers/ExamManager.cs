@@ -69,11 +69,11 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         //    if (validateResult.IsValid is false)
         //        return validateResult.SendResponse<AddExamResponse>();
 
-            var entity = mapper.Map<Exam>(data);
-            entity.InstructorId = GetCurrentUserId();
+            //var entity = mapper.Map<Exam>(data);
+            //entity.InstructorId = GetCurrentUserId();
 
-            var addResponse = await examRepository.AddAndReturnAsync(entity, cancellationToken);
-            await unitOfWork.SaveChangesAsync();
+            //var addResponse = await examRepository.AddAndReturnAsync(entity, cancellationToken);
+            //await unitOfWork.SaveChangesAsync();
 
         //    var lastVersion = addResponse.ExamVersions.Where(w => w.IsPublished == true).FirstOrDefault();
 

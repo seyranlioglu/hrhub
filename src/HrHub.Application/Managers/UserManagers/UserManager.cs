@@ -4,18 +4,20 @@ using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
 using HrHub.Application.Helpers;
-using HrHub.Cache.Services;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.HrFluentValidation;
+using HrHub.Core.Utilties.Encryption;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
 using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Identity.Model;
 using HrHub.Identity.Services;
+using HrHub.Infrastructre.Repositories.Abstract;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using ServiceStack;
+using System.Linq.Expressions;
 
 namespace HrHub.Application.Managers.UserManagers
 {
@@ -28,9 +30,10 @@ namespace HrHub.Application.Managers.UserManagers
 
         private readonly IAppUserService appUserService;
         private readonly IAppRoleService appRoleService;
-     //   private readonly ICacheService cacheService;
+        //   private readonly ICacheService cacheService;
         private readonly IAuthenticationService authenticationService;
-        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,/* ICacheService cacheService,*/ IAuthenticationService authenticationService) : base(httpContextAccessor)
+        private readonly IPasswordHistoryRepository passwordHistoryRepository;
+        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,/* ICacheService cacheService,*/ IAuthenticationService authenticationService, IPasswordHistoryRepository passwordHistoryRepository) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -38,8 +41,9 @@ namespace HrHub.Application.Managers.UserManagers
             this.userRepository = unitOfWork.CreateRepository<User>();
             this.appUserService = appUserService;
             this.appRoleService = appRoleService;
-           // this.cacheService = cacheService;
+            // this.cacheService = cacheService;
             this.authenticationService = authenticationService;
+            this.passwordHistoryRepository = passwordHistoryRepository;
         }
         public async Task<bool> IsMainUser()
         {
@@ -72,6 +76,15 @@ namespace HrHub.Application.Managers.UserManagers
                         if (userRole != null)
                         {
                             await appUserService.AddUserRole(appUser, new Identity.Entities.AppRole { Id = userRole.Id, Name = userRole.Name });
+                            var passwordHistory = new PasswordHistory
+                            {
+                                UserId = appUser.Id,
+                                PasswordChangeDate = DateTime.UtcNow,
+                                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                                ChangeReason = "Password created",
+                                Password = AesEncrypion.EncryptString(password)
+                            };
+                            await passwordHistoryRepository.AddAsync(passwordHistory);
                             await unitOfWork.SaveChangesAsync();
                             return ProduceSuccessResponse(new UserSignUpResponse
                             {
@@ -142,8 +155,8 @@ namespace HrHub.Application.Managers.UserManagers
                 return ProduceFailResponse<VerifySignInResponse>("Doğrulama kodu geçersiz!", StatusCodes.Status401Unauthorized);
 
             //TODO: cache servisi düzelnce açılacak
-          //  var cacheToken = await cacheService.GetAsync<VerifySignInResponse>("SignIn_" + verify.UserName, cancellationToken);
-           // await cacheService.RemoveAsync<VerifySignInResponse>("SignIn_" + verify.UserName);
+            //  var cacheToken = await cacheService.GetAsync<VerifySignInResponse>("SignIn_" + verify.UserName, cancellationToken);
+            // await cacheService.RemoveAsync<VerifySignInResponse>("SignIn_" + verify.UserName);
             return ProduceSuccessResponse(new VerifySignInResponse { });
         }
 
@@ -195,11 +208,23 @@ namespace HrHub.Application.Managers.UserManagers
             var result = await authenticationService.SignIn(new SignInViewModelResource { Email = request.UserName, Password = request.Password });
             if (result == null)
                 return ProduceFailResponse<UserSignInResponse>("Kullanıcı Girişi Başarısız..", StatusCodes.Status500InternalServerError);
+            VerifySignInResponse response = new VerifySignInResponse
+            {
 
+                Expiration = result.Expiration,
+                Token = result.Token,
+                RefreshToken = result.RefreshToken,
+                CurrAccId = user.CurrAccId,
+                Id = user.Id,
+                Name = user.Name,
+                SurName = user.SurName,
+                UserShortName = user.UserShortName,
+                PhoneNumber = user.PhoneNumber
+            };
             string receiver = request.UserName;
             string message = VerificationHelper.MaskEmail(request.UserName) + " mail adresinize doğrulama kodu gönderilmiştir.";
             SubmissionTypeEnum type = SubmissionTypeEnum.Email;
-            if (user.PhoneNumberConfirmed && !user.PhoneNumber.IsNullOrEmpty())
+            if (request.Type == SubmissionTypeEnum.Sms)
             {
 
                 receiver = user.PhoneNumber;
@@ -211,8 +236,221 @@ namespace HrHub.Application.Managers.UserManagers
             string verificationCode = VerificationHelper.GenerateVerificationCode();
             VerificationHelper.SendVerifyCode(receiver, verificationCode, type);
             VerificationHelper.SaveCode("SignIn_" + request.UserName, verificationCode);
-           // await cacheService.SetAsync(result, "SignIn_" + request.UserName, cancellationToken);
+            // await cacheService.SetAsync(response, "SignIn_" + request.UserName, cancellationToken);
             return ProduceSuccessResponse(new UserSignInResponse { Result = true, Message = message });
+        }
+
+        public async Task<Response<CommonResponse>> AddUser(AddUserDto request, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<AddUserDto>();
+            var validateResult = validator.Validate(request);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+
+            string password = PasswordHepler.GeneratePassword(8, true, true, true);
+            var signUpModel = mapper.Map<SignUpDto>(request);
+            signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
+            signUpModel.Password = password;
+            signUpModel.IsMainUser = false;
+            var result = await appUserService.SignUpAsync(signUpModel);
+            if (result.Item2)
+            {
+                var appUser = await appUserService.GetUserByEmailAsync(request.Email);
+                if (appUser != null)
+                {
+                    var roles = await appRoleService.GetRoleList();
+                    if (roles != null)
+                    {
+                        var userRole = roles.FirstOrDefault(s => s.Name == Roles.User);
+                        if (userRole != null)
+                        {
+                            await appUserService.AddUserRole(appUser, new Identity.Entities.AppRole { Id = userRole.Id, Name = userRole.Name });
+
+                            var passwordHistory = new PasswordHistory
+                            {
+                                UserId = appUser.Id,
+                                PasswordChangeDate = DateTime.UtcNow,
+                                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                                ChangeReason = "Password created",
+                                Password = AesEncrypion.EncryptString(password)
+                            };
+                            await passwordHistoryRepository.AddAsync(passwordHistory);
+                            await unitOfWork.SaveChangesAsync();
+
+                            //TODO kullanıcı ve parola bilgilieri kullanıcıya mail olarak gönderilecek
+                        }
+                    }
+                }
+            }
+
+            return ProduceFailResponse<CommonResponse>("Kullanıcı Kaydedilemedi.", StatusCodes.Status500InternalServerError);
+        }
+
+        public async Task<Response<CommonResponse>> ChangePassword(ChangePasswordDto changePassword, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<ChangePasswordDto>();
+            var validateResult = validator.Validate(changePassword);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+            var user = await appUserService.GetUserByEmailAsync(changePassword.UserName);
+            if (user == null)
+            {
+                return ProduceFailResponse<CommonResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
+            }
+            if (!user.EmailConfirmed)
+            {
+                return ProduceFailResponse<CommonResponse>("Kullanıcı mail doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce mail doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
+            }
+            if (!user.PhoneNumberConfirmed)
+            {
+                return ProduceFailResponse<CommonResponse>("Kullanıcı telefon doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce telefon doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
+            }
+            string receiver = changePassword.UserName;
+            string message = VerificationHelper.MaskEmail(changePassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
+            SubmissionTypeEnum type = SubmissionTypeEnum.Email;
+            if (changePassword.Type == SubmissionTypeEnum.Sms)
+            {
+
+                receiver = user.PhoneNumber;
+                message = VerificationHelper.MaskPhoneNumber(receiver) + "  telefonunuza şifre değişikliği için doğrulama kodu gönderilmiştir.";
+                type = SubmissionTypeEnum.Sms;
+            }
+
+            // Doğrulama kodu oluştur ve gönder
+            string verificationCode = VerificationHelper.GenerateVerificationCode();
+            VerificationHelper.SendVerifyCode(receiver, verificationCode, type);
+            VerificationHelper.SaveCode("ChangePassword_" + changePassword.UserName, verificationCode);
+            return ProduceSuccessResponse(new CommonResponse { Result = true, Message = message });
+        }
+
+        public async Task<Response<CommonResponse>> VerifyCodeAndChangePassword(VerifyChangePasswordDto verify, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<VerifyChangePasswordDto>();
+            var validateResult = validator.Validate(verify);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+
+
+            string? storedCode = VerificationHelper.GetCode("ChangePassword_" + verify.UserName);
+            if (storedCode == null || storedCode != verify.Code)
+                return ProduceFailResponse<CommonResponse>("Doğrulama kodu geçersiz!", StatusCodes.Status401Unauthorized);
+
+            return ProduceSuccessResponse(new CommonResponse { Message = "Doğrulama Başarılı", Code = 200, Result = true });
+        }
+
+        public async Task<Response<CommonResponse>> PasswordReset(PasswordResetDto passwordReset, string reason, bool isSendMail = false, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<PasswordResetDto>();
+            var validateResult = validator.Validate(passwordReset);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+
+            var user = await appUserService.GetUserByEmailAsync(passwordReset.UserName);
+            if (user == null)
+                return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+
+            //Son 3 şifre getiriliyor.
+            var userPasswords = await passwordHistoryRepository
+                .GetPagedListAsync(predicate: ph => ph.UserId == user.Id,
+                                   orderBy: o => o.OrderByDescending(p => p.CreatedDate),
+                                   skip: 0, take: 3,
+                                   selector: s => AesEncrypion.DecryptString(s.Password));
+
+            bool isPasswordUsed = userPasswords.Any(decryptedPassword => decryptedPassword == passwordReset.Password);
+            if (isPasswordUsed)
+                return ProduceFailResponse<CommonResponse>("Yeni şifre, son 3 şifre ile aynı olamaz.", StatusCodes.Status400BadRequest);
+
+            var token = await authenticationService.GeneratePasswordResetTokenAsync(user);
+            var newPasswordResult = await authenticationService.ResetPasswordAsync(user, token, passwordReset.Password);
+            if (!newPasswordResult)
+                return ProduceFailResponse<CommonResponse>("Şifre değiştirme başarısız.!", StatusCodes.Status500InternalServerError);
+
+            var passwordHistory = new PasswordHistory
+            {
+                UserId = user.Id,
+                PasswordChangeDate = DateTime.UtcNow,
+                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                ChangeReason = reason,
+                Password = AesEncrypion.EncryptString(passwordReset.Password)
+            };
+            await passwordHistoryRepository.AddAsync(passwordHistory);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            if (isSendMail)
+            {
+                //TODO: Süper Admin değişiklik yapıyorsa, password değişen kişiye yeni bilgilierinin Mail gönderme işlemleri yapılacak
+
+            }
+            return ProduceSuccessResponse(new CommonResponse { Message = "Şifre başarıyla değiştirilmiştir.", Code = 200, Result = true });
+        }
+        public async Task<Response<GetUserResponse>> GetUserById(GetUserByIdDto getUserById, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<GetUserByIdDto>();
+            var validateResult = validator.Validate(getUserById);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<GetUserResponse>();
+            var user = await userRepository.GetAsync(p => p.Id == getUserById.Id, selector: s => mapper.Map<GetUserResponse>(s));
+            if (user == null)
+                return ProduceFailResponse<GetUserResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+
+            return ProduceSuccessResponse(user);
+        }
+
+        public async Task<Response<List<GetUserResponse>>> GetUserList(CancellationToken cancellationToken = default)
+        {
+            List<Attributes> list = new List<Attributes>();
+            if (!this.IsSuperAdmin() && await this.IsMainUser())
+            {
+                list.Add(new Attributes { Name = "CurrAccId", Value = this.GetCurrAccId(), Type = ExpressionType.Equal });
+            }
+            var predicate = FilterHelper<User>.GeneratePredicate(list);
+            var user = await userRepository.GetListAsync(predicate: predicate, selector: s => mapper.Map<GetUserResponse>(s));
+            return ProduceSuccessResponse(user.ToList());
+        }
+
+        public async Task<Response<CommonResponse>> SetUserStatus(SetUserStatusDto setUserStatusDto, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<SetUserStatusDto>();
+            var validateResult = validator.Validate(setUserStatusDto);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+            var user = await userRepository.GetAsync(p => p.Id == setUserStatusDto.UserId);
+            if (user == null)
+                return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+
+            user.IsActive = setUserStatusDto.IsActive;
+            user.UpdateDate = DateTime.UtcNow;
+            user.UpdateUserId = this.GetCurrentUserId();
+            userRepository.Update(user);
+            await unitOfWork.SaveChangesAsync();
+            return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı durumu başarıyla değiştirilmiştir.", Code = 200, Result = true });
+
+        }
+
+        public async Task<Response<CommonResponse>> UpdateUser(UserUpdateDto userUpdateDto, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<UserUpdateDto>();
+            var validateResult = validator.Validate(userUpdateDto);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+            var user = await userRepository.GetAsync(p => p.Id == userUpdateDto.Id);
+            if (user == null)
+                return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+
+            user.Name = userUpdateDto.Name;
+            user.SurName = userUpdateDto.SurName;
+            user.CurrAccId = userUpdateDto.CurrAccId;
+            user.UpdateDate = DateTime.UtcNow;
+            user.UpdateUserId = this.GetCurrentUserId();
+            userRepository.Update(user);
+            await unitOfWork.SaveChangesAsync();
+            return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla güncellenmiştir.", Code = 200, Result = true });
         }
     }
 }

@@ -5,8 +5,11 @@ using HrHub.Domain.Contracts.Dtos.ExamDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingContentDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingSectionDtos;
+using HrHub.Domain.Contracts.Dtos.UserDtos;
 using HrHub.Domain.Contracts.Dtos.WhatYouWillLearns;
+using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
+using HrHub.Identity.Model;
 
 namespace HrHub.Application.Mappers
 {
@@ -98,6 +101,15 @@ namespace HrHub.Application.Mappers
                         }).ToList()
                     }).ToList()
                 })));
+
+            #region User
+            
+            CreateMap<GetUserResponse, User>().ReverseMap();
+            CreateMap<UserSignUpDto, CurrAcc>();
+            CreateMap<UserSignUpDto, SignUpDto>();
+            CreateMap<AddUserDto, SignUpDto>();
+            
+            #endregion
         }
     }
 }
