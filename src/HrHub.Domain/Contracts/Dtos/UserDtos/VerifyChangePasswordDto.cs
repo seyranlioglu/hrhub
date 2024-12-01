@@ -1,17 +1,13 @@
 ﻿using HrHub.Abstraction.Attributes;
-using HrHub.Abstraction.Enums;
 using HrHub.Core.BusinessRules;
 
 namespace HrHub.Domain.Contracts.Dtos.UserDtos
 {
-    public class UserSignInDto
+    public class VerifyChangePasswordDto
     {
         [ValidationRules(typeof(NullCheckRule))]
         public string UserName { get; set; }
-        [ValidationRules(typeof(NullCheckRule))] 
-        public string Password { get; set; }
         [ValidationRules(typeof(NullCheckRule))]
-        public SubmissionTypeEnum Type { get; set; }
-
+        public string Code { get; set; }
     }
 }

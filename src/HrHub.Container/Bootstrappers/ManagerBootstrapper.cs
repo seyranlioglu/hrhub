@@ -1,4 +1,5 @@
-﻿using HrHub.Application.Managers.ExamOperationManagers;
+﻿using HrHub.Application.BusinessRules.ExamBusinessRules;
+using HrHub.Application.Managers.ExamOperationManagers;
 using HrHub.Application.Managers.UserManagers;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -4,14 +4,11 @@ using HrHub.Core.BusinessRules;
 
 namespace HrHub.Domain.Contracts.Dtos.UserDtos
 {
-    public class UserSignInDto
+    public class ChangePasswordDto
     {
-        [ValidationRules(typeof(NullCheckRule))]
+        [ValidationRules(typeof(NullCheckRule))] 
         public string UserName { get; set; }
         [ValidationRules(typeof(NullCheckRule))] 
-        public string Password { get; set; }
-        [ValidationRules(typeof(NullCheckRule))]
         public SubmissionTypeEnum Type { get; set; }
-
     }
 }

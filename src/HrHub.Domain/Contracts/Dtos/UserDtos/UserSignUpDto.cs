@@ -18,6 +18,6 @@ namespace HrHub.Domain.Contracts.Dtos.UserDtos
         public string? PostalCode { get; set; }
         [ValidationRules(typeof(NullCheckRule))] 
         public long CurrAccTypeId { get; set; }
-        public bool? IsMainUser { get; set; }
+        public bool? IsMainUser { get; set; } = true;
     }
 }

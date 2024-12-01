@@ -2,8 +2,8 @@
 {
     public enum MailType
     {
-        AuthorityRequest,
-        SignUp,
-        ForgotPassword
+        AddUser,
+        ForgotPassword,
+        VerifyEmail
     }
 }
