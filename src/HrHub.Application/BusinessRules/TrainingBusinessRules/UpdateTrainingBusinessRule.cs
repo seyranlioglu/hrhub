@@ -16,6 +16,10 @@ namespace HrHub.Application.BusinessRules.TrainingBusinessRules
         private readonly Repository<TrainingLevel> levelRepository;
         private readonly Repository<TimeUnit> timeUnitRepository;
         private readonly Repository<TrainingStatus> trainingStatusRepository;
+        private readonly Repository<Precondition> preconditionRepository;
+        private readonly Repository<ForWhom> forWhomRepository;
+        private readonly Repository<EducationLevel> educationLevelRepository;
+        private readonly Repository<PriceTier> priceTierRepository;
         public UpdateTrainingBusinessRule(IHrUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
@@ -25,6 +29,10 @@ namespace HrHub.Application.BusinessRules.TrainingBusinessRules
             this.levelRepository = unitOfWork.CreateRepository<TrainingLevel>();
             this.timeUnitRepository = unitOfWork.CreateRepository<TimeUnit>();
             this.trainingStatusRepository = unitOfWork.CreateRepository<TrainingStatus>();
+            this.preconditionRepository = unitOfWork.CreateRepository<Precondition>();
+            this.forWhomRepository = unitOfWork.CreateRepository<ForWhom>();
+            this.educationLevelRepository = unitOfWork.CreateRepository<EducationLevel>();
+            this.priceTierRepository = unitOfWork.CreateRepository<PriceTier>();
         }
 
         public (bool IsValid, string ErrorMessage) Validate(object value, string fieldName)
@@ -63,6 +71,30 @@ namespace HrHub.Application.BusinessRules.TrainingBusinessRules
                                           p.Id == trainingDto.TrainingLevelId);
                 if (!islevelExist)
                     return (false, ValidationMessages.TrainingLevelNotFound);
+
+                var isForWhomExist = forWhomRepository
+                            .Exists(p =>
+                                p.Id == trainingDto.ForWhomId);
+                if (!isForWhomExist)
+                    return (false, ValidationMessages.ForWhomNotFound);
+
+                var isPreconditionExist = preconditionRepository
+                                   .Exists(p =>
+                                       p.Id == trainingDto.PreconditionId);
+                if (!isPreconditionExist)
+                    return (false, ValidationMessages.PreconditionNotFound);
+
+                var isEducationLevelExist = educationLevelRepository
+                                 .Exists(p =>
+                                     p.Id == trainingDto.EducationLevelId);
+                if (!isEducationLevelExist)
+                    return (false, ValidationMessages.EducationLevelNotFound);
+
+                var isPriceTierExist = priceTierRepository
+                            .Exists(p =>
+                                p.Id == trainingDto.PriceTierId);
+                if (!isPriceTierExist)
+                    return (false, ValidationMessages.PriceTierNotFound);
 
                 var isTimeUnitExist = timeUnitRepository
                                   .Exists(p =>
