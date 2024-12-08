@@ -437,68 +437,6 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("ContentComments", "public");
                 });
 
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentLibrary", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Abbreviation")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<long?>("CreateUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeleteDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<long>("TrainingContentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TrainingContentId");
-
-                    b.ToTable("ContentLibraries", "public");
-                });
-
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentNote", b =>
                 {
                     b.Property<long>("Id")
@@ -1720,8 +1658,8 @@ namespace HrHub.Domain.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<long>("CategoryId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("CertificateOfAchievementRate")
                         .HasColumnType("numeric");
@@ -1762,8 +1700,8 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("HeaderImage")
                         .HasColumnType("text");
 
-                    b.Property<long>("InstructorId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("InstructorId")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -1781,9 +1719,6 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("text");
 
                     b.Property<long>("TrainingLevelId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TrainingStatusId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("TrainingType")
@@ -2809,21 +2744,6 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("TimeUnitTraining", "public");
                 });
 
-            modelBuilder.Entity("TrainingTrainingStatus", b =>
-                {
-                    b.Property<long>("TrainingStatusId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TrainingStatusesId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("TrainingStatusId", "TrainingStatusesId");
-
-                    b.HasIndex("TrainingStatusesId");
-
-                    b.ToTable("TrainingTrainingStatus", "public");
-                });
-
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Cart", b =>
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "AddCartUser")
@@ -2933,17 +2853,6 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("TrainingContent");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentLibrary", b =>
-                {
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", "TrainingContent")
-                        .WithMany("ContentLibraries")
-                        .HasForeignKey("TrainingContentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TrainingContent");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentNote", b =>
@@ -3444,21 +3353,6 @@ namespace HrHub.Domain.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TrainingTrainingStatus", b =>
-                {
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", null)
-                        .WithMany()
-                        .HasForeignKey("TrainingStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingStatus", null)
-                        .WithMany()
-                        .HasForeignKey("TrainingStatusesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Cart", b =>
                 {
                     b.Navigation("CartItems");
@@ -3610,8 +3504,6 @@ namespace HrHub.Domain.Migrations
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", b =>
                 {
                     b.Navigation("ContentComments");
-
-                    b.Navigation("ContentLibraries");
 
                     b.Navigation("ContentNotes");
 

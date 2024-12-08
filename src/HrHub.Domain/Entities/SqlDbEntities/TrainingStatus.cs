@@ -6,11 +6,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public TrainingStatus()
         {
-            Training = new HashSet<Training>();
+            Trainings = new HashSet<Training>();
         }
         public string? LangCode { get; set; }
 
 
-        public virtual ICollection<Training> Training { get; set; } 
+        public virtual ICollection<Training> Trainings { get; set; } 
     }
 }

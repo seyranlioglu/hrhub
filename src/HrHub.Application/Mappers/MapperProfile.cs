@@ -32,18 +32,18 @@ namespace HrHub.Application.Mappers
             CreateMap<UpdateTrainingDto, Training>().ReverseMap();
             CreateMap<DeleteTrainingDto, Training>().ReverseMap();
             CreateMap<Training, GetTrainingDto>()
-           .ForMember(dest => dest.CategoryCode, opt => opt.MapFrom(src => src.TrainingCategories.First().Code))
-           .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.TrainingCategories.First().Title))
-           .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.TrainingCategories.First().Description))
+           .ForMember(dest => dest.CategoryCode, opt => opt.MapFrom(src => src.TrainingCategory.Code))
+           .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.TrainingCategory.Title))
+           .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.TrainingCategory.Description))
 
-           .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Instructors.First().Email))
-           .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Instructors.First().Title))
+           .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Instructor.Email))
+           .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Instructor.Title))
 
-           .ForMember(dest => dest.CompletionTimeUnitCode, opt => opt.MapFrom(src => src.TimeUnits.First().Code))
-           .ForMember(dest => dest.CompletionTimeUnitDescription, opt => opt.MapFrom(src => src.TimeUnits.First().Description))
+           .ForMember(dest => dest.CompletionTimeUnitCode, opt => opt.MapFrom(src => src.TimeUnit.Code))
+           .ForMember(dest => dest.CompletionTimeUnitDescription, opt => opt.MapFrom(src => src.TimeUnit.Description))
 
-           .ForMember(dest => dest.TrainingLevelCode, opt => opt.MapFrom(src => src.TrainingLevels.First().Code))
-           .ForMember(dest => dest.TrainingLevelDescription, opt => opt.MapFrom(src => src.TrainingLevels.First().Description))
+           .ForMember(dest => dest.TrainingLevelCode, opt => opt.MapFrom(src => src.TrainingLevel.Code))
+           .ForMember(dest => dest.TrainingLevelDescription, opt => opt.MapFrom(src => src.TrainingLevel.Description))
 
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
            .ForMember(dest => dest.HeaderImage, opt => opt.MapFrom(src => src.HeaderImage))

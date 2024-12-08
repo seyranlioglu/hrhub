@@ -33,23 +33,43 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long CompletionTimeUnitId { get; set; }
         public long TrainingLevelId { get; set; }
         public long TrainingStatusId { get; set; }
+        public long PreconditionId { get; set; }
+        public long ForWhomId { get; set; }
+        public string SubTitle { get; set; }
+        public string Labels { get; set; }
+        public string CourseImage { get; set; }
+        public string Trailer { get; set; }
+        public string WelcomeMessage { get; set; }
+        public string CongratulationMessage { get; set; }
+        public long EducationLevelId { get; set; }
+        public long PriceTierId { get; set; }
 
         [ForeignKey("CategoryId")]
-        public virtual ICollection<TrainingCategory> TrainingCategories { get; set; }
+        public virtual TrainingCategory TrainingCategory { get; set; }
 
         [ForeignKey("InstructorId")]
-        public virtual ICollection<Instructor> Instructors { get; set; }
+        public virtual Instructor Instructor { get; set; }
 
         [ForeignKey("CompletionTimeUnitId")]
-        public virtual ICollection<TimeUnit> TimeUnits { get; set; }
+        public virtual TimeUnit TimeUnit { get; set; }
 
         [ForeignKey("TrainingLevelId")]
-        public virtual ICollection<TrainingLevel> TrainingLevels { get; set; }
+        public virtual TrainingLevel TrainingLevel { get; set; }
 
         [ForeignKey("TrainingStatusId")]
-        public virtual ICollection<TrainingStatus> TrainingStatuses{ get; set; }
+        public virtual TrainingStatus TrainingStatus { get; set; }
 
+        [ForeignKey("PreconditionId")]
+        public virtual Precondition Precondition { get; set; }
 
+        [ForeignKey("ForWhomId")]
+        public virtual ForWhom ForWhom { get; set; }
+
+        [ForeignKey("EducationLevelId")]
+        public virtual EducationLevel EducationLevel { get; set; }
+
+        [ForeignKey("PriceTierId")]
+        public virtual PriceTier PriceTier { get; set; }
 
         public virtual ICollection<CartItem> CartItems { get; set; } = null;
         public virtual ICollection<Exam> Exams { get; set; } = null;
