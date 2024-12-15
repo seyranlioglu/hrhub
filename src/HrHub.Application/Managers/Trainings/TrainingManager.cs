@@ -98,10 +98,10 @@ public class TrainingManager : ManagerBase, ITrainingManager
     public async Task<Response<IEnumerable<GetTrainingDto>>> GetTrainingListAsync()
     {
         var trainingListDto = await trainingRepository.GetListAsync(predicate: p => p.IsActive,
-                                                                    include: i => i.Include(s => s.TrainingCategories)
-                                                                    .Include(s => s.Instructors)
-                                                                    .Include(s => s.TimeUnits)
-                                                                    .Include(s => s.TrainingLevels),
+                                                                    include: i => i.Include(s => s.TrainingCategory)
+                                                                    .Include(s => s.Instructor)
+                                                                    .Include(s => s.TimeUnit)
+                                                                    .Include(s => s.TrainingLevel),
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
 
         if (ValidationHelper.RuleBasedValidator<GetTrainingDto>(trainingListDto.FirstOrDefault(), typeof(ExistTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
@@ -115,10 +115,10 @@ public class TrainingManager : ManagerBase, ITrainingManager
     public async Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id)
     {
         var trainingDto = await trainingRepository.GetAsync(predicate: p => p.IsActive && p.Id == id,
-                                                                include: i => i.Include(s => s.TrainingCategories)
-                                                                    .Include(s => s.Instructors)
-                                                                    .Include(s => s.TimeUnits)
-                                                                    .Include(s => s.TrainingLevels),
+                                                                include: i => i.Include(s => s.TrainingCategory)
+                                                                    .Include(s => s.Instructor)
+                                                                    .Include(s => s.TimeUnit)
+                                                                    .Include(s => s.TrainingLevel),
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
 
         if (ValidationHelper.RuleBasedValidator<GetTrainingDto>(trainingDto, typeof(ExistTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)

@@ -37,5 +37,9 @@ namespace HrHub.Abstraction.Consts
         public static string TrainingContentTypeNotExistsError => Properties.ValidationMessages.TrainingContentTypeNotExistsError;
         public static string TrainingContentNotExistsError => Properties.ValidationMessages.TrainingContentNotExistsError;
         public static string TrainingContentTypeExistsError => Properties.ValidationMessages.TrainingContentTypeExistsError;
+        public static string PreconditionNotFound => Properties.ValidationMessages.PreconditionNotFound;
+        public static string ForWhomNotFound => Properties.ValidationMessages.ForWhomNotFound;
+        public static string EducationLevelNotFound => Properties.ValidationMessages.EducationLevelNotFound;
+        public static string PriceTierNotFound => Properties.ValidationMessages.PriceTierNotFound;
     }
 }

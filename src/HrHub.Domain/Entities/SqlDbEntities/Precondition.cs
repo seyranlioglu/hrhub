@@ -2,14 +2,12 @@
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
-    public class TrainingLevel : TypeCardEntity<long>
+    public class Precondition : TypeCardEntity<long>
     {
-        public TrainingLevel()
+        public Precondition()
         {
             Trainings = new HashSet<Training>();
         }
-        public long Priority { get; set; }
-        public string Color { get; set; }
 
         public virtual ICollection<Training> Trainings { get; set; }
     }

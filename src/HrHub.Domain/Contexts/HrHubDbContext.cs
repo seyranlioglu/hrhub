@@ -63,6 +63,10 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<UserExam> UserExams { get; set; }
         public virtual DbSet<WhatYouWillLearn> WhatYouWillLearns { get; set; }
         public virtual DbSet<ContentLibrary> ContentLibraries { get; set; }
+        public virtual DbSet<Precondition> Preconditions { get; set; }
+        public virtual DbSet<ForWhom> ForWhoms { get; set; }
+        public virtual DbSet<EducationLevel> EducationLevels { get; set; }
+        public virtual DbSet<PriceTier> PriceTiers { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

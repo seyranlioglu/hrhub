@@ -20,5 +20,9 @@
         public DateTime? CompletionTime { get; set; }
         public long CompletionTimeUnitId { get; set; }
         public long TrainingLevelId { get; set; }
+        public long PreconditionId { get; set; }
+        public long ForWhomId { get; set; }
+        public long EducationLevelId { get; set; }
+        public long PriceTierId { get; set; }
     }
 }
