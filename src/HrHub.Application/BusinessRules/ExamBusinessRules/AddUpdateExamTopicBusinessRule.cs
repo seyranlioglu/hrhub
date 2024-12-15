@@ -13,10 +13,10 @@ namespace HrHub.Application.BusinessRules.ExamBusinessRules
 {
     public class AddUpdateExamTopicBusinessRule : IAddUpdateExamTopicBusinessRule
     {
-        private readonly HrUnitOfWork unitOfWork;
+        private readonly IHrUnitOfWork unitOfWork;
         private readonly Repository<ExamTopic> examTopicRepository;
         private readonly Repository<Exam> examRepository;
-        public AddUpdateExamTopicBusinessRule(HrUnitOfWork unitOfWork)
+        public AddUpdateExamTopicBusinessRule(IHrUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
             examTopicRepository = unitOfWork.CreateRepository<ExamTopic>();

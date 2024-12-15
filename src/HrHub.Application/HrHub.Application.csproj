@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Integrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Properties\HrErrorMessages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
