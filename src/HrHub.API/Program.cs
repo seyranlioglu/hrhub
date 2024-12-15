@@ -34,9 +34,11 @@ builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
 builder.Services.RegisterImplementations<IBusinessRule>("HrHub.Application");
 builder.Services.RegisterTypeManagers();
 builder.Services.RegisterManagers();
+builder.Services.RegisterNotificationService();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 builder.Services.AddAuthorization(opts =>
 {
