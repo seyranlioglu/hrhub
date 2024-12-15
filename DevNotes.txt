@@ -1,0 +1,3 @@
+/* Notification servise ekleme yapmak için izlenecek yol */
+1. Abstraction -> Enums -> MessageType alanýna Gönderim tipini ekle
+2. 
