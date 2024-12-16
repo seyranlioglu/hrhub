@@ -42,7 +42,7 @@ namespace HrHub.Application.Integrations.NotificationServices
                         RetailerCode = smsSettings.RetailerCode,
                         Username = smsSettings.Username
                     };
-
+                    //TODO devam edecek
 
 
                     var client = AppSettingsHelper.GetData<Abstraction.Settings.HttpClientConfiguration>().HttpClients
