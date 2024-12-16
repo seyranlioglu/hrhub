@@ -9,6 +9,7 @@ namespace HrHub.Abstraction.Enums
     public enum HttpClients
     {
         IdentityServer,
-        MailSenderClient
+        MailSenderClient,
+        SmsServer
     }
 }
