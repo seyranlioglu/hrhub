@@ -56,7 +56,7 @@ namespace HrHub.Application.Integrations.NotificationServices
                     {
                         throw new InvalidOperationException("Endpoint could not be found.");
                     }
-                    httpClientHelperFactory.PostAsync<Response<object>, SendSmsDto>(endPoint.Url, sendSmsModel);
+                   var result = httpClientHelperFactory.PostAsync<Response<object>, SendSmsDto>(endPoint.Url, sendSmsModel).Result;
                 }
                 else
                     throw new BusinessException("Invalid message type for SMS sender.");
@@ -70,6 +70,20 @@ namespace HrHub.Application.Integrations.NotificationServices
                 var smsSettings = AppSettingsHelper.GetData<SmsServiceSettings>();
                 if (smsSettings.IsActive && smsSettings != null)
                 {
+                    var sendSmsModel = new SendSmsDto
+                    {
+                        BlackListFilter = smsSettings.BlackListFilter,
+                        BrandCode = smsSettings.BrandCode,
+                        BroadCastMessage = smsMessage.Recipient,
+                        SmsMessages = smsMessage.Content,
+                        Channel = smsSettings.Channel,
+                        IysFilter = smsSettings.IysFilter,
+                        Originator = smsSettings.Originator,
+                        Password = smsSettings.Password,
+                        RecipientType = smsSettings.RecipientType,
+                        RetailerCode = smsSettings.RetailerCode,
+                        Username = smsSettings.Username
+                    };
 
                     var client = AppSettingsHelper.GetData<Abstraction.Settings.HttpClientConfiguration>().HttpClients
                            .Find(w => w.Name == Abstraction.Enums.HttpClients.SmsServer.ToString());
@@ -82,7 +96,7 @@ namespace HrHub.Application.Integrations.NotificationServices
                     {
                         throw new InvalidOperationException("Endpoint could not be found.");
                     }
-                    await httpClientHelperFactory.PostAsync<Response<CommonResponse>, object>(endPoint.Url, "");
+                    var result = await httpClientHelperFactory.PostAsync<Response<object>, SendSmsDto>(endPoint.Url, sendSmsModel);
                 }
             }
             else
