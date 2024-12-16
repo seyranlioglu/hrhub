@@ -3,11 +3,13 @@ using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
+using HrHub.Application.Factories;
 using HrHub.Application.Helpers;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.HrFluentValidation;
 using HrHub.Core.Utilties.Encryption;
+using HrHub.Domain.Contracts.Dtos.NotificationDtos;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
 using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
@@ -33,7 +35,8 @@ namespace HrHub.Application.Managers.UserManagers
         //   private readonly ICacheService cacheService;
         private readonly IAuthenticationService authenticationService;
         private readonly IPasswordHistoryRepository passwordHistoryRepository;
-        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,/* ICacheService cacheService,*/ IAuthenticationService authenticationService, IPasswordHistoryRepository passwordHistoryRepository) : base(httpContextAccessor)
+        private readonly MessageSenderFactory messageSenderFactory;
+        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,/* ICacheService cacheService,*/ IAuthenticationService authenticationService, IPasswordHistoryRepository passwordHistoryRepository, MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -44,6 +47,7 @@ namespace HrHub.Application.Managers.UserManagers
             // this.cacheService = cacheService;
             this.authenticationService = authenticationService;
             this.passwordHistoryRepository = passwordHistoryRepository;
+            this.messageSenderFactory = messageSenderFactory;
         }
         public async Task<bool> IsMainUser()
         {
@@ -59,13 +63,19 @@ namespace HrHub.Application.Managers.UserManagers
                 return validateResult.SendResponse<UserSignUpResponse>();
 
             var currAcc = mapper.Map<CurrAcc>(data);
+            currAcc.CreatedDate = DateTime.UtcNow;
+
             var curAccEntity = await currAccRepository.AddAndReturnAsync(currAcc);
+            await unitOfWork.SaveChangesAsync();
             string password = PasswordHepler.GeneratePassword(8, true, true, true);
             var signUpModel = mapper.Map<SignUpDto>(data);
             signUpModel.Password = password;
+            signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
+            signUpModel.CurrAccId = curAccEntity.Id;
             var result = await appUserService.SignUpAsync(signUpModel);
             if (result.Item2)
             {
+                
                 var appUser = await appUserService.GetUserByEmailAsync(data.Email);
                 if (appUser != null)
                 {
@@ -82,7 +92,8 @@ namespace HrHub.Application.Managers.UserManagers
                                 PasswordChangeDate = DateTime.UtcNow,
                                 ExpiryDate = DateTime.UtcNow.AddMonths(6),
                                 ChangeReason = "Password created",
-                                Password = AesEncrypion.EncryptString(password)
+                                Password = AesEncrypion.EncryptString(password),
+                                CreatedDate = DateTime.UtcNow
                             };
                             await passwordHistoryRepository.AddAsync(passwordHistory);
                             await unitOfWork.SaveChangesAsync();
@@ -120,7 +131,7 @@ namespace HrHub.Application.Managers.UserManagers
             }
             // Doğrulama kodu oluştur ve gönder
             string verificationCode = VerificationHelper.GenerateVerificationCode();
-            VerificationHelper.SendVerifyCode(verifySendDto.Receiver, verificationCode, verifySendDto.Type);
+            await SendVerifyCode(verifySendDto.Receiver, verificationCode, verifySendDto.Type,MessageTemplates.Register);
             VerificationHelper.SaveCode("Confirm_" + verifySendDto.Receiver, verificationCode);
             return ProduceSuccessResponse(new VerifySendResponse { Result = true, Message = message });
         }
@@ -234,7 +245,7 @@ namespace HrHub.Application.Managers.UserManagers
 
             // Doğrulama kodu oluştur ve gönder
             string verificationCode = VerificationHelper.GenerateVerificationCode();
-            VerificationHelper.SendVerifyCode(receiver, verificationCode, type);
+            await SendVerifyCode(receiver, verificationCode, type,MessageTemplates.Login);
             VerificationHelper.SaveCode("SignIn_" + request.UserName, verificationCode);
             // await cacheService.SetAsync(response, "SignIn_" + request.UserName, cancellationToken);
             return ProduceSuccessResponse(new UserSignInResponse { Result = true, Message = message });
@@ -320,7 +331,7 @@ namespace HrHub.Application.Managers.UserManagers
 
             // Doğrulama kodu oluştur ve gönder
             string verificationCode = VerificationHelper.GenerateVerificationCode();
-            VerificationHelper.SendVerifyCode(receiver, verificationCode, type);
+            await SendVerifyCode(receiver, verificationCode, type, MessageTemplates.ChangePassword);
             VerificationHelper.SaveCode("ChangePassword_" + changePassword.UserName, verificationCode);
             return ProduceSuccessResponse(new CommonResponse { Result = true, Message = message });
         }
@@ -375,7 +386,8 @@ namespace HrHub.Application.Managers.UserManagers
                 PasswordChangeDate = DateTime.UtcNow,
                 ExpiryDate = DateTime.UtcNow.AddMonths(6),
                 ChangeReason = reason,
-                Password = AesEncrypion.EncryptString(passwordReset.Password)
+                Password = AesEncrypion.EncryptString(passwordReset.Password),
+                CreatedDate = DateTime.UtcNow
             };
             await passwordHistoryRepository.AddAsync(passwordHistory);
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -451,6 +463,27 @@ namespace HrHub.Application.Managers.UserManagers
             userRepository.Update(user);
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla güncellenmiştir.", Code = 200, Result = true });
+        }
+
+
+        public async Task SendVerifyCode(string receiver, string message, SubmissionTypeEnum type, MessageTemplates template)
+        {
+            switch (type)
+            {
+               
+                case SubmissionTypeEnum.Email:
+
+                    var content = MailHelper.GetMailBody(MailType.VerifyEmail).Replace("@VERIFYCODE", message);
+                    var sender =  messageSenderFactory.GetSender(MessageType.Email);
+                    sender.SendAsync(new EmailMessageDto { Recipient = receiver, Content = content, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+
+                    //TODO: Mail gönderme işlemleri yapılacak
+                    break;
+                case SubmissionTypeEnum.Sms:
+                    var senderSms = messageSenderFactory.GetSender(MessageType.Sms);
+                    senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = message, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+                    break;
+            }
         }
     }
 }

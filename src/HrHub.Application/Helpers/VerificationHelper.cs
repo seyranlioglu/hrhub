@@ -1,4 +1,5 @@
 ﻿using HrHub.Abstraction.Enums;
+using HrHub.Application.Factories;
 using System.Collections.Concurrent;
 using static ServiceStack.Diagnostics.Events;
 
@@ -55,17 +56,6 @@ namespace HrHub.Application.Helpers
 
             return $"{maskedUsername}@{maskedDomain}";
         }
-        public static void SendVerifyCode(string receiver, string message, SubmissionTypeEnum type)
-        {
-            switch (type)
-            {
-                case SubmissionTypeEnum.Email:
-                    //TODO: Mail gönderme işlemleri yapılacak
-                    break;
-                case SubmissionTypeEnum.Sms:
-                    //TODO: Sms gönderme işlemleri yapılacak
-                    break;
-            }
-        }
+       
     }
 }
