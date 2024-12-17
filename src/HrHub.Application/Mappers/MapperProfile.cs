@@ -2,6 +2,7 @@
 using HrHub.Core.Mapper;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
+using HrHub.Domain.Contracts.Dtos.TrainingCategoryDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingContentDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingSectionDtos;
@@ -103,13 +104,18 @@ namespace HrHub.Application.Mappers
                 })));
 
             #region User
-            
+
             CreateMap<GetUserResponse, User>().ReverseMap();
             CreateMap<UserSignUpDto, CurrAcc>();
             CreateMap<UserSignUpDto, SignUpDto>();
             CreateMap<AddUserDto, SignUpDto>();
-            
+
             #endregion
+
+            CreateMap<TrainingCategory, GetTrainingCategoryDto>()
+            .ForMember(dest => dest.MasterCategoryTitle, opt => opt.MapFrom(src => src.MasterTrainingCategory.Title))
+            .ForMember(dest => dest.MasterCategoryCode, opt => opt.MapFrom(src => src.MasterTrainingCategory.Code))
+            .ForMember(dest => dest.MasterCategoryDescription, opt => opt.MapFrom(src => src.MasterTrainingCategory.Description));
         }
     }
 }
