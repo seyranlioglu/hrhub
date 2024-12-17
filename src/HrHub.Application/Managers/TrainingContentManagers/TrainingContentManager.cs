@@ -171,11 +171,11 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         }
         public async Task<Response<IEnumerable<GetTrainingContentDto>>> GetTrainingContentListAsync()
         {
-            var trainingListDto = await contentRepository.GetListAsync(predicate: p => p.IsActive,
+            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsActive,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
-                                                                        .Include(s => s.ContentLibraries),
-                                                                        selector: s => mapper.Map<GetTrainingContentDto>(s));
+                                                                        .Include(s => s.ContentLibraries));
+            var trainingListDto = mapper.Map<IEnumerable<GetTrainingContentDto>>(trainingList);
             return ProduceSuccessResponse(trainingListDto);
 
         }

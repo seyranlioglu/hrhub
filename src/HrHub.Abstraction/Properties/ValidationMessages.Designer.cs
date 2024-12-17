@@ -405,5 +405,26 @@ namespace HrHub.Abstraction.Properties
                 return ResourceManager.GetString("PriceTierNotFound", resourceCulture);
             }
         }
+        internal static string CategoryExistsError
+        {
+            get
+            {
+                return ResourceManager.GetString("CategoryExistsError", resourceCulture);
+            }
+        }
+        internal static string MasterCategoryNotFoundError
+        {
+            get
+            {
+                return ResourceManager.GetString("MasterCategoryNotFoundError", resourceCulture);
+            }
+        }
+        internal static string RecursiveCategoryError
+        {
+            get
+            {
+                return ResourceManager.GetString("RecursiveCategoryError", resourceCulture);
+            }
+        }
     }
 }

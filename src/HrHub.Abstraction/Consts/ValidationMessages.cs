@@ -41,5 +41,8 @@ namespace HrHub.Abstraction.Consts
         public static string ForWhomNotFound => Properties.ValidationMessages.ForWhomNotFound;
         public static string EducationLevelNotFound => Properties.ValidationMessages.EducationLevelNotFound;
         public static string PriceTierNotFound => Properties.ValidationMessages.PriceTierNotFound;
+        public static string CategoryExistsError => Properties.ValidationMessages.CategoryExistsError;
+        public static string MasterCategoryNotFoundError => Properties.ValidationMessages.MasterCategoryNotFoundError;
+        public static string RecursiveCategoryError => Properties.ValidationMessages.RecursiveCategoryError;
     }
 }
