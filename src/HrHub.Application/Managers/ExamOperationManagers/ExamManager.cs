@@ -498,6 +498,9 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 
         public async Task<Response<CommonResponse>> PublishVersionAsync(PublishVersionDto data, CancellationToken cancellationToken = default)
         {
+            //var lastVersion = await examRepository.GetAsync(
+            //    predicate: p => p.Id == data.ExamId,
+            //    include: i => i.Include(w => w.ExamVersions.Where));
             return null;
         }
 
