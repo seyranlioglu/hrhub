@@ -28,12 +28,13 @@ using FluentValidation.Results;
 using HrHub.Application.BusinessRules.ExamBusinessRules;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using HrHub.Abstraction.Consts;
+using HrHub.Application.Factories;
+using HrHub.Domain.Contracts.Dtos.NotificationDtos;
 
 namespace HrHub.Application.Managers.ExamOperationManagers
 {
-    public class ExamManager : ManagerBase//, IExamManager
+    public class ExamManager : ManagerBase, IExamManager
     {
 
         private readonly IHrUnitOfWork unitOfWork;
@@ -44,11 +45,13 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         private readonly Repository<QuestionOption> questionOptionsRepository;
         private readonly Repository<Instructor> instructorRepository;
         private readonly ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus;
+        private readonly MessageSenderFactory messageSenderFactory;
         private readonly IMapper mapper;
         public ExamManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork unitOfWork,
                            ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus,
-                           IMapper mapper) : base(httpContextAccessor)
+                           IMapper mapper,
+                           MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.examRepository = unitOfWork.CreateRepository<Exam>();
@@ -59,50 +62,51 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
             this.ExamVersionStatus = ExamVersionStatus;
             this.mapper = mapper;
+            this.messageSenderFactory = messageSenderFactory;
         }
 
-        //public async Task<Response<AddExamResponse>> AddExamAsync(AddExamDto data, CancellationToken cancellationToken = default)
-        //{
-        //    var validator = new FieldBasedValidator<AddExamDto>();
-        //    var validateResult = validator.Validate(data);
+        public async Task<Response<AddExamResponse>> AddExamAsync(AddExamDto data, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<AddExamDto>();
+            var validateResult = validator.Validate(data);
 
-        //    if (validateResult.IsValid is false)
-        //        return validateResult.SendResponse<AddExamResponse>();
+            if (validateResult.IsValid is false)
+                return validateResult.SendResponse<AddExamResponse>();
 
-            //var entity = mapper.Map<Exam>(data);
-            //entity.InstructorId = GetCurrentUserId();
+            var entity = mapper.Map<Exam>(data);
+            entity.InstructorId = GetCurrentUserId();
 
-            //var addResponse = await examRepository.AddAndReturnAsync(entity, cancellationToken);
-            //await unitOfWork.SaveChangesAsync();
+            var addResponse = await examRepository.AddAndReturnAsync(entity, cancellationToken);
+            await unitOfWork.SaveChangesAsync();
 
-        //    var lastVersion = addResponse.ExamVersions.Where(w => w.IsPublished == true).FirstOrDefault();
+            var lastVersion = addResponse.ExamVersions.Where(w => w.IsPublished == true).FirstOrDefault();
 
-        //    return ProduceSuccessResponse(new AddExamResponse
-        //    {
-        //        Id = addResponse.Id,
-        //        ExamVersionId = lastVersion.Id,
-        //        VersionNumber = lastVersion.VersionNumber
-        //    });
-        //}
+            return ProduceSuccessResponse(new AddExamResponse
+            {
+                Id = addResponse.Id,
+                ExamVersionId = lastVersion.Id,
+                VersionNumber = lastVersion.VersionNumber
+            });
+        }
 
         public async Task<Response<ReturnIdResponse>> AddExamTopicAsync(AddExamTopicDto data, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<AddExamTopicDto>();
             var validateResult = validator.Validate(data);
 
-            return null;
-        //    if (validateResult.IsValid is false)
-        //        return validateResult.SendResponse<ReturnIdResponse>();
+            //return null;
+            if (validateResult.IsValid is false)
+                return validateResult.SendResponse<ReturnIdResponse>();
 
-        //    var entity = mapper.Map<ExamTopic>(data);
-        //    var addResponse = examTopicRepository.AddAndReturnAsync(entity);
+            var entity = mapper.Map<ExamTopic>(data);
+            var addResponse = examTopicRepository.AddAndReturnAsync(entity);
 
-        //    await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
 
-        //    return ProduceSuccessResponse(new ReturnIdResponse
-        //    {
-        //        Id = addResponse.Id
-        //    });
+            return ProduceSuccessResponse(new ReturnIdResponse
+            {
+                Id = addResponse.Id
+            });
         }
 
         public async Task<Response<ReturnIdResponse>> AddExamQuestionAsync(AddExamQuestionDto question, CancellationToken cancellationToken = default)
@@ -110,8 +114,8 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.FieldBasedValidator<AddExamQuestionDto>(question) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<ReturnIdResponse>();
 
-        //    if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question, typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-        //        return cBasedValidResult.SendResponse<ReturnIdResponse>();
+            if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question, typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var newQuestion = mapper.Map<ExamQuestion>(question);
             var result = await examQuestionRepository.AddAndReturnAsync(newQuestion);
