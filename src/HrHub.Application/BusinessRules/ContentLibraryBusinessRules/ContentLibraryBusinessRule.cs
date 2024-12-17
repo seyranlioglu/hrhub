@@ -21,7 +21,7 @@ namespace HrHub.Application.BusinessRules.ContentLibraryBusinessRules
 
         public (bool IsValid, string ErrorMessage) Validate(object value, string fieldName)
         {
-            return (false, string.Empty);
+            return (false, string.Empty); 
         }
     }
 }

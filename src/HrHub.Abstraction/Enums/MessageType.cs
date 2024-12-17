@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace HrHub.Abstraction.Enums
 {
-    public enum EndPoints
+    /// <summary>
+    /// Farklı bir servis eklenecekse buraya eklenmeli.
+    /// </summary>
+    public enum MessageType
     {
-        Login,
-        CheckSession,
-        Authorize,
-        SendMail,
-        MailToken,
-        SendSms
+        Email,
+        Sms
     }
 }

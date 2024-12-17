@@ -25,13 +25,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HrHub.API", "src\HrHub.API\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HrHub.Identity", "src\HrHub.Identity\HrHub.Identity.csproj", "{02A5937C-7745-40C0-9973-9B93F04893F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HrHub.Worker", "src\HrHub.Worker\HrHub.Worker\HrHub.Worker.csproj", "{9938C2C0-0FC7-4911-99EC-158610B965EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HrHub.Worker", "src\HrHub.Worker\HrHub.Worker\HrHub.Worker.csproj", "{9938C2C0-0FC7-4911-99EC-158610B965EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HrHub.Cache", "src\HrHub.Cache\HrHub.Cache\HrHub.Cache.csproj", "{46B954C5-B86B-4F32-BBB7-88626EB603CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HrHub.Cache", "src\HrHub.Cache\HrHub.Cache\HrHub.Cache.csproj", "{46B954C5-B86B-4F32-BBB7-88626EB603CA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructre", "Infrastructre", "{D8E70F31-A578-4F6E-B9A6-66C4C3997F25}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{C4C4C019-1D4B-427C-8C1C-8AE88CA14441}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{98E32E41-864A-4999-9E84-51D67625D41A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

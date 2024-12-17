@@ -82,7 +82,7 @@ namespace HrHub.API.Controllers
             var result = await userManager.PasswordReset(passwordReset, "Forgot Password");
             return result;
         }
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User},{Roles.Admin}")]
+ 
         [HttpPost("[Action]")]
         public async Task<Response<CommonResponse>> VerifyChangePassword([FromBody] VerifyChangePasswordDto verifyChangePassword)
         {
@@ -90,7 +90,7 @@ namespace HrHub.API.Controllers
             return result;
         }
 
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User},{Roles.Admin}")]
+    
         [HttpPost("[Action]")]
         public async Task<Response<CommonResponse>> PasswordReset([FromBody] PasswordResetDto passwordReset)
         {
@@ -99,7 +99,7 @@ namespace HrHub.API.Controllers
         }
 
 
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+    
         [HttpGet("[Action]")]
         public async Task<Response<List<GetUserResponse>>> GetList()
         {

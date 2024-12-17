@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace HrHub.Abstraction.Enums
 {
-    public enum EndPoints
+    public enum MessageTemplates : int
     {
-        Login,
-        CheckSession,
-        Authorize,
-        SendMail,
-        MailToken,
-        SendSms
+        NewUser = 1,
+        Register = 2,
+        Login = 3,
+        ChangePassword = 4
     }
 }
