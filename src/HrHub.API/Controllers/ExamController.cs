@@ -101,20 +101,20 @@ namespace HrHub.API.Controllers
             return response;
         }
 
-        [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<CommonResponse>> PublishVersionAsync(PublishVersionDto data)
-        {
-            var response = await examManager.PublishVersionAsync(data).ConfigureAwait(false);
-            return response;
-        }
+        //[HttpPut("[Action]")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
+        //public async Task<Response<CommonResponse>> PublishVersionAsync(PublishExamVersionDto data)
+        //{
+        //    var response = await examManager.PublishExamVersionAsync(data).ConfigureAwait(false);
+        //    return response;
+        //}
 
-        [HttpPut("[Action]")]
-        [Authorize(Roles = "User")]
-        public async Task<Response<CalculateExamResultResponse>> CalculateExamResultAsync(CalculateExamResultDto examResult)
-        {
-            var response = await examManager.CalculateExamResultAsync(examResult).ConfigureAwait(false);
-            return response;
-        }
+        //[HttpPut("[Action]")]
+        //[Authorize(Roles = "User")]
+        //public async Task<Response<CalculateExamResultResponse>> CalculateExamResultAsync(CalculateExamResultDto examResult)
+        //{
+        //    var response = await examManager.CalculateUserExamResultAsync(examResult).ConfigureAwait(false);
+        //    return response;
+        //}
     }
 }

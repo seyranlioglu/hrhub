@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class PublishVersionDto
+    public class PublishExamVersionDto
     {
         public long ExamId { get; set; }
         public int VersionNumber { get; set; }

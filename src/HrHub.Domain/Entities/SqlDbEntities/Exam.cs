@@ -15,6 +15,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string Title { get; set; }
         [AllowNull]
         public string? Description { get; set; }
+
         public long TrainingId { get; set; }
         public long ExamStatusId { get; set; }
         public long InstructorId { get; set; }

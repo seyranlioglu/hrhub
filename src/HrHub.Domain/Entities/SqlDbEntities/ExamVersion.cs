@@ -24,6 +24,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         [DefaultValue(false)]
         public bool IsPublished { get; set; }
         [AllowNull]
+        public DateTime? PublishedDate { get; set; }
+        [AllowNull]
         public TimeSpan? ExamTime { get; set; }
         [AllowNull]
         public decimal? SuccessRate { get; set; }

@@ -31,6 +31,9 @@ using Microsoft.EntityFrameworkCore;
 using HrHub.Abstraction.Consts;
 using HrHub.Application.Factories;
 using HrHub.Domain.Contracts.Dtos.NotificationDtos;
+using HrHub.Infrastructre.Repositories.Concrete;
+using HrHub.Application.Managers.Trainings;
+using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Application.Managers.ExamOperationManagers
 {
@@ -44,6 +47,9 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         private readonly Repository<ExamQuestion> examQuestionRepository;
         private readonly Repository<QuestionOption> questionOptionsRepository;
         private readonly Repository<Instructor> instructorRepository;
+        private readonly Repository<UserExam> userExamRepository;
+        private readonly Repository<ExamAction> examActionRepository;
+        private readonly Repository<UserAnswer> userAnswerRepository;
         private readonly ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus;
         private readonly MessageSenderFactory messageSenderFactory;
         private readonly IMapper mapper;
@@ -60,6 +66,9 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             this.examQuestionRepository = unitOfWork.CreateRepository<ExamQuestion>();
             this.questionOptionsRepository = unitOfWork.CreateRepository<QuestionOption>();
             this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
+            this.userExamRepository = unitOfWork.CreateRepository<UserExam>();
+            this.examActionRepository = unitOfWork.CreateRepository<ExamAction>();
+            this.userAnswerRepository = unitOfWork.CreateRepository<UserAnswer>();
             this.ExamVersionStatus = ExamVersionStatus;
             this.mapper = mapper;
             this.messageSenderFactory = messageSenderFactory;
@@ -246,7 +255,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             versionData.TotalQuestionCount = updateData.VersionInfo.TotalQuestionCount;
             versionData.ExamVersionStatusId = updateData.VersionInfo.StatusId;
 
-            await examRepository.UpdateAsync(oldExam,cancellationToken);
+            await examRepository.UpdateAsync(oldExam, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse
             {
@@ -272,7 +281,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             oldTopic.QuestionCount = updateData.QuestionCount;
             oldTopic.Title = updateData.Title;
 
-            await examTopicRepository.UpdateAsync(oldTopic,cancellationToken);
+            await examTopicRepository.UpdateAsync(oldTopic, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return ProduceSuccessResponse(new CommonResponse
@@ -282,7 +291,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 Result = true
             });
         }
-        
+
         public async Task<Response<CommonResponse>> UpdateSeqNoAsync(UpdateExamTopicSeqNumDto updateData, CancellationToken cancellationToken = default)
         {
             if (ValidationHelper.FieldBasedValidator<UpdateExamTopicSeqNumDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
@@ -293,7 +302,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 include: i => i.Include(w => w.ExamVersion)
                 .ThenInclude(w => w.ExamTopics));
 
-            if(ValidationHelper.RuleBasedValidator<Tuple<ExamTopic,int>>(Tuple.Create(topicToMove,updateData.NewSeqNumber),typeof(UpdateExamTopicSeqNumBusinesRule)) is ValidationResult cValidResult && !cValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<Tuple<ExamTopic, int>>(Tuple.Create(topicToMove, updateData.NewSeqNumber), typeof(UpdateExamTopicSeqNumBusinesRule)) is ValidationResult cValidResult && !cValidResult.IsValid)
                 return cValidResult.SendResponse<CommonResponse>();
 
             int oldSeqNumber = topicToMove.SeqNumber;
@@ -495,18 +504,341 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             return ProduceSuccessResponse(response);
         }
 
-
-        public async Task<Response<CommonResponse>> PublishVersionAsync(PublishVersionDto data, CancellationToken cancellationToken = default)
+        public async Task<Response<PublishExamVersionResponse>> PublishExamVersionAsync(PublishExamVersionDto request, CancellationToken cancellationToken = default)
         {
-            //var lastVersion = await examRepository.GetAsync(
-            //    predicate: p => p.Id == data.ExamId,
-            //    include: i => i.Include(w => w.ExamVersions.Where));
-            return null;
+            var response = new PublishExamVersionResponse { Result = true };
+
+            // Validate the incoming DTO using the FieldBasedValidator
+            if (ValidationHelper.FieldBasedValidator<PublishExamVersionDto>(request) is ValidationResult validationResult && !validationResult.IsValid)
+            {
+                response.Result = false;
+                response.ExamError = validationResult.Errors.FirstOrDefault()?.ErrorMessage;
+                return ProduceSuccessResponse(response);
+            }
+
+            // Fetch the exam along with its related data into DTOs using the selector
+            var examDto = await examRepository.GetAsync(
+                predicate: e => e.Id == request.ExamId,
+                selector: e => new ExamCheckDto
+                {
+                    ExamId = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    ExamVersions = e.ExamVersions.Where(ev => ev.Id == request.VersionId && ev.VersionNumber == request.VersionNumber)
+                                                 .Select(ev => new ExamVersionCheckDto
+                                                 {
+                                                     VersionId = ev.Id,
+                                                     VersionNumber = ev.VersionNumber,
+                                                     VersionDescription = ev.VersionDescription,
+                                                     IsPublished = ev.IsPublished,
+                                                     ExamTime = ev.ExamTime,
+                                                     PassingScore = ev.PassingScore,
+                                                     ExamTopics = ev.ExamTopics.Select(et => new ExamTopicCheckDto
+                                                     {
+                                                         TopicId = et.Id,
+                                                         Title = et.Title,
+                                                         QuestionCount = et.QuestionCount,
+                                                         ExamQuestions = et.ExamQuestions.Select(eq => new ExamQuestionCheckDto
+                                                         {
+                                                             QuestionId = eq.Id,
+                                                             QuestionText = eq.QuestionText,
+                                                             Score = eq.Score,
+                                                             QuestionOptions = eq.QuestionOptions.Select(qo => new QuestionOptionCheckDto
+                                                             {
+                                                                 OptionId = qo.Id,
+                                                                 OptionText = qo.OptionText,
+                                                                 IsCorrect = qo.IsCorrect
+                                                             }).ToList()
+                                                         }).ToList()
+                                                     }).ToList()
+                                                 }).ToList()
+                });
+
+            // Validate the Exam DTO
+            var examValidationResult = ValidationHelper.FieldBasedValidator<ExamCheckDto>(examDto);
+            if (examValidationResult is ValidationResult examResult && !examResult.IsValid)
+            {
+                response.Result = false;
+                response.ExamError = examResult.Errors.FirstOrDefault()?.ErrorMessage;
+            }
+
+            // Validate the ExamVersion DTO
+            var examVersionDto = examDto.ExamVersions.FirstOrDefault();
+            var versionValidationResult = ValidationHelper.FieldBasedValidator<ExamVersionCheckDto>(examVersionDto);
+            if (versionValidationResult is ValidationResult versionResult && !versionResult.IsValid)
+            {
+                response.Result = false;
+                response.ExamVersionError = versionResult.Errors.FirstOrDefault()?.ErrorMessage;
+            }
+
+            // Validate ExamTopics and ExamQuestions within the DTO
+            foreach (var topic in examVersionDto.ExamTopics)
+            {
+                var topicValidationResult = ValidationHelper.FieldBasedValidator<ExamTopicCheckDto>(topic);
+                if (topicValidationResult is ValidationResult topicResult && !topicResult.IsValid)
+                {
+                    response.Result = false;
+                    response.ExamTopicErrors.AddRange(topicResult.Errors.Select(e => e.ErrorMessage));
+                }
+
+                foreach (var question in topic.ExamQuestions)
+                {
+                    var questionValidationResult = ValidationHelper.FieldBasedValidator<ExamQuestionCheckDto>(question);
+                    if (questionValidationResult is ValidationResult questionResult && !questionResult.IsValid)
+                    {
+                        response.Result = false;
+                        response.ExamQuestionErrors.AddRange(questionResult.Errors.Select(e => e.ErrorMessage));
+                    }
+                }
+            }
+
+            if (!response.Result)
+            {
+                return ProduceSuccessResponse(response);
+            }
+
+            // Fetch the original target version entity
+            var targetVersion = await examVersionRepository.GetAsync(ev => ev.Id == request.VersionId);
+            if (targetVersion == null)
+            {
+                return ProduceFailResponse<PublishExamVersionResponse>("Target exam version not found.", HrStatusCodes.Status111DataNotFound);
+            }
+
+            // Check and update previously published version if exists
+            var previouslyPublishedVersion = await examVersionRepository.GetAsync(ev => ev.ExamId == request.ExamId && ev.IsPublished);
+            if (previouslyPublishedVersion != null)
+            {
+                previouslyPublishedVersion.IsPublished = false;
+                await examVersionRepository.UpdateAsync(previouslyPublishedVersion, cancellationToken);
+            }
+
+            // Update the target version as published
+            targetVersion.IsPublished = true;
+            targetVersion.PublishedDate = DateTime.UtcNow;
+            await examVersionRepository.UpdateAsync(targetVersion, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // Return a success response
+            return ProduceSuccessResponse(response);
         }
 
-        public async Task<Response<CalculateExamResultResponse>> CalculateExamResultAsync(CalculateExamResultDto examResult,CancellationToken cancellationToken = default)
+        public async Task<Response<GetExamInstructionResponse>> PrePrepareExamForStudentAsync(GetExamDto filter, CancellationToken cancellationToken = default)
         {
-            return null;
+            var validator = new FieldBasedValidator<GetExamDto>();
+            var validateResult = validator.Validate(filter);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<GetExamInstructionResponse>();
+
+            // Fetch only exam and question details dynamically with includes
+            var examData = await examRepository.GetAsync(
+                    e => e.Id == filter.ExamId
+                    && e.IsActive == true
+                    && (e.IsDelete == false || e.IsDelete == null)
+                    && e.ExamVersions.Any(ev => ev.IsPublished == true
+                                                && ev.IsActive == true
+                                                && (ev.IsDelete == false || ev.IsDelete == null)),
+                    include: q => q.Include(e => e.ExamVersions)
+                                    .ThenInclude(ev => ev.ExamTopics)
+                                    .ThenInclude(et => et.ExamQuestions)
+                                    .ThenInclude(eq => eq.QuestionOptions),
+                    selector: e => new
+                    {
+                        ExamVersionId = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.Id).FirstOrDefault(),
+                        Title = e.Title,
+                        Description = e.Description,
+                        SuccessRate = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.SuccessRate).FirstOrDefault(),
+                        ExamTime = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.ExamTime).FirstOrDefault(),
+                        TopicsName = e.ExamVersions.Where(ev => ev.IsPublished).SelectMany(ev => ev.ExamTopics).Select(t => t.Title).ToArray(),
+                        PassingScore = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.PassingScore).FirstOrDefault(),
+                        Questions = e.ExamVersions.Where(ev => ev.IsPublished)
+                                               .SelectMany(ev => ev.ExamTopics)
+                                               .SelectMany(et => et.ExamQuestions)
+                                               .Select((q, index) => new
+                                               {
+                                                   QuestionId = q.Id,
+                                                   QuestionText = q.QuestionText,
+                                                   SeqNumber = index + 1,
+                                                   Options = q.QuestionOptions.Select(qo => new
+                                                   {
+                                                       OptionId = qo.Id,
+                                                       OptionText = qo.OptionText
+                                                   }).ToList()
+                                               }).ToList()
+                    });
+
+            if (examData == null || !examData.Questions.Any())
+                return ProduceFailResponse<GetExamInstructionResponse>("Exam not ready!", HrStatusCodes.Status111DataNotFound);
+
+            // Save UserExam and UserAnswers in a single transaction
+            var userExam = new UserExam
+            {
+                ExamVersionId = examData.ExamVersionId,
+                IsCompleted = false,
+                StartDate = null, // Not started yet
+                SuccessRate = examData.SuccessRate ?? 0,
+                PassingScore = examData.PassingScore ?? 0,
+                UserAnswers = examData.Questions.Select(q => new UserAnswer
+                {
+                    QuestionId = q.QuestionId,
+                    SeqNumber = q.SeqNumber
+                }).ToList()
+            };
+
+            await userExamRepository.AddAsync(userExam, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var response = new GetExamInstructionResponse
+            {
+                ExamVersionId = examData.ExamVersionId,
+                UserExamId = userExam.Id,
+                Title = examData.Title,
+                Description = examData.Description,
+                ExamTime = examData.ExamTime,
+                TotalQuestionCount = examData.Questions.Count,
+                TopicsNames = examData.TopicsName.ToList()
+            };
+
+            return ProduceSuccessResponse(response);
+        }
+
+        public async Task<Response<GetNextQuestionResponse>> GetNextQuestionAsync(GetNextQuestionDto filter, CancellationToken cancellationToken = default)
+        {
+            var userAnswers = await userAnswerRepository.GetQuery(
+                ua => ua.UserExamId == filter.UserExamId && ua.SeqNumber > filter.CurrentQuestionSeqNum,
+                include: ua => ua.Include(u => u.Question)
+                                 .ThenInclude(q => q.QuestionOptions)
+                                 .Include(u => u.Question)
+                                 .ThenInclude(q => q.ExamTopics))
+                .OrderBy(ua => ua.SeqNumber)
+                .FirstOrDefaultAsync();
+
+            if (userAnswers == null)
+            {
+                // Mark exam as completed
+                var userExam = await userExamRepository.GetAsync(ue => ue.Id == filter.UserExamId);
+                if (userExam != null)
+                {
+                    userExam.IsCompleted = true;
+                    await userExamRepository.UpdateAsync(userExam, cancellationToken);
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
+                }
+
+                return ProduceSuccessResponse(new GetNextQuestionResponse
+                {
+                    UserExamId = filter.UserExamId,
+                    IsCompleted = true,
+                    ExamEndMessage = "Exam completed successfully."
+                });
+            }
+
+            // Check if this is the last question in the exam
+            bool isLastQuestion = !await userAnswerRepository.GetQuery(
+                ua => ua.UserExamId == filter.UserExamId && ua.SeqNumber > userAnswers.SeqNumber
+            ).AnyAsync();
+
+            var response = new GetNextQuestionResponse
+            {
+                UserExamId = filter.UserExamId,
+                IsCompleted = false,
+                IsLastQuestion = isLastQuestion,
+                CurrentQuestion = new GetQuestionResponse
+                {
+                    Id = userAnswers.Question.Id,
+                    QuestionText = userAnswers.Question.QuestionText,
+                    Options = userAnswers.Question.QuestionOptions.Select(qo => new GetQuestionOptionsResponse
+                    {
+                        Id = qo.Id,
+                        OptionText = qo.OptionText
+                    }).ToList()
+                },
+                TopicTitle = userAnswers.Question.ExamTopics.Title,
+                TopicImgPath = userAnswers.Question.ExamTopics.ImgPath
+            };
+
+            return ProduceSuccessResponse(response);
+        }
+
+        public async Task<Response<CalculateExamResultResponse>> CalculateUserExamResultAsync(long userExamId, CancellationToken cancellationToken = default)
+        {
+            // Fetch UserExam with associated answers and exam details
+            var userExam = await userExamRepository.GetQuery(
+                ue => ue.Id == userExamId && ue.IsCompleted,
+                include: ue => ue.Include(e => e.ExamVersion)
+                                 .ThenInclude(ev => ev.ExamTopics)
+                                 .ThenInclude(et => et.ExamQuestions)
+                                 .ThenInclude(eq => eq.QuestionOptions)
+                                 .Include(u => u.UserAnswers))
+                .FirstOrDefaultAsync();
+
+            if (userExam == null)
+                return ProduceFailResponse<CalculateExamResultResponse>("Completed exam not found.", HrStatusCodes.Status111DataNotFound);
+
+            var totalScore = 0m;
+            var userScore = 0m;
+
+            foreach (var topic in userExam.ExamVersion.ExamTopics)
+            {
+                foreach (var question in topic.ExamQuestions)
+                {
+                    totalScore += question.Score;
+
+                    var userAnswer = userExam.UserAnswers.FirstOrDefault(ua => ua.QuestionId == question.Id);
+                    if (userAnswer != null)
+                    {
+                        var correctOption = question.QuestionOptions.FirstOrDefault(qo => qo.IsCorrect);
+                        if (correctOption != null && userAnswer.SelectedOptionId == correctOption.Id)
+                        {
+                            userScore += question.Score;
+                        }
+                    }
+                }
+            }
+
+            var successRate = (userScore / totalScore) * 100;
+            var passingScore = userExam.ExamVersion.PassingScore ?? 0;
+
+            // Determine if the user passed the exam
+            var isSuccess = successRate >= passingScore;
+
+            // Update UserExam with the results
+            userExam.TotalScore = totalScore;
+            userExam.ExamScore = userScore;
+            userExam.SuccessRate = successRate;
+            userExam.IsSuccess = isSuccess;
+            await userExamRepository.UpdateAsync(userExam, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // Execute actions based on the result
+            var examAction = await examActionRepository.GetQuery(
+            ea => ea.Exams.Any(e => e.Id == userExam.ExamVersionId))
+            .FirstOrDefaultAsync();
+            if (examAction != null)
+            {
+                if (!isSuccess)
+                {
+                    if (examAction.Title == "ResetTraining")
+                    {
+                        // TODO : Eğitim resetleme işlemi burada yapılacak.
+                        //await trainingManager.ResetTrainingAsync(userExam.UserId, cancellationToken);
+                    }
+                    else if (examAction.Title == "ResetTopic")
+                    {
+                        // TODO : Eğitim resetleme işlemi burada yapılacak.
+                        //await trainingManager.ResetTopicAsync(userExam.UserId, userExam.Exam.Id, cancellationToken);
+                    }
+                }
+            }
+
+            return ProduceSuccessResponse(new CalculateExamResultResponse
+            {
+                UserExamId = userExam.Id,
+                TotalScore = totalScore,
+                UserScore = userScore,
+                SuccessRate = successRate,
+                IsSuccess = isSuccess,
+                Message = isSuccess ? "Congratulations, you passed the exam!" : "Unfortunately, you did not meet the passing criteria."
+            });
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using HrHub.Core.Domain.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -7,9 +8,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public long UserExamId { get; set; }
         public long QuestionId { get; set; }
-        public long OptionId { get; set; }
+        [AllowNull]
+        public long? SelectedOptionId { get; set; }
         public DateTime? AnswerDate { get; set; }
-        public DateTime? SuccessRate { get; set; }
+        public int SeqNumber { get; set; }
 
         [ForeignKey("UserExamId")]
         public virtual UserExam UserExam { get; set; }
@@ -17,7 +19,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         [ForeignKey("QuestionId")]
         public virtual ExamQuestion Question { get; set; }
 
-        [ForeignKey("OptionId")]
+        [ForeignKey("SelectedOptionId")]
         public virtual QuestionOption ExamOption { get; set; }
     }
 }
