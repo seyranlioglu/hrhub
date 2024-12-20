@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216115406_userlast")]
+    partial class userlast
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1316,9 +1319,6 @@ namespace HrHub.Domain.Migrations
 
                     b.Property<decimal?>("PassingScore")
                         .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("PublishedDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("SuccessRate")
                         .HasColumnType("numeric");
@@ -2796,14 +2796,14 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
+                    b.Property<long>("OptionId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("QuestionId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("SelectedOptionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("SeqNumber")
-                        .HasColumnType("integer");
+                    b.Property<DateTime?>("SuccessRate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
@@ -2816,9 +2816,9 @@ namespace HrHub.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionId");
+                    b.HasIndex("OptionId");
 
-                    b.HasIndex("SelectedOptionId");
+                    b.HasIndex("QuestionId");
 
                     b.HasIndex("UserExamId");
 
@@ -3037,9 +3037,6 @@ namespace HrHub.Domain.Migrations
                     b.Property<long>("CurrAccTrainingUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("CurrentTopicSeqNumber")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -3049,8 +3046,8 @@ namespace HrHub.Domain.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal?>("ExamScore")
-                        .HasColumnType("numeric");
+                    b.Property<long?>("ExamScore")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("ExamVersionId")
                         .HasColumnType("bigint");
@@ -3058,32 +3055,17 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsSuccess")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal?>("PassingScore")
-                        .HasColumnType("numeric");
-
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal?>("SuccessRate")
-                        .HasColumnType("numeric");
 
                     b.Property<long?>("TotalAnswer")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("TotalCorrectAnswer")
                         .HasColumnType("bigint");
-
-                    b.Property<decimal>("TotalScore")
-                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
@@ -3696,15 +3678,17 @@ namespace HrHub.Domain.Migrations
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.UserAnswer", b =>
                 {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.QuestionOption", "ExamOption")
+                        .WithMany("UserAnswers")
+                        .HasForeignKey("OptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.ExamQuestion", "Question")
                         .WithMany("UserAnswers")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.QuestionOption", "ExamOption")
-                        .WithMany("UserAnswers")
-                        .HasForeignKey("SelectedOptionId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.UserExam", "UserExam")
                         .WithMany("UserAnswers")

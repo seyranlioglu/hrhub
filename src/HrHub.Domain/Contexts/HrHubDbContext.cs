@@ -67,6 +67,7 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<ForWhom> ForWhoms { get; set; }
         public virtual DbSet<EducationLevel> EducationLevels { get; set; }
         public virtual DbSet<PriceTier> PriceTiers { get; set; }
+        public virtual DbSet<PasswordHistory> PasswordHistories { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -80,18 +81,17 @@ namespace HrHub.Domain.Contexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("public");
-            modelBuilder.Entity<Cart>()
-                                      .HasOne(cart => cart.AddCartUser)
+            modelBuilder.Entity<Cart>().HasOne(cart => cart.AddCartUser)
                                       .WithMany(user => user.AddCartUser)
                                       .HasForeignKey(cart => cart.AddCartUserId)
                                       .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Cart>()
-                                    .HasOne(cart => cart.ConfirmUser)
+            modelBuilder.Entity<Cart>().HasOne(cart => cart.ConfirmUser)
                                     .WithMany(user => user.ConfirmCarts)
                                     .HasForeignKey(cart => cart.ConfirmUserId)
                                     .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<User>().ToTable("AspNetUsers");
             OnModelCreatingPartial(modelBuilder);
         }
 

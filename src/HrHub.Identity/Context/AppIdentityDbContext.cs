@@ -30,6 +30,7 @@ namespace HrHub.Identity.Context
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.HasDefaultSchema("public");
             builder.Entity<AppUser>().ToTable("Users");
             builder.Entity<AppRole>().ToTable("Roles");
             builder.Entity<AppUserClaim>().ToTable("UserClaims");

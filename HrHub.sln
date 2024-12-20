@@ -34,9 +34,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{C4C4C019-1D4B-427C-8C1C-8AE88CA14441}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{98E32E41-864A-4999-9E84-51D67625D41A}"
-	ProjectSection(SolutionItems) = preProject
-		DevNotes.txt = DevNotes.txt
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

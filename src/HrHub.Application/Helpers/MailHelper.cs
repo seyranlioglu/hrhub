@@ -62,9 +62,5 @@ namespace HrHub.Application.Helpers
 
         }
 
-        public static void SendMail()
-        {
-
-        }
     }
 }

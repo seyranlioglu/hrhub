@@ -9,8 +9,8 @@ namespace HrHub.Abstraction.Enums
     public enum MessageTemplates : int
     {
         NewUser = 1,
-        RegisterOTP = 2,
+        Register = 2,
         Login = 3,
-        ForgotPassword = 4
+        ChangePassword = 4
     }
 }

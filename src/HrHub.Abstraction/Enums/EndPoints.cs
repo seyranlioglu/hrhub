@@ -12,6 +12,7 @@ namespace HrHub.Abstraction.Enums
         CheckSession,
         Authorize,
         SendMail,
-        MailToken
+        MailToken,
+        SendSms
     }
 }
