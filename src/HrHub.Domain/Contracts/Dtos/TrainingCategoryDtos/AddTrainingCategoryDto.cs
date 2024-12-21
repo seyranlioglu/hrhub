@@ -8,7 +8,7 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingCategoryDtos
 {
     public class AddTrainingCategoryDto
     {
-        public long? MasterCategoryId { get; set; }
+        public long? MasterCategoryId { get; set; } = null;
         public string? Title { get; set; }
         public string? Abbreviation { get; set; }
         public string? Code { get; set; }

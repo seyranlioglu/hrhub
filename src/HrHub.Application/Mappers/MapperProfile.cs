@@ -116,6 +116,12 @@ namespace HrHub.Application.Mappers
             .ForMember(dest => dest.MasterCategoryTitle, opt => opt.MapFrom(src => src.MasterTrainingCategory.Title))
             .ForMember(dest => dest.MasterCategoryCode, opt => opt.MapFrom(src => src.MasterTrainingCategory.Code))
             .ForMember(dest => dest.MasterCategoryDescription, opt => opt.MapFrom(src => src.MasterTrainingCategory.Description));
+
+
+
+            CreateMap<AddContentTypeDto, ContentType>();
+            CreateMap<UpdateContentTypeDto, ContentType>();
+            CreateMap<DeleteContentTypeDto, ContentType>();
         }
     }
 }

@@ -126,6 +126,30 @@
   <data name="ZeroCheck" xml:space="preserve">
     <value>The field cannot be zero</value>
   </data>
+  <data name="RecursiveCategoryAlreadyExistError" xml:space="preserve">
+    <value>Recursive Category Already Exist</value>
+  </data>
+  <data name="MasterCategoryNotFoundError" xml:space="preserve">
+    <value>MasterCategory Not Found</value>
+  </data>
+  <data name="MasterCategoryAlreadyExists" xml:space="preserve">
+    <value>MasterCategory Already Exists</value>
+  </data>
+  <data name="CategoryExistsError" xml:space="preserve">
+    <value>Category Already Exist</value>
+  </data>
+  <data name="PriceTierNotFound" xml:space="preserve">
+    <value>Price Tier Not Found</value>
+  </data>
+  <data name="EducationLevelNotFound" xml:space="preserve">
+    <value>Education Level Not Found</value>
+  </data>
+  <data name="ForWhomNotFound" xml:space="preserve">
+    <value>ForWhom Not Found</value>
+  </data>
+  <data name="PreconditionNotFound" xml:space="preserve">
+    <value>Precondition Not Found</value>
+  </data>
   <data name="PositiveTimeSpanError" xml:space="preserve">
     <value>Time field must be positive</value>
   </data>

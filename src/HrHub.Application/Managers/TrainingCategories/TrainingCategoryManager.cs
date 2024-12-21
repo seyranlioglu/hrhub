@@ -15,6 +15,7 @@ using HrHub.Domain.Contracts.Dtos.WhatYouWillLearnsDtos;
 using HrHub.Infrastructre.Repositories.Concrete;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
+using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Application.Managers.TrainingCategories
 {
@@ -71,10 +72,12 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<CommonResponse>> DeleteTrainingCategoryAsync(long id, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<DeleteTrainingCategoryDto>(data, typeof(DeleteTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            var entityDto = await categoryRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingCategoryDto>(s));
+
+            if (ValidationHelper.RuleBasedValidator<DeleteTrainingCategoryDto>(entityDto, typeof(DeleteTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
-            var updData = await categoryRepository.GetAsync(predicate: p => p.Id == data.Id);
+            var updData = await categoryRepository.GetAsync(predicate: p => p.Id == entityDto.Id);
             updData.IsDelete = false;
             categoryRepository.Update(updData);
             await unitOfWork.SaveChangesAsync(cancellationToken);

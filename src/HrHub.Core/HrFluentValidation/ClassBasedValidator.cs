@@ -18,22 +18,31 @@ namespace HrHub.Core.HrFluentValidation
 
         public FluentValidation.Results.ValidationResult Validate(T instance, params Type[] ruleTypes)
         {
-            var context = new ValidationContext<T>(instance);
-
-            foreach (var ruleType in ruleTypes)
+            try
             {
-                if (Activator.CreateInstance(ruleType) is IBusinessRule rule)
+                var context = new ValidationContext<T>(instance);
+
+                foreach (var ruleType in ruleTypes)
                 {
-                    var (isValid, errorMessage) = rule.Validate(instance, nameof(T));
-                    if (!isValid)
+                    if (Activator.CreateInstance(ruleType) is IBusinessRule rule)
                     {
-                        context.AddFailure(errorMessage);
+                        var (isValid, errorMessage) = rule.Validate(instance, nameof(T));
+                        if (!isValid)
+                        {
+                            context.AddFailure(errorMessage);
+                        }
                     }
                 }
-            }
 
-            // Return the validation result
-            return base.Validate(context);
+                // Return the validation result
+                return base.Validate(context);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+           
         }
     }
 }
