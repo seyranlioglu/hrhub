@@ -8,11 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HrHub.Abstraction.Properties
-{
+namespace HrHub.Abstraction.Properties {
     using System;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,407 +22,365 @@ namespace HrHub.Abstraction.Properties
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ValidationMessages
-    {
-
+    internal class ValidationMessages {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ValidationMessages()
-        {
+        internal ValidationMessages() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if (object.ReferenceEquals(resourceMan, null))
-                {
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HrHub.Abstraction.Properties.ValidationMessages", typeof(ValidationMessages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Amount must be greater than zero.
         /// </summary>
-        internal static string AmountMustBeGreaterThanZero
-        {
-            get
-            {
+        internal static string AmountMustBeGreaterThanZero {
+            get {
                 return ResourceManager.GetString("AmountMustBeGreaterThanZero", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Category Not Found.
+        ///   Looks up a localized string similar to Category Already Exist.
         /// </summary>
-        internal static string CategoryNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("CategoryNotFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to CompletionTime and unit must be provided.
-        /// </summary>
-        internal static string CompletionTimeAndUnitMustBeProvided
-        {
-            get
-            {
-                return ResourceManager.GetString("CompletionTimeAndUnitMustBeProvided", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to CurrentAmount must be greater than zero.
-        /// </summary>
-        internal static string CurrentAmountMustBeGreaterThanZero
-        {
-            get
-            {
-                return ResourceManager.GetString("CurrentAmountMustBeGreaterThanZero", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Data Already Exists!.
-        /// </summary>
-        internal static string DataAlreadyExists
-        {
-            get
-            {
-                return ResourceManager.GetString("DataAlreadyExists", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Data Not Found!.
-        /// </summary>
-        internal static string DataNotFoundError
-        {
-            get
-            {
-                return ResourceManager.GetString("DataNotFoundError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Exam Not Found!.
-        /// </summary>
-        internal static string ExamNotFoundError
-        {
-            get
-            {
-                return ResourceManager.GetString("ExamNotFoundError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The question must have at least two options.
-        /// </summary>
-        internal static string ExamQuestionOptionsCountError
-        {
-            get
-            {
-                return ResourceManager.GetString("ExamQuestionOptionsCountError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Exam User Exists.
-        /// </summary>
-        internal static string ExamUserExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("ExamUserExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Instructor Not Found.
-        /// </summary>
-        internal static string InstructorNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("InstructorNotFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Exam Version Not Found!.
-        /// </summary>
-        internal static string ExamVersionNotFoundError
-        {
-            get
-            {
-                return ResourceManager.GetString("ExamVersionNotFoundError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid email format..
-        /// </summary>
-        internal static string InvalidEmail
-        {
-            get
-            {
-                return ResourceManager.GetString("InvalidEmail", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The field cannot be null..
-        /// </summary>
-        internal static string NullCheck
-        {
-            get
-            {
-                return ResourceManager.GetString("NullCheck", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Time field must be positive.
-        /// </summary>
-        internal static string PositiveTimeSpanError
-        {
-            get
-            {
-                return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TimeUnit Not Found.
-        /// </summary>
-        internal static string TimeUnitNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("TimeUnitNotFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TrainingContent Not Found.
-        /// </summary>
-        internal static string TrainingContentNotExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingContentNotExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TrainingContentType Exist.
-        /// </summary>
-        internal static string TrainingContentTypeExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingContentTypeExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TrainingContentType Not Found.
-        /// </summary>
-        internal static string TrainingContentTypeNotExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingContentTypeNotExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Training Exists.
-        /// </summary>
-        internal static string TrainingExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Training Level Not Found.
-        /// </summary>
-        internal static string TrainingLevelNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingLevelNotFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Training Not Found.
-        /// </summary>
-        internal static string TrainingNotExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingNotExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TrainingSection Exists .
-        /// </summary>
-        internal static string TrainingSectionExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingSectionExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TrainingSection Not Found.
-        /// </summary>
-        internal static string TrainingSectionNotExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingSectionNotExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to TrainingStatus Not Found.
-        /// </summary>
-        internal static string TrainingStatusNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("TrainingStatusNotFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to WhatYouWillLearn Exists.
-        /// </summary>
-        internal static string WhatYouWillLearnExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("WhatYouWillLearnExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to WhatYouWillLearn Not Found.
-        /// </summary>
-        internal static string WhatYouWillLearnNotExistsError
-        {
-            get
-            {
-                return ResourceManager.GetString("WhatYouWillLearnNotExistsError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Wrong Validation Model Type!.
-        /// </summary>
-        internal static string WrongValidationModelError
-        {
-            get
-            {
-                return ResourceManager.GetString("WrongValidationModelError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The field cannot be zero.
-        /// </summary>
-        internal static string ZeroCheck
-        {
-            get
-            {
-                return ResourceManager.GetString("ZeroCheck", resourceCulture);
-            }
-        }
-        internal static string PreconditionNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("PreconditionNotFound", resourceCulture);
-            }
-        }
-
-        internal static string ForWhomNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("ForWhomNotFound", resourceCulture);
-            }
-        }
-        internal static string EducationLevelNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("EducationLevelNotFound", resourceCulture);
-            }
-        }
-        internal static string PriceTierNotFound
-        {
-            get
-            {
-                return ResourceManager.GetString("PriceTierNotFound", resourceCulture);
-            }
-        }
-        internal static string CategoryExistsError
-        {
-            get
-            {
+        internal static string CategoryExistsError {
+            get {
                 return ResourceManager.GetString("CategoryExistsError", resourceCulture);
             }
         }
-        internal static string MasterCategoryNotFoundError
-        {
-            get
-            {
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Category Not Found.
+        /// </summary>
+        internal static string CategoryNotFound {
+            get {
+                return ResourceManager.GetString("CategoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CompletionTime and unit must be provided.
+        /// </summary>
+        internal static string CompletionTimeAndUnitMustBeProvided {
+            get {
+                return ResourceManager.GetString("CompletionTimeAndUnitMustBeProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CurrentAmount must be greater than zero.
+        /// </summary>
+        internal static string CurrentAmountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("CurrentAmountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data Already Exists!.
+        /// </summary>
+        internal static string DataAlreadyExists {
+            get {
+                return ResourceManager.GetString("DataAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data Not Found!.
+        /// </summary>
+        internal static string DataNotFoundError {
+            get {
+                return ResourceManager.GetString("DataNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Education Level Not Found.
+        /// </summary>
+        internal static string EducationLevelNotFound {
+            get {
+                return ResourceManager.GetString("EducationLevelNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exam Not Found!.
+        /// </summary>
+        internal static string ExamNotFoundError {
+            get {
+                return ResourceManager.GetString("ExamNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The question must have at least two options.
+        /// </summary>
+        internal static string ExamQuestionOptionsCountError {
+            get {
+                return ResourceManager.GetString("ExamQuestionOptionsCountError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exam User Exists.
+        /// </summary>
+        internal static string ExamUserExistsError {
+            get {
+                return ResourceManager.GetString("ExamUserExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exam Version Not Found!.
+        /// </summary>
+        internal static string ExamVersionNotFoundError {
+            get {
+                return ResourceManager.GetString("ExamVersionNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ForWhom Not Found.
+        /// </summary>
+        internal static string ForWhomNotFound {
+            get {
+                return ResourceManager.GetString("ForWhomNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instructor Not Found.
+        /// </summary>
+        internal static string InstructorNotFound {
+            get {
+                return ResourceManager.GetString("InstructorNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid email format..
+        /// </summary>
+        internal static string InvalidEmail {
+            get {
+                return ResourceManager.GetString("InvalidEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MasterCategory Already Exists.
+        /// </summary>
+        internal static string MasterCategoryAlreadyExists {
+            get {
+                return ResourceManager.GetString("MasterCategoryAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MasterCategory Not Found.
+        /// </summary>
+        internal static string MasterCategoryNotFoundError {
+            get {
                 return ResourceManager.GetString("MasterCategoryNotFoundError", resourceCulture);
             }
         }
-        internal static string RecursiveCategoryError
-        {
-            get
-            {
-                return ResourceManager.GetString("RecursiveCategoryError", resourceCulture);
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field cannot be null..
+        /// </summary>
+        internal static string NullCheck {
+            get {
+                return ResourceManager.GetString("NullCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time field must be positive.
+        /// </summary>
+        internal static string PositiveTimeSpanError {
+            get {
+                return ResourceManager.GetString("PositiveTimeSpanError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Precondition Not Found.
+        /// </summary>
+        internal static string PreconditionNotFound {
+            get {
+                return ResourceManager.GetString("PreconditionNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Price Tier Not Found.
+        /// </summary>
+        internal static string PriceTierNotFound {
+            get {
+                return ResourceManager.GetString("PriceTierNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recursive Category Already Exist.
+        /// </summary>
+        internal static string RecursiveCategoryAlreadyExistError {
+            get {
+                return ResourceManager.GetString("RecursiveCategoryAlreadyExistError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TimeUnit Not Found.
+        /// </summary>
+        internal static string TimeUnitNotFound {
+            get {
+                return ResourceManager.GetString("TimeUnitNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingContent Not Found.
+        /// </summary>
+        internal static string TrainingContentNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingContentNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingContentType Exist.
+        /// </summary>
+        internal static string TrainingContentTypeExistsError {
+            get {
+                return ResourceManager.GetString("TrainingContentTypeExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingContentType Not Found.
+        /// </summary>
+        internal static string TrainingContentTypeNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingContentTypeNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Exists.
+        /// </summary>
+        internal static string TrainingExistsError {
+            get {
+                return ResourceManager.GetString("TrainingExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Level Not Found.
+        /// </summary>
+        internal static string TrainingLevelNotFound {
+            get {
+                return ResourceManager.GetString("TrainingLevelNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Not Found.
+        /// </summary>
+        internal static string TrainingNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingSection Exists .
+        /// </summary>
+        internal static string TrainingSectionExistsError {
+            get {
+                return ResourceManager.GetString("TrainingSectionExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingSection Not Found.
+        /// </summary>
+        internal static string TrainingSectionNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingSectionNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingStatus Not Found.
+        /// </summary>
+        internal static string TrainingStatusNotFound {
+            get {
+                return ResourceManager.GetString("TrainingStatusNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WhatYouWillLearn Exists.
+        /// </summary>
+        internal static string WhatYouWillLearnExistsError {
+            get {
+                return ResourceManager.GetString("WhatYouWillLearnExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WhatYouWillLearn Not Found.
+        /// </summary>
+        internal static string WhatYouWillLearnNotExistsError {
+            get {
+                return ResourceManager.GetString("WhatYouWillLearnNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong Validation Model Type!.
+        /// </summary>
+        internal static string WrongValidationModelError {
+            get {
+                return ResourceManager.GetString("WrongValidationModelError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field cannot be zero.
+        /// </summary>
+        internal static string ZeroCheck {
+            get {
+                return ResourceManager.GetString("ZeroCheck", resourceCulture);
             }
         }
     }

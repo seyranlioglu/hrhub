@@ -22,7 +22,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<CommonResponse>> AddTrainingCategory([FromBody] AddTrainingCategoryDto data)
         {
             var response = await trainingCategoryManager.AddTrainingCategoryAsync(data).ConfigureAwait(false);
