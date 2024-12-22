@@ -17,5 +17,6 @@ namespace HrHub.Identity.Entities
         public bool IsMainUser { get; set; }
         public string? AuthCode { get; set; }
         public long CurrAccId { get; set; }
+        public bool IsActive { get; set; }
     }
 }

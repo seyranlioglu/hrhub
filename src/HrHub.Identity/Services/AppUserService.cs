@@ -73,7 +73,9 @@ namespace HrHub.Identity.Services
                 PhoneNumberConfirmed = false,
                 LockoutEnabled = true,
                 AuthCode = userViewModel.AuthCode,
-                CurrAccId = userViewModel.CurrAccId
+                CurrAccId = userViewModel.CurrAccId,
+                IsMainUser = userViewModel.IsMainUser,
+                IsActive = true
 
             };
             IdentityResult result = await this.userManager.CreateAsync(user, userViewModel.Password);

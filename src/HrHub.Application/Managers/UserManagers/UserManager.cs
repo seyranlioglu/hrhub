@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Extensions;
@@ -18,7 +19,11 @@ using HrHub.Identity.Services;
 using HrHub.Infrastructre.Repositories.Abstract;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
+using MongoDB.Bson.IO;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using ServiceStack;
+using ServiceStack.Web;
 using System.Linq.Expressions;
 
 namespace HrHub.Application.Managers.UserManagers
@@ -49,11 +54,6 @@ namespace HrHub.Application.Managers.UserManagers
             this.passwordHistoryRepository = passwordHistoryRepository;
             this.messageSenderFactory = messageSenderFactory;
         }
-        public async Task<bool> IsMainUser()
-        {
-            bool isMainUser = await userRepository.ExistsAsync(user => user.Id == this.GetCurrentUserId());
-            return isMainUser;
-        }
         public async Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<UserSignUpDto>();
@@ -72,6 +72,7 @@ namespace HrHub.Application.Managers.UserManagers
             signUpModel.Password = password;
             signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
             signUpModel.CurrAccId = curAccEntity.Id;
+            signUpModel.IsMainUser = true;
             var result = await appUserService.SignUpAsync(signUpModel);
             if (result.Item2)
             {
@@ -168,7 +169,9 @@ namespace HrHub.Application.Managers.UserManagers
             //TODO: cache servisi düzelnce açılacak
             //  var cacheToken = await cacheService.GetAsync<VerifySignInResponse>("SignIn_" + verify.UserName, cancellationToken);
             // await cacheService.RemoveAsync<VerifySignInResponse>("SignIn_" + verify.UserName);
-            return ProduceSuccessResponse(new VerifySignInResponse { });
+
+            string? responseString = VerificationHelper.GetCode("SignInResponse_" + verify.UserName);
+            return ProduceSuccessResponse(Newtonsoft.Json.JsonConvert.DeserializeObject<VerifySignInResponse>(responseString));
         }
 
         public async Task<CommonResponse> ConfirmUser(string userName, SubmissionTypeEnum submissionType)
@@ -195,6 +198,20 @@ namespace HrHub.Application.Managers.UserManagers
                 user.PhoneNumberConfirmed = true;
                 userRepository.Update(user);
                 await unitOfWork.SaveChangesAsync();
+
+
+                //Telefon doğrulama sonrası kullanıcı ve parole mail olarak gönderiliyor
+                var userLastPassword = await passwordHistoryRepository
+              .GetPagedListAsync(predicate: ph => ph.UserId == user.Id,
+                                 orderBy: o => o.OrderByDescending(p => p.CreatedDate),
+                                 skip: 0, take: 1,
+                                 selector: s => AesEncrypion.DecryptString(s.Password));
+
+                string content = MailHelper.GetMailBody(MailType.AddUser).Replace("@PASSWORD", userLastPassword.First()).Replace("@USERNAME", user.Email);
+                var sender = messageSenderFactory.GetSender(MessageType.Email);
+                await sender.SendAsync(new EmailMessageDto { Recipient = user.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = new Dictionary<string, string>() });
+
+
                 return new CommonResponse { Result = true, Message = "Telefon Doğrulama Başarılı.", Code = StatusCodes.Status200OK };
             }
         }
@@ -208,6 +225,8 @@ namespace HrHub.Application.Managers.UserManagers
                 return validateResult.SendResponse<UserSignInResponse>();
 
             var user = await appUserService.GetUserByEmailAsync(request.UserName);
+            if(user == null)
+                return ProduceFailResponse<UserSignInResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
             if (!user.EmailConfirmed)
             {
                 return ProduceFailResponse<UserSignInResponse>("Kullanıcı mail doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce mail doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
@@ -247,6 +266,7 @@ namespace HrHub.Application.Managers.UserManagers
             string verificationCode = VerificationHelper.GenerateVerificationCode();
             await SendVerifyCode(receiver, verificationCode, type,MessageTemplates.Login);
             VerificationHelper.SaveCode("SignIn_" + request.UserName, verificationCode);
+            VerificationHelper.SaveCode("SignInResponse_" + request.UserName, Newtonsoft.Json.JsonConvert.SerializeObject(response));
             // await cacheService.SetAsync(response, "SignIn_" + request.UserName, cancellationToken);
             return ProduceSuccessResponse(new UserSignInResponse { Result = true, Message = message });
         }
@@ -289,7 +309,10 @@ namespace HrHub.Application.Managers.UserManagers
                             await passwordHistoryRepository.AddAsync(passwordHistory);
                             await unitOfWork.SaveChangesAsync();
 
-                            //TODO kullanıcı ve parola bilgilieri kullanıcıya mail olarak gönderilecek
+                            //kullanıcı ve parola bilgilieri kullanıcıya mail olarak gönderilecek
+                            string content = MailHelper.GetMailBody(MailType.AddUser).Replace("PASSWORD", password).Replace("USERNAME", request.Email);
+                            var sender = messageSenderFactory.GetSender(MessageType.Email);
+                            await sender.SendAsync(new EmailMessageDto { Recipient = request.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = new Dictionary<string, string>() });
                         }
                     }
                 }
@@ -335,7 +358,6 @@ namespace HrHub.Application.Managers.UserManagers
             VerificationHelper.SaveCode("ChangePassword_" + changePassword.UserName, verificationCode);
             return ProduceSuccessResponse(new CommonResponse { Result = true, Message = message });
         }
-
         public async Task<Response<CommonResponse>> VerifyCodeAndChangePassword(VerifyChangePasswordDto verify, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<VerifyChangePasswordDto>();
@@ -351,6 +373,60 @@ namespace HrHub.Application.Managers.UserManagers
 
             return ProduceSuccessResponse(new CommonResponse { Message = "Doğrulama Başarılı", Code = 200, Result = true });
         }
+        
+        public async Task<Response<CommonResponse>>ForgotPassword(ForgotPasswordDto forgotPassword, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<ForgotPasswordDto>();
+            var validateResult = validator.Validate(forgotPassword);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+            var user = await appUserService.GetUserByEmailAsync(forgotPassword.UserName);
+            if (user == null)
+            {
+                return ProduceFailResponse<CommonResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
+            }
+            if (!user.EmailConfirmed)
+            {
+                return ProduceFailResponse<CommonResponse>("Kullanıcı mail doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce mail doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
+            }
+            if (!user.PhoneNumberConfirmed)
+            {
+                return ProduceFailResponse<CommonResponse>("Kullanıcı telefon doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce telefon doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
+            }
+            string receiver = forgotPassword.UserName;
+            string message = VerificationHelper.MaskEmail(forgotPassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
+            SubmissionTypeEnum type = SubmissionTypeEnum.Email;
+            if (forgotPassword.Type == SubmissionTypeEnum.Sms)
+            {
+
+                receiver = user.PhoneNumber;
+                message = VerificationHelper.MaskPhoneNumber(receiver) + "  telefonunuza şifre değişikliği için doğrulama kodu gönderilmiştir.";
+                type = SubmissionTypeEnum.Sms;
+            }
+
+            // Doğrulama kodu oluştur ve gönder
+            string verificationCode = VerificationHelper.GenerateVerificationCode();
+            await SendVerifyCode(receiver, verificationCode, type, MessageTemplates.ChangePassword);
+            VerificationHelper.SaveCode("ForgotPassword_" + forgotPassword.UserName, verificationCode);
+            return ProduceSuccessResponse(new CommonResponse { Result = true, Message = message });
+        }
+        public async Task<Response<CommonResponse>> VerifyCodeAndForgotPassword(VerifyForgotPasswordDto verify, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<VerifyForgotPasswordDto>();
+            var validateResult = validator.Validate(verify);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+
+
+            string? storedCode = VerificationHelper.GetCode("ForgotPassword_" + verify.UserName);
+            if (storedCode == null || storedCode != verify.Code)
+                return ProduceFailResponse<CommonResponse>("Doğrulama kodu geçersiz!", StatusCodes.Status401Unauthorized);
+
+            return ProduceSuccessResponse(new CommonResponse { Message = "Doğrulama Başarılı", Code = 200, Result = true });
+        }
+
 
         public async Task<Response<CommonResponse>> PasswordReset(PasswordResetDto passwordReset, string reason, bool isSendMail = false, CancellationToken cancellationToken = default)
         {
@@ -393,7 +469,11 @@ namespace HrHub.Application.Managers.UserManagers
             await unitOfWork.SaveChangesAsync(cancellationToken);
             if (isSendMail)
             {
-                //TODO: Süper Admin değişiklik yapıyorsa, password değişen kişiye yeni bilgilierinin Mail gönderme işlemleri yapılacak
+                // Süper Admin değişiklik yapıyorsa, password değişen kişiye yeni bilgilierinin Mail gönderme işlemleri yapılıyor
+
+                string content = MailHelper.GetMailBody(MailType.ChangePasswordBySuperAdmin).Replace("PASSWORD", passwordReset.Password).Replace("USERNAME", user.Email);
+                var sender = messageSenderFactory.GetSender(MessageType.Email);
+                await sender.SendAsync(new EmailMessageDto { Recipient = user.Email, Content = content, MessageTemplate = MessageTemplates.ChangePassword, Parameters = new Dictionary<string, string>() });
 
             }
             return ProduceSuccessResponse(new CommonResponse { Message = "Şifre başarıyla değiştirilmiştir.", Code = 200, Result = true });
@@ -415,7 +495,7 @@ namespace HrHub.Application.Managers.UserManagers
         public async Task<Response<List<GetUserResponse>>> GetUserList(CancellationToken cancellationToken = default)
         {
             List<Attributes> list = new List<Attributes>();
-            if (!this.IsSuperAdmin() && await this.IsMainUser())
+            if (!this.IsSuperAdmin() &&  this.IsMainUser())
             {
                 list.Add(new Attributes { Name = "CurrAccId", Value = this.GetCurrAccId(), Type = ExpressionType.Equal });
             }
@@ -464,8 +544,6 @@ namespace HrHub.Application.Managers.UserManagers
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla güncellenmiştir.", Code = 200, Result = true });
         }
-
-
         public async Task SendVerifyCode(string receiver, string message, SubmissionTypeEnum type, MessageTemplates template)
         {
             switch (type)
@@ -475,13 +553,11 @@ namespace HrHub.Application.Managers.UserManagers
 
                     var content = MailHelper.GetMailBody(MailType.VerifyEmail).Replace("@VERIFYCODE", message);
                     var sender =  messageSenderFactory.GetSender(MessageType.Email);
-                    sender.SendAsync(new EmailMessageDto { Recipient = receiver, Content = content, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
-
-                    //TODO: Mail gönderme işlemleri yapılacak
+                    await sender.SendAsync(new EmailMessageDto { Recipient = receiver, Content = content, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
                     break;
                 case SubmissionTypeEnum.Sms:
                     var senderSms = messageSenderFactory.GetSender(MessageType.Sms);
-                    senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = message, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = message, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
                     break;
             }
         }

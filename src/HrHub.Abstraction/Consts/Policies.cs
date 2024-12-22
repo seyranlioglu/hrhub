@@ -2,7 +2,7 @@
 {
     public static class Policies
     {
-        public const string MainUser = "MainUser";
+        public const string MainUser = "IsMainUser";
         public const string Instructor = "Instructor";
     }
 }

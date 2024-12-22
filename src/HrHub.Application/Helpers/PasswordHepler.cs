@@ -15,7 +15,7 @@ namespace HrHub.Application.Helpers
             const string lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
             const string uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const string numberChars = "0123456789";
-            const string specialChars = "!@#$%^&*()_-+=<>?";
+            const string specialChars = "!@#$%^&*_-?";
             StringBuilder allowedChars = new StringBuilder(lowercaseChars);
 
             if (includeUppercase)

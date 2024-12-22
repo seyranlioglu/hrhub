@@ -47,12 +47,31 @@ namespace HrHub.Application.Helpers
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Doğrulama Kodu</title>
+    <title>Kullanıcı Bilgileri</title>
 </head>
 <body>
     <div style=""font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;"">
         <p>HrHub Giriş Bilgileri</p>
-        <p>Kullanıcı  : <strong>@USERMANE</strong></p>
+        <p>Kullanıcı  : <strong>@USERNAME</strong></p>
+        <p>Parola  : <strong>@PASSWORD</strong></p>
+    </div>
+</body>
+</html>";
+            }
+
+            else if (mailType == MailType.ChangePasswordBySuperAdmin)
+            {
+                mailBody = @"<!DOCTYPE html>
+<html lang=""tr"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>Kullanıcı Bilgileri Değişikliği</title>
+</head>
+<body>
+    <div style=""font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;"">
+        <p>HrHub Yeni Giriş Bilgileri</p>
+        <p>Kullanıcı  : <strong>@USERNAME</strong></p>
         <p>Parola  : <strong>@PASSWORD</strong></p>
     </div>
 </body>
