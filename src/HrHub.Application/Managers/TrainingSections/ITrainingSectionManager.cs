@@ -1,10 +1,11 @@
 ﻿using HrHub.Abstraction.Result;
+using HrHub.Core.Base;
 using HrHub.Domain.Contracts.Dtos.TrainingSectionDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 
 namespace HrHub.Application.Managers.TrainingSections
 {
-    public interface ITrainingSectionManager
+    public interface ITrainingSectionManager : IBaseManager
     {
         Task<Response<ReturnIdResponse>> AddTrainingSectionAsync(AddTrainingSectionDto data, CancellationToken cancellationToken = default);
         Task<Response<CommonResponse>> DeleteTrainingSectionAsync(long id, CancellationToken cancellationToken = default);
