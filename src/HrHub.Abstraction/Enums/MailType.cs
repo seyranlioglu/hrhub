@@ -4,6 +4,7 @@
     {
         AddUser,
         ForgotPassword,
-        VerifyEmail
+        VerifyEmail,
+        ChangePasswordBySuperAdmin
     }
 }

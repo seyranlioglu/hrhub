@@ -1,5 +1,6 @@
 ﻿using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Exceptions;
+using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Factories;
 using HrHub.Abstraction.Notification;
 using HrHub.Abstraction.Notification.BaseModel;
@@ -9,6 +10,7 @@ using HrHub.Application.Helpers;
 using HrHub.Core.Helpers;
 using HrHub.Domain.Contracts.Dtos.NotificationDtos;
 using ServiceStack.Web;
+using System.Net.Mail;
 
 namespace HrHub.Application.Integrations.NotificationServices
 {
@@ -28,6 +30,13 @@ namespace HrHub.Application.Integrations.NotificationServices
                 var smsSettings = AppSettingsHelper.GetData<SmsServiceSettings>();
                 if (smsSettings.IsActive && smsSettings != null)
                 {
+                    if (!smsMessage.Parameters.IsNullOrEmpty())
+                    {
+                        foreach (var item in smsMessage.Parameters)
+                        {
+                            smsMessage.Content = smsMessage.Content.Replace("" + item.Key + "", "" + item.Value + "");
+                        }
+                    }
                     var sendSmsModel = new SendSmsDto
                     {
                         BlackListFilter = smsSettings.BlackListFilter,
@@ -70,6 +79,13 @@ namespace HrHub.Application.Integrations.NotificationServices
                 var smsSettings = AppSettingsHelper.GetData<SmsServiceSettings>();
                 if (smsSettings.IsActive && smsSettings != null)
                 {
+                    if (!smsMessage.Parameters.IsNullOrEmpty())
+                    {
+                        foreach (var item in smsMessage.Parameters)
+                        {
+                            smsMessage.Content = smsMessage.Content.Replace("" + item.Key + "", "" + item.Value + "");
+                        }
+                    }
                     var sendSmsModel = new SendSmsDto
                     {
                         BlackListFilter = smsSettings.BlackListFilter,
