@@ -145,5 +145,13 @@ namespace HrHub.API.Controllers
             var result = await userManager.UpdateUser(updateUserDto);
             return result;
         }
+
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+        [HttpDelete("[action]/{userId:long}")]
+        public async Task<Response<CommonResponse>> Delete(long userId)
+        {
+            var result = await userManager.DeleteUser(userId);
+            return result;
+        }
     }
 }
