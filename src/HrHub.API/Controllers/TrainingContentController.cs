@@ -24,7 +24,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        // [Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<ReturnIdResponse>> AddTraining([FromBody] AddTrainingContentDto data)
         {
             var response = await trainingContentManager.AddTrainingContentAsync(data).ConfigureAwait(false);
@@ -32,7 +32,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        // [Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<CommonResponse>> UpdateTraining([FromBody] UpdateTrainingContentDto data)
         {
             var response = await trainingContentManager.UpdateTrainingContentAsync(data).ConfigureAwait(false);
@@ -40,7 +40,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpDelete("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<CommonResponse>> DeleteTraining([FromBody] long id)
         {
             var response = await trainingContentManager.DeleteTrainingContentAsync(id).ConfigureAwait(false);
@@ -54,7 +54,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<GetTrainingContentDto>> GetAsync([FromRoute] long id)
+        public async Task<Response<GetTrainingContentDto>> GetByIdAsync([FromRoute] long id)
         {
             return await trainingContentManager.GetTrainingContentAsync(id).ConfigureAwait(false);
         }
