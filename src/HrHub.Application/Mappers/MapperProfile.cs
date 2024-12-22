@@ -119,9 +119,13 @@ namespace HrHub.Application.Mappers
 
 
 
-            CreateMap<AddContentTypeDto, ContentType>();
-            CreateMap<UpdateContentTypeDto, ContentType>();
-            CreateMap<DeleteContentTypeDto, ContentType>();
+            CreateMap<AddContentTypeDto, ContentType>().ReverseMap();
+            CreateMap<UpdateContentTypeDto, ContentType>().ReverseMap();
+            CreateMap<DeleteContentTypeDto, ContentType>().ReverseMap();
+
+            CreateMap<AddTrainingCategoryDto, TrainingCategory>().ReverseMap();
+            CreateMap<UpdateTrainingCategoryDto, TrainingCategory>().ReverseMap();
+            CreateMap<DeleteTrainingCategoryDto, TrainingCategory>().ReverseMap();
         }
     }
 }

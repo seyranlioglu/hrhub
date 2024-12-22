@@ -57,7 +57,7 @@ namespace HrHub.Application.Managers.TrainingCategories
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var updData = await categoryRepository.GetAsync(predicate: p => p.Id == data.Id);
-            mapper.Map(updData, data);
+            mapper.Map(data, updData);
 
             categoryRepository.Update(updData);
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -91,7 +91,7 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<IEnumerable<GetTrainingCategoryDto>>> GetListTrainingCategoryAsync()
         {
-            var categories = await categoryRepository.GetListAsync(predicate: p => p.IsActive,
+            var categories = await categoryRepository.GetListAsync(predicate: p => p.IsActive && (p.IsDelete == false || p.IsDelete == null),
                                                                include: i => i.Include(c => c.MasterTrainingCategory));
 
             var categoryDto = mapper.Map<IEnumerable<GetTrainingCategoryDto>>(categories);
@@ -100,7 +100,9 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<GetTrainingCategoryDto>> GetTrainingCategoryAsync(long id)
         {
-            var categories = await categoryRepository.GetAsync(predicate: p => p.IsActive,
+            var categories = await categoryRepository.GetAsync(predicate: p=> p.Id == id
+                                                                              && p.IsActive
+                                                                              && (p.IsDelete == false || p.IsDelete == null),
                                                                include: i => i.Include(
                                                                c => c.MasterTrainingCategory));
 

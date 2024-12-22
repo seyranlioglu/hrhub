@@ -5,6 +5,8 @@ using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.ContentTypeBusinessRules;
 using HrHub.Application.BusinessRules.TrainingCategoryBusinessRule;
 using HrHub.Application.BusinessRules.WhatYouWillLearnBusinessRule;
+using HrHub.Application.Factories;
+using HrHub.Application.Managers.TypeManagers;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.Helpers;
@@ -20,29 +22,34 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace HrHub.Application.Managers.ContentTypes;
 public class ContentTypeManager : ManagerBase, IContentTypeManager
 {
-    private readonly IHrUnitOfWork unitOfWork;
-    private readonly IMapper mapper;
-    private readonly Repository<ContentType> contentTypeRepository;
 
+    private readonly IHrUnitOfWork unitOfWork;
+    private readonly Repository<ContentType> contentTypeRepository;
+    private readonly IMapper mapper;
     public ContentTypeManager(IHttpContextAccessor httpContextAccessor,
-                              IHrUnitOfWork unitOfWork,
-                              IMapper mapper) : base(httpContextAccessor)
+                       IHrUnitOfWork unitOfWork,
+                       IMapper mapper) : base(httpContextAccessor)
     {
-        unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        contentTypeRepository = unitOfWork.CreateRepository<ContentType>();
+        this.unitOfWork = unitOfWork;
+        this.contentTypeRepository = unitOfWork.CreateRepository<ContentType>();
+        this.mapper = mapper;
+
     }
+
 
 
     public async Task<Response<IEnumerable<ContentTypeDto>>> GetListForContentTypeAsync()
     {
-        return ProduceSuccessResponse(await contentTypeRepository.GetListAsync(predicate: p => p.IsDelete == false,
+        return ProduceSuccessResponse(await contentTypeRepository.GetListAsync(predicate: p => (p.IsDelete == false || p.IsDelete == null)
+                                                                                               && p.IsActive,
                                                               selector: s => mapper.Map<ContentTypeDto>(s)));
     }
 
     public async Task<Response<ContentTypeDto>> GetByIdForContentTypeAsync(long id)
     {
-        return ProduceSuccessResponse(await contentTypeRepository.GetAsync(predicate: p => p.Id == id,
+        return ProduceSuccessResponse(await contentTypeRepository.GetAsync(predicate: p => p.Id == id
+                                                                                           && (p.IsDelete == false || p.IsDelete == null)
+                                                                                           && p.IsActive, 
                                                     selector: s => mapper.Map<ContentTypeDto>(s)));
     }
     public async Task<Response<CommonResponse>> AddContentTypeAsync(AddContentTypeDto data, CancellationToken cancellationToken = default)
@@ -50,8 +57,8 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
         if (ValidationHelper.RuleBasedValidator<AddContentTypeDto>(data, typeof(AddContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
             return cBasedValidResult.SendResponse<CommonResponse>();
 
-        var trainingCategory = mapper.Map<ContentType>(data);
-        await contentTypeRepository.AddAsync(trainingCategory, cancellationToken);
+        var entity = mapper.Map<ContentType>(data);
+        await contentTypeRepository.AddAsync(entity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ProduceSuccessResponse(new CommonResponse
@@ -67,7 +74,7 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
             return cBasedValidResult.SendResponse<CommonResponse>();
 
         var updData = await contentTypeRepository.GetAsync(predicate: p => p.Id == data.Id);
-        mapper.Map(updData, data);
+        mapper.Map(data, updData);
 
         contentTypeRepository.Update(updData);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -88,7 +95,7 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
 
         var entity = await contentTypeRepository.GetAsync(predicate: p => p.Id == id);
         entity.IsDelete = true;
-
+        entity.IsActive = false;
         var deletedData = mapper.Map(entityDto, entity);
 
         contentTypeRepository.Update(deletedData);
