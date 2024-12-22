@@ -32,5 +32,6 @@ namespace HrHub.Application.Managers.UserManagers
         Task<Response<List<GetUserResponse>>> GetUserList(CancellationToken cancellationToken = default);
         Task<Response<CommonResponse>> SetUserStatus(SetUserStatusDto setUserStatusDto, CancellationToken cancellationToken = default);
         Task<Response<CommonResponse>> UpdateUser(UserUpdateDto updateUserDto, CancellationToken cancellationToken = default);
+        Task<Response<CommonResponse>> DeleteUser(long userId, CancellationToken cancellationToken = default);
     }
 }

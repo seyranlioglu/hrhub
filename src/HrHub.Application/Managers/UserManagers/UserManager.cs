@@ -207,9 +207,14 @@ namespace HrHub.Application.Managers.UserManagers
                                  skip: 0, take: 1,
                                  selector: s => AesEncrypion.DecryptString(s.Password));
 
-                string content = MailHelper.GetMailBody(MailType.AddUser).Replace("@PASSWORD", userLastPassword.First()).Replace("@USERNAME", user.Email);
+                string content = MailHelper.GetMailBody(MailType.AddUser);
+                var dictionary = new Dictionary<string, string>
+                {
+                    { "@PASSWORD", userLastPassword.First() },
+                    { "@USERNAME", user.Email }
+                };
                 var sender = messageSenderFactory.GetSender(MessageType.Email);
-                await sender.SendAsync(new EmailMessageDto { Recipient = user.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = new Dictionary<string, string>() });
+                await sender.SendAsync(new EmailMessageDto { Recipient = user.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = dictionary });
 
 
                 return new CommonResponse { Result = true, Message = "Telefon Doğrulama Başarılı.", Code = StatusCodes.Status200OK };
@@ -278,12 +283,22 @@ namespace HrHub.Application.Managers.UserManagers
 
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
-
+            var isUserExist = await appUserService.GetUserByEmailAsync(request.Email);
+            if(isUserExist!=null)
+            {
+                return ProduceFailResponse<CommonResponse>("Mail adresi daha önce kullanılmış. Lütfen başka mail giriniz.", StatusCodes.Status409Conflict);
+            }
+            var isNumberExist = userRepository.Count(P => P.PhoneNumber == request.PhoneNumber);
+            if (isNumberExist > 0)
+            {
+                return ProduceFailResponse<CommonResponse>("Telefon Numarası daha önce kullanılmış. Lütgen başka numara giriniz.", StatusCodes.Status409Conflict);
+            }
             string password = PasswordHepler.GeneratePassword(8, true, true, true);
             var signUpModel = mapper.Map<SignUpDto>(request);
             signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
             signUpModel.Password = password;
             signUpModel.IsMainUser = false;
+            
             var result = await appUserService.SignUpAsync(signUpModel);
             if (result.Item2)
             {
@@ -304,15 +319,21 @@ namespace HrHub.Application.Managers.UserManagers
                                 PasswordChangeDate = DateTime.UtcNow,
                                 ExpiryDate = DateTime.UtcNow.AddMonths(6),
                                 ChangeReason = "Password created",
-                                Password = AesEncrypion.EncryptString(password)
+                                Password = AesEncrypion.EncryptString(password),
+                                CreatedDate = DateTime.UtcNow
                             };
                             await passwordHistoryRepository.AddAsync(passwordHistory);
                             await unitOfWork.SaveChangesAsync();
 
                             //kullanıcı ve parola bilgilieri kullanıcıya mail olarak gönderilecek
-                            string content = MailHelper.GetMailBody(MailType.AddUser).Replace("PASSWORD", password).Replace("USERNAME", request.Email);
+                            string content = MailHelper.GetMailBody(MailType.AddUser);
+                            var dictionary = new Dictionary<string, string>
+                            {
+                                { "@PASSWORD", password },
+                                { "@USERNAME", request.Email }
+                            };
                             var sender = messageSenderFactory.GetSender(MessageType.Email);
-                            await sender.SendAsync(new EmailMessageDto { Recipient = request.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = new Dictionary<string, string>() });
+                            await sender.SendAsync(new EmailMessageDto { Recipient = request.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = dictionary });
                         }
                     }
                 }
@@ -471,9 +492,14 @@ namespace HrHub.Application.Managers.UserManagers
             {
                 // Süper Admin değişiklik yapıyorsa, password değişen kişiye yeni bilgilierinin Mail gönderme işlemleri yapılıyor
 
-                string content = MailHelper.GetMailBody(MailType.ChangePasswordBySuperAdmin).Replace("PASSWORD", passwordReset.Password).Replace("USERNAME", user.Email);
+                string content = MailHelper.GetMailBody(MailType.ChangePasswordBySuperAdmin);
+                var dictionary = new Dictionary<string, string>
+                {
+                    { "@PASSWORD", passwordReset.Password },
+                    { "@USERNAME", user.Email }
+                };
                 var sender = messageSenderFactory.GetSender(MessageType.Email);
-                await sender.SendAsync(new EmailMessageDto { Recipient = user.Email, Content = content, MessageTemplate = MessageTemplates.ChangePassword, Parameters = new Dictionary<string, string>() });
+                await sender.SendAsync(new EmailMessageDto { Recipient = user.Email, Content = content, MessageTemplate = MessageTemplates.ChangePassword, Parameters = dictionary });
 
             }
             return ProduceSuccessResponse(new CommonResponse { Message = "Şifre başarıyla değiştirilmiştir.", Code = 200, Result = true });
@@ -544,20 +570,37 @@ namespace HrHub.Application.Managers.UserManagers
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla güncellenmiştir.", Code = 200, Result = true });
         }
-        public async Task SendVerifyCode(string receiver, string message, SubmissionTypeEnum type, MessageTemplates template)
+        public async Task<Response<CommonResponse>> DeleteUser(long userId, CancellationToken cancellationToken = default)
+        {
+            var user = await userRepository.GetAsync(p => p.Id == userId);
+            if (user == null)
+                return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+
+            user.DeleteDate = DateTime.UtcNow;
+            user.DeleteUserId = this.GetCurrentUserId();
+            user.IsActive = false;
+            userRepository.Update(user);
+            await unitOfWork.SaveChangesAsync();
+            return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla silinmiştir.", Code = 200, Result = true });
+        }
+        public async Task SendVerifyCode(string receiver, string code, SubmissionTypeEnum type, MessageTemplates template)
         {
             switch (type)
             {
                
                 case SubmissionTypeEnum.Email:
 
-                    var content = MailHelper.GetMailBody(MailType.VerifyEmail).Replace("@VERIFYCODE", message);
+                    var content = MailHelper.GetMailBody(MailType.VerifyEmail);
+                    var dictionary = new Dictionary<string, string>
+                {
+                    { "@VERIFYCODE", code }
+                }; 
                     var sender =  messageSenderFactory.GetSender(MessageType.Email);
-                    await sender.SendAsync(new EmailMessageDto { Recipient = receiver, Content = content, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+                    await sender.SendAsync(new EmailMessageDto { Recipient = receiver, Content = content, MessageTemplate = template, Parameters = dictionary });
                     break;
                 case SubmissionTypeEnum.Sms:
                     var senderSms = messageSenderFactory.GetSender(MessageType.Sms);
-                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = message, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = code, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
                     break;
             }
         }
