@@ -126,6 +126,9 @@ namespace HrHub.Application.Mappers
             CreateMap<AddTrainingCategoryDto, TrainingCategory>().ReverseMap();
             CreateMap<UpdateTrainingCategoryDto, TrainingCategory>().ReverseMap();
             CreateMap<DeleteTrainingCategoryDto, TrainingCategory>().ReverseMap();
+
+            CreateMap<Instructor, UserInstructorDto>().ReverseMap();
+            
         }
     }
 }

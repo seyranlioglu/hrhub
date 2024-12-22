@@ -13,5 +13,6 @@ namespace HrHub.Domain.Contracts.Dtos.UserDtos
         [ValidationRules(typeof(NullCheckRule))]
         public long CurrAccId { get; set; }
 
+
     }
 }

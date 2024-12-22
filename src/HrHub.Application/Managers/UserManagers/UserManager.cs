@@ -17,8 +17,10 @@ using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Identity.Model;
 using HrHub.Identity.Services;
 using HrHub.Infrastructre.Repositories.Abstract;
+using HrHub.Infrastructre.Repositories.Concrete;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson.IO;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -34,7 +36,7 @@ namespace HrHub.Application.Managers.UserManagers
         private readonly IMapper mapper;
         private readonly Repository<CurrAcc> currAccRepository;
         private readonly Repository<User> userRepository;
-
+        private readonly Repository<Instructor> instructorRepository;
         private readonly IAppUserService appUserService;
         private readonly IAppRoleService appRoleService;
         //   private readonly ICacheService cacheService;
@@ -46,6 +48,7 @@ namespace HrHub.Application.Managers.UserManagers
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
             this.currAccRepository = unitOfWork.CreateRepository<CurrAcc>();
+            this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
             this.userRepository = unitOfWork.CreateRepository<User>();
             this.appUserService = appUserService;
             this.appRoleService = appRoleService;
@@ -603,6 +606,30 @@ namespace HrHub.Application.Managers.UserManagers
                     await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = code, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
                     break;
             }
+        }
+
+        public async Task<Response<CommonResponse>> SetUserInstructor(UserInstructorDto dto, CancellationToken cancellationToken = default)
+        {
+            var validator = new FieldBasedValidator<UserInstructorDto>();
+            var validateResult = validator.Validate(dto);
+
+            if (!validateResult.IsValid)
+                return validateResult.SendResponse<CommonResponse>();
+
+            var user = await userRepository.GetAsync(p => p.Id == dto.UserId, include: i=>i.Include(c=>c.CurrAcc));
+            if (user == null)
+                return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+
+            var entity = mapper.Map<Instructor>(dto);
+            entity.Address = user.CurrAcc.Address;
+            entity.Phone = user.PhoneNumber;
+            entity.Email = user.Email;
+            entity.CreatedDate = DateTime.UtcNow;
+            entity.IsActive = true;
+            entity.PicturePath = "test";
+            await instructorRepository.AddAsync(entity);
+            await unitOfWork.SaveChangesAsync();
+            return ProduceSuccessResponse(new CommonResponse { Message = "İşlem Tamamlandı.", Code = 200, Result = true });
         }
     }
 }
