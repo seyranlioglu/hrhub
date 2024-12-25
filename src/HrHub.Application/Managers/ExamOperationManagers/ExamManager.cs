@@ -123,7 +123,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.FieldBasedValidator<AddExamQuestionDto>(question) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<ReturnIdResponse>();
 
-            if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question, typeof(AddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddExamQuestionDto>(question, typeof(IAddExamQuestionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var newQuestion = mapper.Map<ExamQuestion>(question);
@@ -233,7 +233,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.FieldBasedValidator<UpdateExamDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<CommonResponse>();
 
-            if (ValidationHelper.RuleBasedValidator<UpdateExamDto>(updateData, typeof(ExistUserExamBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateExamDto>(updateData, typeof(IExistUserExamBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var oldExam = await examRepository.GetAsync(
@@ -270,7 +270,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.FieldBasedValidator<UpdateExamTopicDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<CommonResponse>();
 
-            if (ValidationHelper.RuleBasedValidator<UpdateExamTopicDto>(updateData, typeof(AddUpdateExamTopicBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateExamTopicDto>(updateData, typeof(IAddUpdateExamTopicBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var oldTopic = await examTopicRepository.GetAsync(
@@ -302,7 +302,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 include: i => i.Include(w => w.ExamVersion)
                 .ThenInclude(w => w.ExamTopics));
 
-            if (ValidationHelper.RuleBasedValidator<Tuple<ExamTopic, int>>(Tuple.Create(topicToMove, updateData.NewSeqNumber), typeof(UpdateExamTopicSeqNumBusinesRule)) is ValidationResult cValidResult && !cValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<Tuple<ExamTopic, int>>(Tuple.Create(topicToMove, updateData.NewSeqNumber), typeof(IUpdateExamTopicSeqNumBusinesRule)) is ValidationResult cValidResult && !cValidResult.IsValid)
                 return cValidResult.SendResponse<CommonResponse>();
 
             int oldSeqNumber = topicToMove.SeqNumber;
@@ -343,7 +343,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             if (ValidationHelper.FieldBasedValidator<UpdateExamQuestionDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
                 return validationResult.SendResponse<CommonResponse>();
 
-            if (ValidationHelper.RuleBasedValidator<UpdateExamQuestionDto>(updateData, typeof(ExistUserExamBusinessRule)) is ValidationResult rValidResult && !rValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateExamQuestionDto>(updateData, typeof(IExistUserExamBusinessRule)) is ValidationResult rValidResult && !rValidResult.IsValid)
                 return rValidResult.SendResponse<CommonResponse>();
 
             var existingQuestion = await examQuestionRepository.GetAsync(
