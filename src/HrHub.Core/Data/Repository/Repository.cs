@@ -51,7 +51,8 @@ namespace HrHub.Core.Data.Repository
         public virtual void DeleteList(List<TEntity> entities) => DbSet.RemoveRange(entities);
         public bool Exists(Expression<Func<TEntity, bool>> predicate)
         {
-            return Exists(predicate);
+            var result = dbContext.Set<TEntity>().Any(predicate);
+            return result;
         }
         public TResult Max<TResult>(Expression<Func<TEntity, TResult>> selector)
         {
@@ -89,7 +90,7 @@ namespace HrHub.Core.Data.Repository
         }
         public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            var result = await ExistsAsync(predicate, cancellationToken);
+            var result = await dbContext.Set<TEntity>().AnyAsync(predicate);
             return result;
         }
         public async Task<TResult> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> selector,
@@ -126,6 +127,9 @@ namespace HrHub.Core.Data.Repository
                            Expression<Func<TEntity, TEntity>> selector = null)
         {
             var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf);
+            if (selector is null)
+                return query.FirstOrDefault();
+
             return query.Select(selector).FirstOrDefault();
         }
 
@@ -138,6 +142,9 @@ namespace HrHub.Core.Data.Repository
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
                 var query = CreateQuery(predicate: predicate, orderBy: orderBy, include: include, whereIf: whereIf, noLock: true);
+                if (selector is null)
+                    return query.FirstOrDefault();
+
                 return query.Select(selector).FirstOrDefault();
             }
         }
@@ -173,6 +180,8 @@ namespace HrHub.Core.Data.Repository
             using (CreateTransaction(IsolationLevel.ReadUncommitted))
             {
                 var query = CreateQuery(predicate, orderBy, include, whereIf);
+                if (selector is null)
+                    return (IEnumerable<TResult>)query.ToList();
                 return query.Select(selector).ToList();
             }
         }

@@ -1,5 +1,6 @@
 ﻿using HrHub.Cache.IoC;
 using HrHub.Core.Helpers;
+using HrHub.Core.HrFluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;

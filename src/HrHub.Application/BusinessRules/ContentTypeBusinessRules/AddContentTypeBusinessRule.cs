@@ -22,13 +22,13 @@ namespace HrHub.Application.BusinessRules.ContentTypeBusinessRules
             if (value is AddContentTypeDto contentTypeDto && contentTypeDto is not null)
             {
                 var isContentTypeExist = contentTypeRepository
-                   .Exists(
+                   .Get(
                    predicate: p => p.Title == contentTypeDto.Title
                                    && p.Description == contentTypeDto.Description
                                    && p.Code == contentTypeDto.Code
                                    && p.Abbreviation == contentTypeDto.Abbreviation
                                    && p.LangCode == contentTypeDto.LangCode);
-                if (isContentTypeExist)
+                if (isContentTypeExist is not null)
                     return (false, ValidationMessages.DataAlreadyExists);
 
             }

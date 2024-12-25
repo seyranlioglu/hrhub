@@ -54,7 +54,7 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
     }
     public async Task<Response<CommonResponse>> AddContentTypeAsync(AddContentTypeDto data, CancellationToken cancellationToken = default)
     {
-        if (ValidationHelper.RuleBasedValidator<AddContentTypeDto>(data, typeof(AddContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+        if (ValidationHelper.RuleBasedValidator<AddContentTypeDto>(data, typeof(IAddContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
             return cBasedValidResult.SendResponse<CommonResponse>();
 
         var entity = mapper.Map<ContentType>(data);
