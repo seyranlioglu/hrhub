@@ -48,7 +48,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
         {
 
-            if (ValidationHelper.RuleBasedValidator<AddTrainingContentDto>(data, typeof(AddTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddTrainingContentDto>(data, typeof(IAddTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
 
@@ -93,7 +93,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
         public async Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default)
         {
-            var validationResult = ValidationHelper.RuleBasedValidator<UpdateTrainingContentDto>(data, typeof(UpdateTrainingContentBusinessRule));
+            var validationResult = ValidationHelper.RuleBasedValidator<UpdateTrainingContentDto>(data, typeof(IUpdateTrainingContentBusinessRule));
             if (validationResult is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
@@ -138,7 +138,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         public async Task<Response<CommonResponse>> DeleteTrainingContentAsync(long id, CancellationToken cancellationToken = default)
         {
             var contentDto = await contentRepository.GetAsync(predicate: p => p.Id == id, selector: s => mapper.Map<DeleteTrainingContentDto>(s));
-            if (ValidationHelper.RuleBasedValidator<DeleteTrainingContentDto>(contentDto, typeof(DeleteTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<DeleteTrainingContentDto>(contentDto, typeof(IDeleteTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id);

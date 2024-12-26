@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HrHub.Application.BusinessRules.TrainingBusinessRules
 {
-    public interface IAddTrainingBusinesRule : IBusinessRule
+    public interface IAddTrainingBusinessRule : IBusinessRule
     {
 
     }

@@ -70,7 +70,7 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
     }
     public async Task<Response<CommonResponse>> UpdateContentTypeAsync(UpdateContentTypeDto data, CancellationToken cancellationToken = default)
     {
-        if (ValidationHelper.RuleBasedValidator<UpdateContentTypeDto>(data, typeof(UpdateContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+        if (ValidationHelper.RuleBasedValidator<UpdateContentTypeDto>(data, typeof(IUpdateContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
             return cBasedValidResult.SendResponse<CommonResponse>();
 
         var updData = await contentTypeRepository.GetAsync(predicate: p => p.Id == data.Id);
@@ -90,7 +90,7 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
     {
         var entityDto = await contentTypeRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteContentTypeDto>(s));
 
-        if (ValidationHelper.RuleBasedValidator<DeleteContentTypeDto>(entityDto, typeof(ExistContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+        if (ValidationHelper.RuleBasedValidator<DeleteContentTypeDto>(entityDto, typeof(IExistContentTypeBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
             return cBasedValidResult.SendResponse<CommonResponse>();
 
         var entity = await contentTypeRepository.GetAsync(predicate: p => p.Id == id);

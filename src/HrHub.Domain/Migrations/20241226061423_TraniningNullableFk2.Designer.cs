@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241226061423_TraniningNullableFk2")]
+    partial class TraniningNullableFk2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2024,7 +2027,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<decimal?>("DiscountRate")
                         .HasColumnType("numeric");
 
-                    b.Property<long?>("EducationLevelId")
+                    b.Property<long>("EducationLevelId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("ForWhomId")
@@ -2064,6 +2067,7 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Trailer")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<long?>("TrainingLevelId")
@@ -3520,7 +3524,9 @@ namespace HrHub.Domain.Migrations
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.EducationLevel", "EducationLevel")
                         .WithMany("Trainings")
-                        .HasForeignKey("EducationLevelId");
+                        .HasForeignKey("EducationLevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.ForWhom", "ForWhom")
                         .WithMany("Trainings")

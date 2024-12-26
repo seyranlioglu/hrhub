@@ -35,7 +35,7 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<CommonResponse>> AddTrainingCategoryAsync(AddTrainingCategoryDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddTrainingCategoryDto>(data, typeof(AddTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddTrainingCategoryDto>(data, typeof(IAddTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var trainingCategory = mapper.Map<TrainingCategory>(data);
@@ -53,7 +53,7 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<CommonResponse>> UpdateTrainingCategoryAsync(UpdateTrainingCategoryDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<UpdateTrainingCategoryDto>(data, typeof(UpdateTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateTrainingCategoryDto>(data, typeof(IUpdateTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var updData = await categoryRepository.GetAsync(predicate: p => p.Id == data.Id);
@@ -74,7 +74,7 @@ namespace HrHub.Application.Managers.TrainingCategories
         {
             var entityDto = await categoryRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingCategoryDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<DeleteTrainingCategoryDto>(entityDto, typeof(DeleteTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<DeleteTrainingCategoryDto>(entityDto, typeof(IDeleteTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var updData = await categoryRepository.GetAsync(predicate: p => p.Id == entityDto.Id);

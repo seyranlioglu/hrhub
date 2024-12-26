@@ -21,55 +21,55 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string? HeaderImage { get; set; }
         public string? LangCode { get; set; }
         public long CategoryId { get; set; }
-        public long InstructorId { get; set; }
+        public long? InstructorId { get; set; }
         public string? TrainingType { get; set; }
-        public decimal CurrentAmount { get; set; }
-        public decimal Amount { get; set; }
-        public decimal DiscountRate { get; set; }
-        public decimal TaxRate { get; set; }
+        public decimal? CurrentAmount { get; set; }
+        public decimal? Amount { get; set; }
+        public decimal? DiscountRate { get; set; }
+        public decimal? TaxRate { get; set; }
         public decimal CertificateOfAchievementRate { get; set; }
-        public decimal CertificateOfParticipationRate { get; set; }
+        public decimal? CertificateOfParticipationRate { get; set; }
         public DateTime? CompletionTime { get; set; }
-        public long CompletionTimeUnitId { get; set; }
-        public long TrainingLevelId { get; set; }
-        public long TrainingStatusId { get; set; }
-        public long PreconditionId { get; set; }
-        public long ForWhomId { get; set; }
-        public string SubTitle { get; set; }
-        public string Labels { get; set; }
-        public string CourseImage { get; set; }
-        public string Trailer { get; set; }
-        public string WelcomeMessage { get; set; }
-        public string CongratulationMessage { get; set; }
-        public long EducationLevelId { get; set; }
-        public long PriceTierId { get; set; }
+        public long? CompletionTimeUnitId { get; set; }
+        public long? TrainingLevelId { get; set; }
+        public long? TrainingStatusId { get; set; }
+        public long? PreconditionId { get; set; }
+        public long? ForWhomId { get; set; } = null;
+        public string? SubTitle { get; set; }
+        public string? Labels { get; set; }
+        public string? CourseImage { get; set; }
+        public string? Trailer { get; set; }
+        public string? WelcomeMessage { get; set; }
+        public string? CongratulationMessage { get; set; }
+        public long? EducationLevelId { get; set; }
+        public long? PriceTierId { get; set; }
 
         [ForeignKey("CategoryId")]
         public virtual TrainingCategory TrainingCategory { get; set; }
 
         [ForeignKey("InstructorId")]
-        public virtual Instructor Instructor { get; set; }
+        public virtual Instructor? Instructor { get; set; }
 
         [ForeignKey("CompletionTimeUnitId")]
-        public virtual TimeUnit TimeUnit { get; set; }
+        public virtual TimeUnit? TimeUnit { get; set; }
 
         [ForeignKey("TrainingLevelId")]
-        public virtual TrainingLevel TrainingLevel { get; set; }
+        public virtual TrainingLevel? TrainingLevel { get; set; }
 
         [ForeignKey("TrainingStatusId")]
-        public virtual TrainingStatus TrainingStatus { get; set; }
+        public virtual TrainingStatus? TrainingStatus { get; set; }
 
         [ForeignKey("PreconditionId")]
-        public virtual Precondition Precondition { get; set; }
+        public virtual Precondition? Precondition { get; set; }
 
         [ForeignKey("ForWhomId")]
-        public virtual ForWhom ForWhom { get; set; }
+        public virtual ForWhom? ForWhom { get; set; }
 
         [ForeignKey("EducationLevelId")]
-        public virtual EducationLevel EducationLevel { get; set; }
+        public virtual EducationLevel? EducationLevel { get; set; }
 
         [ForeignKey("PriceTierId")]
-        public virtual PriceTier PriceTier { get; set; }
+        public virtual PriceTier? PriceTier { get; set; }
 
         public virtual ICollection<CartItem> CartItems { get; set; } = null;
         public virtual ICollection<Exam> Exams { get; set; } = null;

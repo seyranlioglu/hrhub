@@ -30,6 +30,15 @@ namespace HrHub.Application.Mappers
             #region Training
 
             CreateMap<AddTrainingDto, Training>().ReverseMap();
+    //        CreateMap<AddTrainingDto, Training>()
+    //.ForMember(dest => dest.ForWhomId, opt => opt.MapFrom(src => src.ForWhomId == 0 ? (long?)null : (long?)src.ForWhomId))
+    //.ForMember(dest => dest.InstructorId, opt => opt.MapFrom(src => src.InstructorId == 0 ? (long?)null : (long?)src.InstructorId))
+    //.ForMember(dest => dest.CompletionTimeUnitId, opt => opt.MapFrom(src => src.CompletionTimeUnitId == 0 ? (long?)null : (long?)src.CompletionTimeUnitId))
+    //.ForMember(dest => dest.TrainingLevelId, opt => opt.MapFrom(src => src.TrainingLevelId == 0 ? (long?)null : (long?)src.TrainingLevelId))
+    //.ForMember(dest => dest.PreconditionId, opt => opt.MapFrom(src => src.PreconditionId == 0 ? (long?)null : (long?)src.PreconditionId))
+    //.ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevelId == 0 ? (long?)null : (long?)src.EducationLevelId))
+    //.ForMember(dest => dest.PriceTierId, opt => opt.MapFrom(src => src.PriceTierId == 0 ? (long?)null : (long?)src.PriceTierId));
+
             CreateMap<UpdateTrainingDto, Training>().ReverseMap();
             CreateMap<DeleteTrainingDto, Training>().ReverseMap();
             CreateMap<Training, GetTrainingDto>()
@@ -128,7 +137,7 @@ namespace HrHub.Application.Mappers
             CreateMap<DeleteTrainingCategoryDto, TrainingCategory>().ReverseMap();
 
             CreateMap<Instructor, UserInstructorDto>().ReverseMap();
-            
+
         }
     }
 }

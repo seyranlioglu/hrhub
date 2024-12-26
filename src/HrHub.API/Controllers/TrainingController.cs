@@ -28,7 +28,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
+        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
         public async Task<Response<ReturnIdResponse>> AddTraining([FromBody] AddTrainingDto data)
         {
             var response = await trainingManager.AddTrainingAsync(data).ConfigureAwait(false);

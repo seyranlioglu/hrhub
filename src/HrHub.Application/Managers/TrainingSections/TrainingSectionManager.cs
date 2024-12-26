@@ -32,7 +32,7 @@ namespace HrHub.Application.Managers.TrainingSections
 
         public async Task<Response<ReturnIdResponse>> AddTrainingSectionAsync(AddTrainingSectionDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddTrainingSectionDto>(data, typeof(AddTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddTrainingSectionDto>(data, typeof(IAddTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var trainingSectionEntity = mapper.Map<TrainingSection>(data);
@@ -64,7 +64,7 @@ namespace HrHub.Application.Managers.TrainingSections
         public async Task<Response<CommonResponse>> DeleteTrainingSectionAsync(long id, CancellationToken cancellationToken = default)
         {
             var trainingDto = await trainingSectionRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingSectionDto>(s));
-            if (ValidationHelper.RuleBasedValidator<DeleteTrainingSectionDto>(trainingDto, typeof(ExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<DeleteTrainingSectionDto>(trainingDto, typeof(IExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var trainingSectionEntity = await trainingSectionRepository.GetAsync(predicate: p => p.Id == id);
@@ -86,7 +86,7 @@ namespace HrHub.Application.Managers.TrainingSections
                                                                         include: i => i.Include(s => s.Training),
                                                                         selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingSectionListDto.FirstOrDefault(), typeof(ExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingSectionListDto.FirstOrDefault(), typeof(IExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<IEnumerable<GetTrainingSectionDto>>();
 
             return ProduceSuccessResponse(trainingSectionListDto);
@@ -97,7 +97,7 @@ namespace HrHub.Application.Managers.TrainingSections
                                                                        include: i => i.Include(s => s.Training),
                                                                        selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingDto, typeof(ExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingDto, typeof(IExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<GetTrainingSectionDto>();
 
             return ProduceSuccessResponse(trainingDto);

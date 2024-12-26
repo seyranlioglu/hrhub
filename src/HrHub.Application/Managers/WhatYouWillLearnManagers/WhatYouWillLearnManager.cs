@@ -36,7 +36,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         }
         public async Task<Response<ReturnIdResponse>> AddWhatYouWillLearnAsync(AddWhatYouWillLearnDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddWhatYouWillLearnDto>(data, typeof(AddWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddWhatYouWillLearnDto>(data, typeof(IAddWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var mapperData = mapper.Map<WhatYouWillLearn>(data);
@@ -51,7 +51,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         {
             var entity = await whatYouWillLearnRepository.GetAsync(predicate: t => t.Id == dto.Id);
 
-            if (ValidationHelper.RuleBasedValidator<UpdateWhatYouWillLearnDto>(dto, typeof(UpdateWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateWhatYouWillLearnDto>(dto, typeof(IUpdateWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             mapper.Map(dto, entity);
@@ -70,7 +70,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         {
             var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteWhatYouWillLearnDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<DeleteWhatYouWillLearnDto>(entityDto, typeof(ExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<DeleteWhatYouWillLearnDto>(entityDto, typeof(IExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var entity = await whatYouWillLearnRepository.GetAsync(predicate: p => p.Id == id);
@@ -106,7 +106,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
                                                                             TrainingTitle = s.Training.Title
                                                                         });
 
-            if (ValidationHelper.RuleBasedValidator<GetWhatYouWillLearnDto>(entityDto.FirstOrDefault(), typeof(ExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<GetWhatYouWillLearnDto>(entityDto.FirstOrDefault(), typeof(IExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<IEnumerable<GetWhatYouWillLearnDto>>();
 
             return ProduceSuccessResponse(entityDto);
@@ -129,7 +129,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
                                                                                   TrainingTitle = s.Training.Title
                                                                               });
 
-            if (ValidationHelper.RuleBasedValidator<GetWhatYouWillLearnDto>(entityDto, typeof(ExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<GetWhatYouWillLearnDto>(entityDto, typeof(IExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<GetWhatYouWillLearnDto>();
 
             return ProduceSuccessResponse(entityDto);

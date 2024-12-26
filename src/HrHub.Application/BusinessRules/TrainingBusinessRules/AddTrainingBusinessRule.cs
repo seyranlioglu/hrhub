@@ -9,7 +9,7 @@ using HrHub.Infrastructre.UnitOfWorks;
 
 namespace HrHub.Application.BusinessRules.TrainingBusinessRules
 {
-    public class AddTrainingBusinessRule : IAddTrainingBusinesRule
+    public class AddTrainingBusinessRule : IAddTrainingBusinessRule
     {
         private readonly IHrUnitOfWork unitOfWork;
         private readonly Repository<Training> trainingRepository;
@@ -49,62 +49,62 @@ namespace HrHub.Application.BusinessRules.TrainingBusinessRules
                 if (isTrainingExist)
                     return (false, ValidationMessages.TrainingExistsError);
 
-                var isInstructorExist = instructorRepository
-                              .Exists(p =>
-                                  p.Id == trainingDto.InstructorId);
-                if (!isInstructorExist)
-                    return (false, ValidationMessages.InstructorNotFound);
+                //var isInstructorExist = instructorRepository
+                //              .Exists(p =>
+                //                  p.Id == trainingDto.InstructorId);
+                //if (!isInstructorExist)
+                //    return (false, ValidationMessages.InstructorNotFound);
                 var isCategoryExist = categoryRepository
                                             .Exists(p =>
                                                 p.Id == trainingDto.CategoryId);
                 if (!isCategoryExist)
                     return (false, ValidationMessages.CategoryNotFound);
 
-                var isPreconditionExist = preconditionRepository
-                                       .Exists(p =>
-                                           p.Id == trainingDto.PreconditionId);
-                if (!isPreconditionExist)
-                    return (false, ValidationMessages.PreconditionNotFound);
+                //var isPreconditionExist = preconditionRepository
+                //                       .Exists(p =>
+                //                           p.Id == trainingDto.PreconditionId);
+                //if (!isPreconditionExist)
+                //    return (false, ValidationMessages.PreconditionNotFound);
 
-                var isForWhomExist = forWhomRepository
-                                  .Exists(p =>
-                                      p.Id == trainingDto.ForWhomId);
-                if (!isForWhomExist)
-                    return (false, ValidationMessages.ForWhomNotFound);
+                //var isForWhomExist = forWhomRepository
+                //                  .Exists(p =>
+                //                      p.Id == trainingDto.ForWhomId);
+                //if (!isForWhomExist)
+                //    return (false, ValidationMessages.ForWhomNotFound);
 
-                var islevelExist = levelRepository
-                                      .Exists(p =>
-                                          p.Id == trainingDto.TrainingLevelId);
-                if (!islevelExist)
-                    return (false, ValidationMessages.TrainingLevelNotFound);
+                //var islevelExist = levelRepository
+                //                      .Exists(p =>
+                //                          p.Id == trainingDto.TrainingLevelId);
+                //if (!islevelExist)
+                //    return (false, ValidationMessages.TrainingLevelNotFound);
 
-                var isEducationLevelExist = educationLevelRepository
-                                 .Exists(p =>
-                                     p.Id == trainingDto.EducationLevelId);
-                if (!isEducationLevelExist)
-                    return (false, ValidationMessages.EducationLevelNotFound);
+                //var isEducationLevelExist = educationLevelRepository
+                //                 .Exists(p =>
+                //                     p.Id == trainingDto.EducationLevelId);
+                //if (!isEducationLevelExist)
+                //    return (false, ValidationMessages.EducationLevelNotFound);
 
-                var isPriceTierExist = priceTierRepository
-                            .Exists(p =>
-                                p.Id == trainingDto.PriceTierId);
-                if (!isPriceTierExist)
-                    return (false, ValidationMessages.PriceTierNotFound);
+                //var isPriceTierExist = priceTierRepository
+                //            .Exists(p =>
+                //                p.Id == trainingDto.PriceTierId);
+                //if (!isPriceTierExist)
+                //    return (false, ValidationMessages.PriceTierNotFound);
 
-                var isTimeUnitExist = timeUnitRepository
-                                      .Exists(p =>
-                                          p.Id == trainingDto.CompletionTimeUnitId);
+                //var isTimeUnitExist = timeUnitRepository
+                //                      .Exists(p =>
+                //                          p.Id == trainingDto.CompletionTimeUnitId);
 
-                if (!isTimeUnitExist)
-                    return (false, ValidationMessages.TimeUnitNotFound);
+                //if (!isTimeUnitExist)
+                //    return (false, ValidationMessages.TimeUnitNotFound);
 
-                if (trainingDto.Amount < 0)
-                    return (false, ValidationMessages.AmountMustBeGreaterThanZero);
+                //if (trainingDto.Amount < 0)
+                //    return (false, ValidationMessages.AmountMustBeGreaterThanZero);
 
-                if (trainingDto.CurrentAmount < 0)
-                    return (false, ValidationMessages.CurrentAmountMustBeGreaterThanZero);
+                //if (trainingDto.CurrentAmount < 0)
+                //    return (false, ValidationMessages.CurrentAmountMustBeGreaterThanZero);
 
-                if (trainingDto.CompletionTime is null || trainingDto.CompletionTimeUnitId < 0)
-                    return (false, ValidationMessages.CompletionTimeAndUnitMustBeProvided);
+                //if (trainingDto.CompletionTime is null || trainingDto.CompletionTimeUnitId < 0)
+                //    return (false, ValidationMessages.CompletionTimeAndUnitMustBeProvided);
             }
 
             return (true, string.Empty);
