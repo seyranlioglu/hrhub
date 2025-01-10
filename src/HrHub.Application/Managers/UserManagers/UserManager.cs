@@ -603,7 +603,7 @@ namespace HrHub.Application.Managers.UserManagers
                     break;
                 case SubmissionTypeEnum.Sms:
                     var senderSms = messageSenderFactory.GetSender(MessageType.Sms);
-                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = code, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = "Doğrulama Kodu : "+code, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
                     break;
             }
         }
