@@ -39,17 +39,17 @@ namespace HrHub.Application.Integrations.NotificationServices
                     }
                     var sendSmsModel = new SendSmsDto
                     {
-                        BlackListFilter = smsSettings.BlackListFilter,
-                        BrandCode = smsSettings.BrandCode,
-                        BroadCastMessage = smsMessage.Recipient,
-                        SmsMessages = smsMessage.Content,
-                        Channel = smsSettings.Channel,
-                        IysFilter = smsSettings.IysFilter,
                         Originator = smsSettings.Originator,
                         Password = smsSettings.Password,
-                        RecipientType = smsSettings.RecipientType,
-                        RetailerCode = smsSettings.RetailerCode,
-                        Username = smsSettings.Username
+                        User = smsSettings.Username,
+                        SmsMessages = new List<SmsMessage>
+                        {
+                            new SmsMessage
+                            {
+                                Messagetext = smsMessage.Content,
+                                Recipient = smsMessage.Recipient
+                            }
+                        }
                     };
                     //TODO devam edecek
 
@@ -86,21 +86,21 @@ namespace HrHub.Application.Integrations.NotificationServices
                             smsMessage.Content = smsMessage.Content.Replace("" + item.Key + "", "" + item.Value + "");
                         }
                     }
+                 
                     var sendSmsModel = new SendSmsDto
                     {
-                        BlackListFilter = smsSettings.BlackListFilter,
-                        BrandCode = smsSettings.BrandCode,
-                        BroadCastMessage = smsMessage.Recipient,
-                        SmsMessages = smsMessage.Content,
-                        Channel = smsSettings.Channel,
-                        IysFilter = smsSettings.IysFilter,
                         Originator = smsSettings.Originator,
                         Password = smsSettings.Password,
-                        RecipientType = smsSettings.RecipientType,
-                        RetailerCode = smsSettings.RetailerCode,
-                        Username = smsSettings.Username
+                        User = smsSettings.Username,
+                        SmsMessages = new List<SmsMessage>
+                        {
+                            new SmsMessage
+                            {
+                                Messagetext = smsMessage.Content,
+                                Recipient = smsMessage.Recipient
+                            }
+                        }
                     };
-
                     var client = AppSettingsHelper.GetData<Abstraction.Settings.HttpClientConfiguration>().HttpClients
                            .Find(w => w.Name == Abstraction.Enums.HttpClients.SmsServer.ToString());
                     if (client == null)
