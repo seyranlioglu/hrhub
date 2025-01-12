@@ -41,6 +41,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
 
         var trainingEntity = mapper.Map<Training>(data);
+        trainingEntity.IsActive = true;
         trainingEntity.ForWhomId = data.ForWhomId == 0 ? (long?)null : data.ForWhomId;
         trainingEntity.InstructorId = data.InstructorId == 0 ? (long?)null : data.InstructorId;
         trainingEntity.CompletionTimeUnitId = data.CompletionTimeUnitId == 0 ? (long?)null : data.CompletionTimeUnitId;
@@ -91,10 +92,10 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
         var trainingEntity = await trainingRepository.GetAsync(predicate: p => p.Id == id);
         trainingEntity.IsDelete = true;
+        trainingEntity.DeleteDate = DateTime.UtcNow;
+        //trainingEntity.DeleteUserId = this.GetCurrentUserId();
 
-        var deletedData = mapper.Map(trainingDto, trainingEntity);
-
-        trainingRepository.Update(deletedData);
+        trainingRepository.Update(trainingEntity);
         await hrUnitOfWork.SaveChangesAsync(cancellationToken);
         return ProduceSuccessResponse(new CommonResponse
         {
@@ -110,12 +111,15 @@ public class TrainingManager : ManagerBase, ITrainingManager
                                                                     include: i => i.Include(s => s.TrainingCategory)
                                                                     .Include(s => s.Instructor)
                                                                     .Include(s => s.TimeUnit)
-                                                                    .Include(s => s.TrainingLevel),
+                                                                    .Include(s => s.TrainingLevel)
+                                                                    .Include(s => s.TrainingStatus)
+                                                                    .Include(s=>s.EducationLevel)
+                                                                    .Include(s=>s.ForWhom)
+                                                                    .Include(s=>s.Precondition)
+                                                                    .Include(s => s.PriceTier)
+                                                                    .Include(s=>s.TrainingContent)
+                                                                    .Include(s => s.TrainingType),
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
-
-        if (ValidationHelper.RuleBasedValidator<GetTrainingDto>(trainingListDto.FirstOrDefault(), typeof(IExistTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-            return cBasedValidResult.SendResponse<IEnumerable<GetTrainingDto>>();
-
         return ProduceSuccessResponse(trainingListDto);
 
     }
@@ -124,15 +128,18 @@ public class TrainingManager : ManagerBase, ITrainingManager
     public async Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id)
     {
         var trainingDto = await trainingRepository.GetAsync(predicate: p => p.IsActive && p.Id == id,
-                                                                include: i => i.Include(s => s.TrainingCategory)
+                                                            include: i => i.Include(s => s.TrainingCategory)
                                                                     .Include(s => s.Instructor)
                                                                     .Include(s => s.TimeUnit)
-                                                                    .Include(s => s.TrainingLevel),
+                                                                    .Include(s => s.TrainingLevel)
+                                                                    .Include(s => s.TrainingStatus)
+                                                                    .Include(s => s.EducationLevel)
+                                                                    .Include(s => s.ForWhom)
+                                                                    .Include(s => s.Precondition)
+                                                                    .Include(s => s.PriceTier)
+                                                                    .Include(s => s.TrainingContent)
+                                                                    .Include(s => s.TrainingType),
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
-
-        if (ValidationHelper.RuleBasedValidator<GetTrainingDto>(trainingDto, typeof(IExistTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-            return cBasedValidResult.SendResponse<GetTrainingDto>();
-
         return ProduceSuccessResponse(trainingDto);
     }
 }

@@ -8,6 +8,7 @@ using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingSectionDtos;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
 using HrHub.Domain.Contracts.Dtos.WhatYouWillLearns;
+using HrHub.Domain.Contracts.Dtos.WhatYouWillLearnsDtos;
 using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Identity.Model;
@@ -46,8 +47,8 @@ namespace HrHub.Application.Mappers
            .ForMember(dest => dest.CategoryTitle, opt => opt.MapFrom(src => src.TrainingCategory.Title))
            .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.TrainingCategory.Description))
 
-           .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Instructor.Email))
-           .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Instructor.Title))
+           //.ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Instructor.Email))
+           //.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Instructor.Title))
 
            .ForMember(dest => dest.CompletionTimeUnitCode, opt => opt.MapFrom(src => src.TimeUnit.Code))
            .ForMember(dest => dest.CompletionTimeUnitDescription, opt => opt.MapFrom(src => src.TimeUnit.Description))
@@ -58,7 +59,7 @@ namespace HrHub.Application.Mappers
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
            .ForMember(dest => dest.HeaderImage, opt => opt.MapFrom(src => src.HeaderImage))
            .ForMember(dest => dest.LangCode, opt => opt.MapFrom(src => src.LangCode))
-           .ForMember(dest => dest.TrainingType, opt => opt.MapFrom(src => src.TrainingType))
+           //.ForMember(dest => dest.TrainingType, opt => opt.MapFrom(src => src.TrainingType))
            .ForMember(dest => dest.CurrentAmount, opt => opt.MapFrom(src => src.CurrentAmount))
            .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
            .ForMember(dest => dest.DiscountRate, opt => opt.MapFrom(src => src.DiscountRate))
@@ -137,6 +138,8 @@ namespace HrHub.Application.Mappers
             CreateMap<DeleteTrainingCategoryDto, TrainingCategory>().ReverseMap();
 
             CreateMap<Instructor, UserInstructorDto>().ReverseMap();
+
+            CreateMap<GetWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
 
         }
     }

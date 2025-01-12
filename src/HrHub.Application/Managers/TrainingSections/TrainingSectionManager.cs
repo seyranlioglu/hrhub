@@ -69,9 +69,10 @@ namespace HrHub.Application.Managers.TrainingSections
 
             var trainingSectionEntity = await trainingSectionRepository.GetAsync(predicate: p => p.Id == id);
             trainingSectionEntity.IsDelete = true;
-            var deletedData = mapper.Map(trainingDto, trainingSectionEntity);
+            trainingSectionEntity.DeleteDate = DateTime.UtcNow;
+            trainingSectionEntity.DeleteUserId = this.GetCurrentUserId();
 
-            trainingSectionRepository.Update(deletedData);
+            trainingSectionRepository.Update(trainingSectionEntity);
             await hrUnitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse
             {
@@ -86,8 +87,7 @@ namespace HrHub.Application.Managers.TrainingSections
                                                                         include: i => i.Include(s => s.Training),
                                                                         selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingSectionListDto.FirstOrDefault(), typeof(IExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<IEnumerable<GetTrainingSectionDto>>();
+   
 
             return ProduceSuccessResponse(trainingSectionListDto);
         }
@@ -97,8 +97,6 @@ namespace HrHub.Application.Managers.TrainingSections
                                                                        include: i => i.Include(s => s.Training),
                                                                        selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingDto, typeof(IExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<GetTrainingSectionDto>();
 
             return ProduceSuccessResponse(trainingDto);
         }

@@ -25,7 +25,7 @@ namespace HrHub.API.Controllers
 
         [HttpPost("[Action]")]
         // [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<ReturnIdResponse>> AddTraining([FromBody] AddTrainingContentDto data)
+        public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromBody] AddTrainingContentDto data)
         {
             var response = await trainingContentManager.AddTrainingContentAsync(data).ConfigureAwait(false);
             return response;
@@ -33,7 +33,7 @@ namespace HrHub.API.Controllers
 
         [HttpPut("[Action]")]
         // [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<CommonResponse>> UpdateTraining([FromBody] UpdateTrainingContentDto data)
+        public async Task<Response<CommonResponse>> UpdateTrainingContent([FromBody] UpdateTrainingContentDto data)
         {
             var response = await trainingContentManager.UpdateTrainingContentAsync(data).ConfigureAwait(false);
             return response;
@@ -41,7 +41,7 @@ namespace HrHub.API.Controllers
 
         [HttpDelete("[Action]")]
         //[Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<CommonResponse>> DeleteTraining([FromBody] long id)
+        public async Task<Response<CommonResponse>> DeleteTrainingContent([FromBody] long id)
         {
             var response = await trainingContentManager.DeleteTrainingContentAsync(id).ConfigureAwait(false);
             return response;

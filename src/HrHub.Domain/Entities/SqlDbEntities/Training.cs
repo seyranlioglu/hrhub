@@ -22,7 +22,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string? LangCode { get; set; }
         public long CategoryId { get; set; }
         public long? InstructorId { get; set; }
-        public string? TrainingType { get; set; }
+        public long? TrainingTypeId { get; set; }
         public decimal? CurrentAmount { get; set; }
         public decimal? Amount { get; set; }
         public decimal? DiscountRate { get; set; }
@@ -43,6 +43,13 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string? CongratulationMessage { get; set; }
         public long? EducationLevelId { get; set; }
         public long? PriceTierId { get; set; }
+        public long? TrainingContentId { get; set; }
+
+        [ForeignKey("TrainingTypeId")]
+        public virtual TrainingType TrainingType { get; set; }
+
+        [ForeignKey("TrainingContentId")]
+        public virtual TrainingContent TrainingContent { get; set; }
 
         [ForeignKey("CategoryId")]
         public virtual TrainingCategory TrainingCategory { get; set; }

@@ -79,6 +79,8 @@ namespace HrHub.Application.Managers.TrainingCategories
 
             var updData = await categoryRepository.GetAsync(predicate: p => p.Id == entityDto.Id);
             updData.IsDelete = false;
+            updData.DeleteDate = DateTime.UtcNow;
+            //updData.DeleteUserId = this.GetCurrentUserId;
             categoryRepository.Update(updData);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse

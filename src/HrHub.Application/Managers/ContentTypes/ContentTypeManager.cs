@@ -95,10 +95,10 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
 
         var entity = await contentTypeRepository.GetAsync(predicate: p => p.Id == id);
         entity.IsDelete = true;
-        entity.IsActive = false;
-        var deletedData = mapper.Map(entityDto, entity);
+        entity.DeleteDate = DateTime.UtcNow;
+        //entity.DeleteUserId = this.GetCurrentUserId();
 
-        contentTypeRepository.Update(deletedData);
+        contentTypeRepository.Update(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return ProduceSuccessResponse(new CommonResponse
         {
