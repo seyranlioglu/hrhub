@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250112121359_ContentType")]
+    partial class ContentType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2075,8 +2078,8 @@ namespace HrHub.Domain.Migrations
                     b.Property<long?>("TrainingStatusId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("TrainingTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("TrainingType")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
@@ -2108,8 +2111,6 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("TrainingLevelId");
 
                     b.HasIndex("TrainingStatusId");
-
-                    b.HasIndex("TrainingTypeId");
 
                     b.ToTable("Trainings", "public");
                 });
@@ -3557,10 +3558,6 @@ namespace HrHub.Domain.Migrations
                         .WithMany("Trainings")
                         .HasForeignKey("TrainingStatusId");
 
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingType", "TrainingType")
-                        .WithMany("Trainings")
-                        .HasForeignKey("TrainingTypeId");
-
                     b.Navigation("EducationLevel");
 
                     b.Navigation("ForWhom");
@@ -3580,8 +3577,6 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("TrainingLevel");
 
                     b.Navigation("TrainingStatus");
-
-                    b.Navigation("TrainingType");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingAmount", b =>
@@ -3993,11 +3988,6 @@ namespace HrHub.Domain.Migrations
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingStatus", b =>
-                {
-                    b.Navigation("Trainings");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingType", b =>
                 {
                     b.Navigation("Trainings");
                 });

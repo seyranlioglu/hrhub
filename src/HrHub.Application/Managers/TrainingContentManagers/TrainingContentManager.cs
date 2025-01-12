@@ -143,6 +143,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
             var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id);
             contentEntity.IsDelete = true;
+            contentEntity.DeleteDate = DateTime.UtcNow;
+            //contentEntity.DeleteUserId = this.GetCurrentUserId();
             contentRepository.Update(contentEntity);
 
 
