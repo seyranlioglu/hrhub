@@ -113,11 +113,11 @@ public class TrainingManager : ManagerBase, ITrainingManager
                                                                     .Include(s => s.TimeUnit)
                                                                     .Include(s => s.TrainingLevel)
                                                                     .Include(s => s.TrainingStatus)
-                                                                    .Include(s=>s.EducationLevel)
-                                                                    .Include(s=>s.ForWhom)
-                                                                    .Include(s=>s.Precondition)
+                                                                    .Include(s => s.EducationLevel)
+                                                                    .Include(s => s.ForWhom)
+                                                                    .Include(s => s.Precondition)
                                                                     .Include(s => s.PriceTier)
-                                                                    .Include(s=>s.TrainingContent)
+                                                                    .Include(s => s.TrainingSections).ThenInclude(d => d.TrainingContents).ThenInclude(e => e.ContentType)
                                                                     .Include(s => s.TrainingType),
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
         return ProduceSuccessResponse(trainingListDto);
@@ -137,7 +137,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
                                                                     .Include(s => s.ForWhom)
                                                                     .Include(s => s.Precondition)
                                                                     .Include(s => s.PriceTier)
-                                                                    .Include(s => s.TrainingContent)
+                                                                    .Include(s => s.TrainingSections).ThenInclude(d => d.TrainingContents).ThenInclude(e=>e.ContentType)
                                                                     .Include(s => s.TrainingType),
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
         return ProduceSuccessResponse(trainingDto);

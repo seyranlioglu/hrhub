@@ -31,14 +31,14 @@ namespace HrHub.Application.Mappers
             #region Training
 
             CreateMap<AddTrainingDto, Training>().ReverseMap();
-    //        CreateMap<AddTrainingDto, Training>()
-    //.ForMember(dest => dest.ForWhomId, opt => opt.MapFrom(src => src.ForWhomId == 0 ? (long?)null : (long?)src.ForWhomId))
-    //.ForMember(dest => dest.InstructorId, opt => opt.MapFrom(src => src.InstructorId == 0 ? (long?)null : (long?)src.InstructorId))
-    //.ForMember(dest => dest.CompletionTimeUnitId, opt => opt.MapFrom(src => src.CompletionTimeUnitId == 0 ? (long?)null : (long?)src.CompletionTimeUnitId))
-    //.ForMember(dest => dest.TrainingLevelId, opt => opt.MapFrom(src => src.TrainingLevelId == 0 ? (long?)null : (long?)src.TrainingLevelId))
-    //.ForMember(dest => dest.PreconditionId, opt => opt.MapFrom(src => src.PreconditionId == 0 ? (long?)null : (long?)src.PreconditionId))
-    //.ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevelId == 0 ? (long?)null : (long?)src.EducationLevelId))
-    //.ForMember(dest => dest.PriceTierId, opt => opt.MapFrom(src => src.PriceTierId == 0 ? (long?)null : (long?)src.PriceTierId));
+            //        CreateMap<AddTrainingDto, Training>()
+            //.ForMember(dest => dest.ForWhomId, opt => opt.MapFrom(src => src.ForWhomId == 0 ? (long?)null : (long?)src.ForWhomId))
+            //.ForMember(dest => dest.InstructorId, opt => opt.MapFrom(src => src.InstructorId == 0 ? (long?)null : (long?)src.InstructorId))
+            //.ForMember(dest => dest.CompletionTimeUnitId, opt => opt.MapFrom(src => src.CompletionTimeUnitId == 0 ? (long?)null : (long?)src.CompletionTimeUnitId))
+            //.ForMember(dest => dest.TrainingLevelId, opt => opt.MapFrom(src => src.TrainingLevelId == 0 ? (long?)null : (long?)src.TrainingLevelId))
+            //.ForMember(dest => dest.PreconditionId, opt => opt.MapFrom(src => src.PreconditionId == 0 ? (long?)null : (long?)src.PreconditionId))
+            //.ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevelId == 0 ? (long?)null : (long?)src.EducationLevelId))
+            //.ForMember(dest => dest.PriceTierId, opt => opt.MapFrom(src => src.PriceTierId == 0 ? (long?)null : (long?)src.PriceTierId));
 
             CreateMap<UpdateTrainingDto, Training>().ReverseMap();
             CreateMap<DeleteTrainingDto, Training>().ReverseMap();
@@ -66,7 +66,41 @@ namespace HrHub.Application.Mappers
            .ForMember(dest => dest.TaxRate, opt => opt.MapFrom(src => src.TaxRate))
            .ForMember(dest => dest.CertificateOfAchievementRate, opt => opt.MapFrom(src => src.CertificateOfAchievementRate))
            .ForMember(dest => dest.CertificateOfParticipationRate, opt => opt.MapFrom(src => src.CertificateOfParticipationRate))
-           .ForMember(dest => dest.CompletionTime, opt => opt.MapFrom(src => src.CompletionTime));
+           .ForMember(dest => dest.CompletionTime, opt => opt.MapFrom(src => src.CompletionTime)
+
+           );
+
+            CreateMap<TrainingSection, TrainingSectionDto>()
+                    .ForMember(dest => dest.TrainingSectionId, opt => opt.MapFrom(src => src.Id))
+                    .ForMember(dest => dest.TrainingSectionCode, opt => opt.MapFrom(src => src.Code))
+                    .ForMember(dest => dest.TrainingSectionLangCode, opt => opt.MapFrom(src => src.LangCode))
+                    .ForMember(dest => dest.TrainingSectionRowNumber, opt => opt.MapFrom(src => src.RowNumber))
+                    .ForMember(dest => dest.TrainingSectionDescription, opt => opt.MapFrom(src => src.Description))
+                    .ForMember(dest => dest.TrainingSectionTitle, opt => opt.MapFrom(src => src.Title));
+
+            CreateMap<TrainingContent, TrainingContentDto>()
+                                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                                .ForMember(dest => dest.TrainingSectionId, opt => opt.MapFrom(src => src.TrainingSectionId))
+                                .ForMember(dest => dest.ContentTypeId, opt => opt.MapFrom(src => src.ContentTypeId))
+                                .ForMember(dest => dest.Time, opt => opt.MapFrom(src => src.Time))
+                                .ForMember(dest => dest.PageCount, opt => opt.MapFrom(src => src.PageCount))
+                                .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => src.FilePath))
+                                .ForMember(dest => dest.Mandatory, opt => opt.MapFrom(src => src.Mandatory))
+                                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+                                .ForMember(dest => dest.AllowSeeking, opt => opt.MapFrom(src => src.AllowSeeking))
+                                .ForMember(dest => dest.PartCount, opt => opt.MapFrom(src => src.PartCount))
+                                .ForMember(dest => dest.MinReadTimeThreshold, opt => opt.MapFrom(src => src.MinReadTimeThreshold))
+                                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                                .ForMember(dest => dest.ExamId, opt => opt.MapFrom(src => src.ExamId));
+
+            CreateMap<ContentType, TrainingContentTypeDto>()
+                                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                                .ForMember(dest => dest.LangCode, opt => opt.MapFrom(src => src.LangCode))
+                                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
 
 
