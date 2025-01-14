@@ -28,7 +28,7 @@ namespace HrHub.Application.BusinessRules.TrainingContentBusinessRules
             if (value is AddTrainingContentDto trainingContentDto && trainingContentDto is not null)
             {
                 var isContentTypeExist = contentTypeRepository.Exists(predicate: p => p.Id == trainingContentDto.ContentTypeId);
-                if (isContentTypeExist)
+                if (!isContentTypeExist)
                     return (false, ValidationMessages.TrainingContentTypeExistsError);
 
                 var isTrainingSectionExist = trainingSectionRepository.Exists(predicate: p => p.Id == trainingContentDto.TrainingSectionId);

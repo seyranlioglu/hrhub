@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250114180834_TrainingContentv2")]
+    partial class TrainingContentv2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -467,9 +470,11 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FileName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FilePath")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
@@ -2407,6 +2412,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<int?>("PartCount")
                         .HasColumnType("integer");
 
+                    b.Property<long>("SectionId")
+                        .HasColumnType("bigint");
+
                     b.Property<TimeSpan?>("Time")
                         .HasColumnType("interval");
 
@@ -2428,7 +2436,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasIndex("ExamId");
 
-                    b.HasIndex("TrainingSectionId");
+                    b.HasIndex("SectionId");
 
                     b.ToTable("TrainingContents", "public");
                 });
@@ -3639,7 +3647,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", "TrainingSection")
                         .WithMany("TrainingContents")
-                        .HasForeignKey("TrainingSectionId")
+                        .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

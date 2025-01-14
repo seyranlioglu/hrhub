@@ -5,8 +5,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class ContentLibrary : TypeCardEntity<long>
     {
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
+        public string? FileName { get; set; }
+        public string? FilePath { get; set; }
         public long TrainingContentId { get; set; }
 
         [ForeignKey("TrainingContentId")]

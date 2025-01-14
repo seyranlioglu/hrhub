@@ -120,8 +120,38 @@ namespace HrHub.Application.Mappers
             #endregion
 
             #region TrainingContent
-            CreateMap<AddTrainingContentDto, TrainingContent>().ReverseMap();
-            CreateMap<UpdateTrainingContentDto, TrainingContent>().ReverseMap();
+            CreateMap<AddTrainingContentDto, TrainingContent>()
+                 .ForAllMembers(opt =>
+                     opt.Condition((src, dest, srcMember, context) =>
+                     {
+                         if (srcMember == null)
+                             return false;
+
+                         var propertyName = opt.DestinationMember.Name;
+                         var fkProperties = new[] { "ContentTypeId", "TrainingSectionId" };
+
+                         if (fkProperties.Contains(propertyName) && srcMember is long longValue && longValue == 0)
+                             return false;
+
+                         return true;
+                     }));
+
+            CreateMap<UpdateTrainingContentDto, TrainingContent>()
+                        .ForAllMembers(opt =>
+                          opt.Condition((src, dest, srcMember, context) =>
+                          {
+                              if (srcMember == null)
+                                  return false;
+
+                              var propertyName = opt.DestinationMember.Name;
+                              var fkProperties = new[] { "ContentTypeId", "TrainingSectionId" }; 
+
+                              if (fkProperties.Contains(propertyName) && srcMember is long longValue && longValue == 0)
+                                  return false; 
+
+                              return true;
+                          }));
+
             CreateMap<DeleteTrainingContentDto, TrainingContent>().ReverseMap();
             CreateMap<GetTrainingContentDto, TrainingContent>().ReverseMap();
             #endregion
@@ -174,6 +204,8 @@ namespace HrHub.Application.Mappers
             CreateMap<Instructor, UserInstructorDto>().ReverseMap();
 
             CreateMap<GetWhatYouWillLearnDto, WhatYouWillLearn>().ReverseMap();
+
+            CreateMap<AddTrainingContentDto, ContentLibrary>().ReverseMap();
 
         }
     }
