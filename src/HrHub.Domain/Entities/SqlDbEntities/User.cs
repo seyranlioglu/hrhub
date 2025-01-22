@@ -14,7 +14,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             AddCartUser = new HashSet<Cart>();
             ContentNotes = new HashSet<ContentNote>();
             CurrAccTrainingUsers = new HashSet<CurrAccTrainingUser>();
-            Instructors = new HashSet<Instructor>();
+            Instructor = new Instructor();
             Reviews = new HashSet<Review>();
             TrainingAnnouncements = new HashSet<TrainingAnnouncement>();
             TrainingAnnouncementsComments = new HashSet<TrainingAnnouncementsComment>();
@@ -51,7 +51,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ICollection<ContentComment> ContentComments { get; set; } = null;
         public virtual ICollection<ContentNote> ContentNotes { get; set; } = null;
         public virtual ICollection<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; } = null;
-        public virtual ICollection<Instructor> Instructors { get; set; } = null;
+        public virtual Instructor Instructor { get; set; } = null;
         public virtual ICollection<Review> Reviews { get; set; } = null;
         public virtual ICollection<TrainingAnnouncement> TrainingAnnouncements { get; set; } = null;
         public virtual ICollection<TrainingAnnouncementsComment> TrainingAnnouncementsComments { get; set; } = null;
