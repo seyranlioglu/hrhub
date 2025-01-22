@@ -107,7 +107,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
     public async Task<Response<IEnumerable<GetTrainingDto>>> GetTrainingListAsync()
     {
-        var trainingListDto = await trainingRepository.GetListAsync(predicate: p => p.IsActive,
+        var trainingListDto = await trainingRepository.GetListAsync(predicate: p => p.IsDelete != true,
                                                                     include: i => i.Include(s => s.TrainingCategory)
                                                                     .Include(s => s.Instructor)
                                                                     .Include(s => s.TimeUnit)
@@ -127,7 +127,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
     public async Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id)
     {
-        var trainingDto = await trainingRepository.GetAsync(predicate: p => p.IsActive && p.Id == id,
+        var trainingDto = await trainingRepository.GetAsync(predicate: p => p.Id == id && p.IsDelete != true,
                                                             include: i => i.Include(s => s.TrainingCategory)
                                                                     .Include(s => s.Instructor)
                                                                     .Include(s => s.TimeUnit)

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using HrHub.Abstraction.Attributes;
+using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.TrainingContentBusinessRules;
@@ -40,15 +41,15 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
         {
             // Validation
-            if (ValidationHelper.RuleBasedValidator<AddTrainingContentDto>(data, typeof(IAddTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<ReturnIdResponse>();
+            //if (ValidationHelper.RuleBasedValidator<AddTrainingContentDto>(data, typeof(IAddTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            //    return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             // Max Row Number for OrderId
-            var maxRowNum = (await contentRepository.GetListAsync(predicate: c => c.ContentTypeId == data.ContentTypeId
-                                                                                && c.TrainingSectionId == data.TrainingSectionId,
-                                                                                orderBy: o => o.OrderByDescending(i => i.OrderId),
-                                                                                selector: s => s.OrderId))
-                                                                                .FirstOrDefault();
+            var maxRowNum = (await contentRepository.MaxAsync(predicate: c => c.ContentTypeId == data.ContentTypeId
+                                                                                && c.TrainingSectionId == data.TrainingSectionId,                                                                            
+                                                                                selector: s => s.OrderId));
+
+
 
             await unitOfWork.BeginTransactionAsync();
 
@@ -61,16 +62,13 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 await unitOfWork.SaveChangesAsync(cancellationToken);
 
                 var contentLibrary = await contentLibraryRepository.GetAsync(predicate: p => p.FileName == data.ContentLibraryFileName);
-                if (contentLibrary is not null)
-                    return ProduceFailResponse<ReturnIdResponse>("Bu içerik zaten yüklenmiş!", 404);
-
-
-                var contentLibrayData = mapper.Map<ContentLibrary>(data);
-                contentLibrayData.TrainingContentId = result.Id;
-                await contentLibraryRepository.AddAsync(contentLibrayData, cancellationToken);
-
-                await unitOfWork.SaveChangesAsync(cancellationToken); 
-        
+                if (contentLibrary is null)
+                {
+                    var contentLibrayData = mapper.Map<ContentLibrary>(data);
+                    contentLibrayData.TrainingContentId = result.Id;
+                    await contentLibraryRepository.AddAsync(contentLibrayData, cancellationToken);
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
+                }
                 await unitOfWork.CommitTransactionAsync();
 
                 return ProduceSuccessResponse(new ReturnIdResponse
@@ -94,16 +92,16 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
 
 
-            var contentLibraryExists = await contentLibraryRepository.ExistsAsync(p => p.FileName == data.ContentLibraryFileName
-                                                                                       && p.TrainingContentId != data.Id);
-            if (contentLibraryExists)
-                return ProduceFailResponse<CommonResponse>("Bu içerik zaten yüklenmiş!", 404);
+            //var contentLibraryExists = await contentLibraryRepository.ExistsAsync(p => p.FileName == data.ContentLibraryFileName
+            //                                                                           && p.TrainingContentId != data.Id);
+            //if (contentLibraryExists)
+            //    return ProduceFailResponse<CommonResponse>("Bu içerik zaten yüklenmiş!", 404);
 
             await unitOfWork.BeginTransactionAsync();
             try
             {
                 var existingContent = await contentRepository.GetAsync(predicate: p => p.Id == data.Id);
-         
+
 
 
                 mapper.Map(data, existingContent);
@@ -143,10 +141,17 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id);
-            contentEntity.IsDelete = true;
-            contentEntity.DeleteDate = DateTime.UtcNow;
-            //contentEntity.DeleteUserId = this.GetCurrentUserId();
-            contentRepository.Update(contentEntity);
+
+
+            if (contentEntity.ContentType.Code != ContentTypeConst.Video)
+                await contentRepository.DeleteAsync(contentEntity);
+            else
+            {
+                contentEntity.IsDelete = true;
+                contentEntity.DeleteDate = DateTime.UtcNow;
+                contentEntity.DeleteUserId = this.GetCurrentUserId();
+                contentRepository.Update(contentEntity);
+            }
 
 
             var contentLibraryEntity = await contentLibraryRepository.GetListAsync(predicate: p => p.TrainingContent.Id == id);
@@ -174,7 +179,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         }
         public async Task<Response<IEnumerable<GetTrainingContentDto>>> GetTrainingContentListAsync()
         {
-            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsActive,
+            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsDelete != true,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
                                                                         .Include(s => s.ContentLibraries));
@@ -185,7 +190,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
         public async Task<Response<GetTrainingContentDto>> GetTrainingContentAsync(long id)
         {
-            var trainingListDto = await contentRepository.GetAsync(predicate: p => p.IsActive && p.Id == id,
+            var trainingListDto = await contentRepository.GetAsync(predicate: p => p.IsDelete != true && p.Id == id,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
                                                                         .Include(s => s.ContentLibraries),
