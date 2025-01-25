@@ -24,12 +24,12 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        // [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromBody] AddTrainingContentDto data)
+        public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromForm] AddTrainingContentDto data)
         {
             var response = await trainingContentManager.AddTrainingContentAsync(data).ConfigureAwait(false);
             return response;
         }
+
 
         [HttpPut("[Action]")]
         // [Authorize(Roles = "Admin", Policy = "Instructior")]
