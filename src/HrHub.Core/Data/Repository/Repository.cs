@@ -58,6 +58,11 @@ namespace HrHub.Core.Data.Repository
         {
             return DbSet.Max(selector);
         }
+        public virtual TEntity UpdateAndReturn(TEntity entity)
+        {
+            DbSet.Update(entity);
+            return entity;
+        }
         public virtual void Update(TEntity entity)
         {
             DbSet.Update(entity);

@@ -83,7 +83,7 @@ namespace HrHub.Application.Managers.TrainingSections
         }
         public async Task<Response<IEnumerable<GetTrainingSectionDto>>> GetTrainingSectionListAsync()
         {
-            var trainingSectionListDto = await trainingSectionRepository.GetListAsync(predicate: p => p.IsActive,
+            var trainingSectionListDto = await trainingSectionRepository.GetListAsync(predicate: p =>p.IsDelete != true,
                                                                         include: i => i.Include(s => s.Training),
                                                                         selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
@@ -93,7 +93,7 @@ namespace HrHub.Application.Managers.TrainingSections
         }
         public async Task<Response<GetTrainingSectionDto>> GetTrainingSectionByIdAsync(long id)
         {
-            var trainingDto = await trainingSectionRepository.GetAsync(predicate: p => p.IsActive && p.Id == id,
+            var trainingDto = await trainingSectionRepository.GetAsync(predicate: p => p.IsDelete != true && p.Id == id,
                                                                        include: i => i.Include(s => s.Training),
                                                                        selector: s => mapper.Map<GetTrainingSectionDto>(s));
 

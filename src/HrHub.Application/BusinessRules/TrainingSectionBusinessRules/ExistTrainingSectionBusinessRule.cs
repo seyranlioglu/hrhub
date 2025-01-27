@@ -19,7 +19,7 @@ namespace HrHub.Application.BusinessRules.TrainingSectionBusinessRules
         }
         public (bool IsValid, string ErrorMessage) Validate(object value, string fieldName)
         {
-            if (value is GetTrainingSectionDto dto && dto is not null)
+            if (value is DeleteTrainingSectionDto dto && dto is not null)
             {
                 var isEntityExist = trainingSectionRepository
                     .Exists(
@@ -28,7 +28,7 @@ namespace HrHub.Application.BusinessRules.TrainingSectionBusinessRules
                 if (!isEntityExist)
                     return (false, ValidationMessages.TrainingSectionNotExistsError);
             }
-            return (false, string.Empty);
+            return (true, string.Empty);
         }
     }
 }

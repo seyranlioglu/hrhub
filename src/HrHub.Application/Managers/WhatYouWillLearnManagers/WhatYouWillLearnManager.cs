@@ -90,7 +90,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
 
         public async Task<Response<IEnumerable<GetWhatYouWillLearnDto>>> GetWhatYouWillLearnListAsync()
         {
-            var entityDto = await whatYouWillLearnRepository.GetListAsync(predicate: p => p.IsActive,
+            var entityDto = await whatYouWillLearnRepository.GetListAsync(predicate: p => p.IsDelete != true,
                                                                         include: i => i.Include(s => s.Training),
                                                                         selector: s => mapper.Map<GetWhatYouWillLearnDto>(s)
 
@@ -99,7 +99,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         }
         public async Task<Response<GetWhatYouWillLearnDto>> GetWhatYouWillLearnByIdAsync(long id)
         {
-            var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: p => p.IsActive,
+            var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: p => p.IsDelete != true,
                                                                               include: i => i.Include(s => s.Training),
                                                                               selector: s => mapper.Map<GetWhatYouWillLearnDto>(s)
                                                                         );

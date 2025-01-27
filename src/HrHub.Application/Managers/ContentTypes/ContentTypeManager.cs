@@ -40,17 +40,14 @@ public class ContentTypeManager : ManagerBase, IContentTypeManager
 
     public async Task<Response<IEnumerable<ContentTypeDto>>> GetListForContentTypeAsync()
     {
-        return ProduceSuccessResponse(await contentTypeRepository.GetListAsync(predicate: p => (p.IsDelete == false || p.IsDelete == null)
-                                                                                               && p.IsActive,
+        return ProduceSuccessResponse(await contentTypeRepository.GetListAsync(predicate: p => (p.IsDelete == false || p.IsDelete == null),
                                                               selector: s => mapper.Map<ContentTypeDto>(s)));
     }
 
     public async Task<Response<ContentTypeDto>> GetByIdForContentTypeAsync(long id)
     {
         return ProduceSuccessResponse(await contentTypeRepository.GetAsync(predicate: p => p.Id == id
-                                                                                           && (p.IsDelete == false || p.IsDelete == null)
-                                                                                           && p.IsActive, 
-                                                    selector: s => mapper.Map<ContentTypeDto>(s)));
+                                                                                           && (p.IsDelete == false || p.IsDelete == null), selector: s => mapper.Map<ContentTypeDto>(s)));
     }
     public async Task<Response<CommonResponse>> AddContentTypeAsync(AddContentTypeDto data, CancellationToken cancellationToken = default)
     {

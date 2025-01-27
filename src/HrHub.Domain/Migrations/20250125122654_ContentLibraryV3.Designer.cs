@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250125122654_ContentLibraryV3")]
+    partial class ContentLibraryV3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1542,10 +1545,6 @@ namespace HrHub.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("InstructorCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<long>("InstructorTypeId")
                         .HasColumnType("bigint");
 
@@ -1588,8 +1587,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasIndex("InstructorTypeId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Instructors", "public");
                 });
@@ -3527,8 +3525,8 @@ namespace HrHub.Domain.Migrations
                         .IsRequired();
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "User")
-                        .WithOne("Instructor")
-                        .HasForeignKey("HrHub.Domain.Entities.SqlDbEntities.Instructor", "UserId")
+                        .WithMany("Instructors")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -4073,8 +4071,7 @@ namespace HrHub.Domain.Migrations
 
                     b.Navigation("Exams");
 
-                    b.Navigation("Instructor")
-                        .IsRequired();
+                    b.Navigation("Instructors");
 
                     b.Navigation("Reviews");
 
