@@ -11,5 +11,6 @@
         public string  SurName { get; set; }
         public string UserShortName { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? InstructorCode { get; set; }
     }
 }

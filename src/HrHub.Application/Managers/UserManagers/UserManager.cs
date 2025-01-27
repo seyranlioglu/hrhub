@@ -232,7 +232,7 @@ namespace HrHub.Application.Managers.UserManagers
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<UserSignInResponse>();
 
-            var user = await appUserService.GetUserByEmailAsync(request.UserName);
+            var user = await userRepository.GetAsync(p=>p.Email == request.UserName, include:i=>i.Include(s=>s.Instructor));
             if(user == null)
                 return ProduceFailResponse<UserSignInResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
             if (!user.EmailConfirmed)
@@ -257,7 +257,8 @@ namespace HrHub.Application.Managers.UserManagers
                 Name = user.Name,
                 SurName = user.SurName,
                 UserShortName = user.UserShortName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                InstructorCode = user.Instructor?.InstructorCode
             };
             string receiver = request.UserName;
             string message = VerificationHelper.MaskEmail(request.UserName) + " mail adresinize doğrulama kodu gönderilmiştir.";
@@ -615,11 +616,13 @@ namespace HrHub.Application.Managers.UserManagers
 
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
-
+            
             var user = await userRepository.GetAsync(p => p.Id == dto.UserId, include: i=>i.Include(c=>c.CurrAcc));
             if (user == null)
                 return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
-
+            var exist = await instructorRepository.ExistsAsync(p => p.UserId == dto.UserId);
+            if (exist)
+                return ProduceFailResponse<CommonResponse>("Kullanıcı Zaten Instructor", StatusCodes.Status409Conflict);
             var entity = mapper.Map<Instructor>(dto);
             entity.Address = user.CurrAcc.Address;
             entity.Phone = user.PhoneNumber;
@@ -627,6 +630,7 @@ namespace HrHub.Application.Managers.UserManagers
             entity.CreatedDate = DateTime.UtcNow;
             entity.IsActive = true;
             entity.PicturePath = "test";
+            entity.InstructorCode = "INS_" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             await instructorRepository.AddAsync(entity);
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "İşlem Tamamlandı.", Code = 200, Result = true });

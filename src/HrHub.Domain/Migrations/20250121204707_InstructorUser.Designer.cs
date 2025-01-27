@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250121204707_InstructorUser")]
+    partial class InstructorUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -472,9 +475,6 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("FilePath")
                         .HasColumnType("text");
 
-                    b.Property<long>("FileTypeId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -484,7 +484,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.Property<long?>("TrainingContentId")
+                    b.Property<long>("TrainingContentId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -494,8 +494,6 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FileTypeId");
 
                     b.HasIndex("TrainingContentId");
 
@@ -1397,55 +1395,6 @@ namespace HrHub.Domain.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ExamVersionStatuses", "public");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FileType", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Abbreviation")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<long?>("CreateUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeleteDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FileType", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ForWhom", b =>
@@ -3316,17 +3265,11 @@ namespace HrHub.Domain.Migrations
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentLibrary", b =>
                 {
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.FileType", "FileType")
-                        .WithMany("ContentLibraries")
-                        .HasForeignKey("FileTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", "TrainingContent")
                         .WithMany("ContentLibraries")
-                        .HasForeignKey("TrainingContentId");
-
-                    b.Navigation("FileType");
+                        .HasForeignKey("TrainingContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("TrainingContent");
                 });
@@ -3951,11 +3894,6 @@ namespace HrHub.Domain.Migrations
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamVersionStatus", b =>
                 {
                     b.Navigation("ExamVersions");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FileType", b =>
-                {
-                    b.Navigation("ContentLibraries");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ForWhom", b =>
