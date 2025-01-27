@@ -57,11 +57,11 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             try
             {
                 #region InstructorCodeWithDirectory
-                var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
+                var instructor = await instructorRepository.GetAsync(i => i.UserId ==  this.GetCurrentUserId());
                 if (instructor == null)
                     return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
-                string directoryPath = Path.Combine("Uploads", instructor.Instagram); // InstructorCode yapılacak!
+                string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
                 string fileName;
                 AddContentLibraryDto contentLibraryData = new();
                 if (data.File != null /*&& data.FileTypeId.HasValue*/)
@@ -84,7 +84,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         FilePath = Path.Combine(directoryPath, fileName),
                         FileTypeId = /*data.FileTypeId.Value*/fileTypeResponseId,
                         CreatedDate = DateTime.UtcNow,
-                        CreateUserId = 15, /*this.GetCurrentUserId()*/
+                        CreateUserId = this.GetCurrentUserId(),
                         IsActive = true
                     };
                 }
