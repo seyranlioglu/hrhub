@@ -24,7 +24,6 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
 
         public long? ContentLibraryId { get; set; } 
         public IFormFile? File { get; set; } 
-        public int? FileTypeId { get; set; } 
 
         //public string? ContentLibraryFilePath { get; set; }
         //public string? ContentLibraryFileName { get; set; }

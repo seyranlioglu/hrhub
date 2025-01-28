@@ -7,7 +7,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public string? FileName { get; set; }
         public string? FilePath { get; set; }
-        public long FileTypeId { get; set; }
+        public long? FileTypeId { get; set; }
         public long? TrainingContentId { get; set; }
 
         [ForeignKey("TrainingContentId")]

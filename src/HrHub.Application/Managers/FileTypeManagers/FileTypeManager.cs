@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Result;
+using HrHub.Abstraction.StatusCodes;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Domain.Contracts.Dtos.FileTypeDtos;
@@ -33,13 +34,20 @@ namespace HrHub.Application.Managers.FileTypeManagers
             {
                 ".mp4" => FileTypeConst.Video,
                 ".pdf" => FileTypeConst.Document,
-                ".jpg" or ".png" => FileTypeConst.Image,          
+                ".jpg" or ".png" => FileTypeConst.Image,
+                _ => null
             };
+
+            if (code == null)
+                return ProduceFailResponse<GetFileTypeDto>("Desteklenmeyen Dosya Türü", HrStatusCodes.Status117FileFormatError);
 
             var fileType = await fileTypeRepository.GetAsync(
                 predicate: p => p.Code == code,
                  selector: s => mapper.Map<GetFileTypeDto>(s)
             );
+            if (fileType == null)
+                return ProduceFailResponse<GetFileTypeDto>($"Dosya Türü Bulunamadı", HrStatusCodes.Status111DataNotFound);
+
 
             return ProduceSuccessResponse(fileType);
         }

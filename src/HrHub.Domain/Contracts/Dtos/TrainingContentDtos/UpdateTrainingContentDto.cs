@@ -1,4 +1,6 @@
-﻿namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
+﻿using Microsoft.AspNetCore.Http;
+
+namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
 {
     public class UpdateTrainingContentDto
     {
@@ -20,7 +22,9 @@
         public bool? AllowSeeking { get; set; }
         public int? PartCount { get; set; }
         public int? MinReadTimeThreshold { get; set; }
-        public string? ContentLibraryFilePath { get; set; }
-        public string? ContentLibraryFileName { get; set; }
+
+        public long? ContentLibraryId { get; set; }
+        public IFormFile? File { get; set; }
+
     }
 }
