@@ -167,14 +167,14 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     await fileStream.ReadAsync(fileContent, cancellationToken);
                     var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
 
-                    if (!fileSaved)                 
+                    if (!fileSaved)
                         return ProduceFailResponse<CommonResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
-                    
+
 
                     var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data.File.FileName));
-                    if (fileTypeResponse.Body == null)                    
+                    if (fileTypeResponse.Body == null)
                         return ProduceFailResponse<CommonResponse>("Desteklenmeyen dosya türü.", HrStatusCodes.Status117FileFormatError);
-                    
+
 
                     var contentLibrary = existingContent.ContentLibraries.FirstOrDefault();
                     if (contentLibrary != null)
@@ -331,10 +331,10 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             if (ValidationHelper.RuleBasedValidator<DeleteTrainingContentDto>(contentDto, typeof(IDeleteTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
-            var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id);
+            var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id, include: i =>i.Include(p=>p.ContentType));
 
-
-            if (contentEntity.ContentType.Code != ContentTypeConst.Video)
+            #region Content Delete
+            if (contentEntity.ContentType.Code == ContentTypeConst.Video)
                 await contentRepository.DeleteAsync(contentEntity);
             else
             {
@@ -343,11 +343,20 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 contentEntity.DeleteUserId = this.GetCurrentUserId();
                 contentRepository.Update(contentEntity);
             }
+            #endregion
 
-
+            #region ContentLibrary Delete
             var contentLibraryEntity = await contentLibraryRepository.GetListAsync(predicate: p => p.TrainingContent.Id == id);
             contentLibraryEntity.ForEach(i => i.IsDelete = true);
             contentLibraryRepository.UpdateList(contentLibraryEntity.ToList());
+            #endregion
+
+            #region OrderId Update
+            var contents = await contentRepository.GetListAsync(predicate: c => c.ContentTypeId == contentEntity.ContentTypeId
+                                                                                && c.OrderId > contentEntity.OrderId);
+            contents.ForEach(content => content.OrderId -= 1);
+            contentRepository.UpdateList(contents.ToList());
+            #endregion
 
             await unitOfWork.BeginTransactionAsync();
             try
