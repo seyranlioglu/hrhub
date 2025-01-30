@@ -19,11 +19,11 @@ namespace HrHub.Application.Managers.CommentManagers
         private readonly IHrUnitOfWork hrUnitOfWork;
         private readonly IMapper mapper;
         private readonly Repository<ContentComment> contentCommentRepository;
-        public ContentCommentManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork hrUnitOfWork, IMapper mapper, Repository<ContentComment> contentCommentRepository) : base(httpContextAccessor)
+        public ContentCommentManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork hrUnitOfWork, IMapper mapper) : base(httpContextAccessor)
         {
             this.hrUnitOfWork = hrUnitOfWork;
             this.mapper = mapper;
-            this.contentCommentRepository = contentCommentRepository;
+            this.contentCommentRepository = hrUnitOfWork.CreateRepository<ContentComment>();
         }
 
         public async Task<Response<CommonResponse>> AddContentCommentAsync(AddContentCommentDto data, CancellationToken cancellationToken = default)
