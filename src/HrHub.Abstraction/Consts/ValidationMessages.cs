@@ -45,5 +45,10 @@ namespace HrHub.Abstraction.Consts
         public static string MasterCategoryNotFoundError => Properties.ValidationMessages.MasterCategoryNotFoundError;
         public static string RecursiveCategoryAlreadyExistError => Properties.ValidationMessages.RecursiveCategoryAlreadyExistError;
         public static string MasterCategoryAlreadyExists => Properties.ValidationMessages.MasterCategoryAlreadyExists;
+
+
+        public static string ContentCommenExistsError => Properties.ValidationMessages.ContentCommenAlreadyExists;
+        public static string ContentCommentNotFoundError => Properties.ValidationMessages.ContentCommentNotFoundError;
+        public static string ContentCommenNotTrainingUserError => Properties.ValidationMessages.ContentCommenNotTrainingUserError;
     }
 }

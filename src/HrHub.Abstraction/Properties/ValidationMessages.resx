@@ -225,4 +225,13 @@
   <data name="TrainingContentTypeNotExistsError" xml:space="preserve">
     <value>TrainingContentType Not Found</value>
   </data>
+  <data name="ContentCommenAlreadyExists" xml:space="preserve">
+    <value>ContentCommen Exists</value>
+  </data>
+  <data name="ContentCommenNotTrainingUserError" xml:space="preserve">
+    <value>Not a Training User</value>
+  </data>
+  <data name="ContentCommentNotFoundError" xml:space="preserve">
+    <value>Content Comment Not Found</value>
+  </data>
 </root>

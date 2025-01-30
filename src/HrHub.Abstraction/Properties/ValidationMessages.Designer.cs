@@ -97,6 +97,33 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ContentCommen Exists.
+        /// </summary>
+        internal static string ContentCommenAlreadyExists {
+            get {
+                return ResourceManager.GetString("ContentCommenAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not a Training User.
+        /// </summary>
+        internal static string ContentCommenNotTrainingUserError {
+            get {
+                return ResourceManager.GetString("ContentCommenNotTrainingUserError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Content Comment Not Found.
+        /// </summary>
+        internal static string ContentCommentNotFoundError {
+            get {
+                return ResourceManager.GetString("ContentCommentNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CurrentAmount must be greater than zero.
         /// </summary>
         internal static string CurrentAmountMustBeGreaterThanZero {
