@@ -22,7 +22,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
         public async Task<Response<CommonResponse>> AddContentComment([FromBody] AddContentCommentDto data)
         {
             var response = await contentCommentManager.AddContentCommentAsync(data).ConfigureAwait(false);
@@ -30,7 +30,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
         public async Task<Response<CommonResponse>> UpdateContentComment([FromBody] UpdateContentCommentDto data)
         {
             var response = await contentCommentManager.UpdateContentCommentAsync(data).ConfigureAwait(false);
@@ -38,7 +38,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpDelete("[Action]")]
-        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
         public async Task<Response<CommonResponse>> DeleteContentComment([FromBody] long id)
         {
             var response = await contentCommentManager.DeleteContentCommentAsync(id).ConfigureAwait(false);
@@ -46,14 +46,14 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
         public async Task<Response<IEnumerable<ContentCommentDto>>> GetList()
         {
             return await contentCommentManager.GetContentCommentListAsync().ConfigureAwait(false);
         }
 
         [HttpGet("[Action]")]
-       // [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
         public async Task<Response<ContentCommentDto>> GetById(long id)
         {
             return await contentCommentManager.GetContentCommentByIdAsync(id).ConfigureAwait(false);
