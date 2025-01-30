@@ -28,14 +28,14 @@ namespace HrHub.Application.Managers.CommentManagers
 
         public async Task<Response<CommonResponse>> AddCommentVoteAsync(AddCommentVoteDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddCommentVoteDto>(data, typeof(IAddCommentVoteBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<CommonResponse>();
-
             var validator = new FieldBasedValidator<AddCommentVoteDto>();
             var validateResult = validator.Validate(data);
 
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
+
+            if (ValidationHelper.RuleBasedValidator<AddCommentVoteDto>(data, typeof(IAddCommentVoteBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
 
             var entity = mapper.Map<CommentVote>(data);
             entity.CreateUserId = GetCurrentUserId();
@@ -48,15 +48,14 @@ namespace HrHub.Application.Managers.CommentManagers
         }
         public async Task<Response<CommonResponse>> UpdateCommentVoteAsync(UpdateCommentVoteDto dto, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<UpdateCommentVoteDto>(dto, typeof(IUpdateCommentVoteBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<CommonResponse>();
-
             var validator = new FieldBasedValidator<UpdateCommentVoteDto>();
             var validateResult = validator.Validate(dto);
 
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
 
+            if (ValidationHelper.RuleBasedValidator<UpdateCommentVoteDto>(dto, typeof(IUpdateCommentVoteBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
 
             var data = await commentVoteRepository.GetAsync(p => p.Id == dto.Id);
             var entity = mapper.Map(dto, data);

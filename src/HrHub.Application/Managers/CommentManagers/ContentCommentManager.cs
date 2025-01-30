@@ -28,14 +28,16 @@ namespace HrHub.Application.Managers.CommentManagers
 
         public async Task<Response<CommonResponse>> AddContentCommentAsync(AddContentCommentDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddContentCommentDto>(data, typeof(IAddContentCommentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<CommonResponse>();
+            
 
             var validator = new FieldBasedValidator<AddContentCommentDto>();
             var validateResult = validator.Validate(data);
 
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
+
+            if (ValidationHelper.RuleBasedValidator<AddContentCommentDto>(data, typeof(IAddContentCommentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
 
             var entity = mapper.Map<ContentComment>(data);
             entity.CreateUserId = GetCurrentUserId();
@@ -48,8 +50,7 @@ namespace HrHub.Application.Managers.CommentManagers
         }
         public async Task<Response<CommonResponse>> UpdateContentCommentAsync(UpdateContentCommentDto dto, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<UpdateContentCommentDto>(dto, typeof(IUpdateContentCommentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<CommonResponse>();
+            
 
             var validator = new FieldBasedValidator<UpdateContentCommentDto>();
             var validateResult = validator.Validate(dto);
@@ -57,6 +58,8 @@ namespace HrHub.Application.Managers.CommentManagers
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
 
+            if (ValidationHelper.RuleBasedValidator<UpdateContentCommentDto>(dto, typeof(IUpdateContentCommentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
 
             var data = await contentCommentRepository.GetAsync(p => p.Id == dto.Id);
             var entity = mapper.Map(dto, data);
