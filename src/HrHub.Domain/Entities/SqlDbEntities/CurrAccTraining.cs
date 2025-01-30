@@ -5,6 +5,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 {
     public class CurrAccTraining : CardEntity<long>
     {
+        public CurrAccTraining()
+        {
+            CurrAccTrainingUsers = new HashSet<CurrAccTrainingUser>();
+        }
         public long CurrAccId { get; set; }
         public long TrainingId { get; set; }
         public long CurrAccTrainingStatusId { get; set; }
@@ -26,5 +30,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         [ForeignKey("ConfirmUserId")]
         public virtual User User { get; set; }
+
+        public virtual ICollection<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; } = null;
     }
 }

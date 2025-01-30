@@ -1,5 +1,6 @@
 ﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Core.Mapper;
+using HrHub.Domain.Contracts.Dtos.ContentCommentDtos;
 using HrHub.Domain.Contracts.Dtos.ContentLibraryDtos;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
@@ -211,6 +212,16 @@ namespace HrHub.Application.Mappers
 
             CreateMap<AddContentLibraryDto, ContentLibrary>().ReverseMap();
             CreateMap<GetFileTypeDto, FileType>().ReverseMap();
+
+
+
+            #region ContentComment
+
+            CreateMap<ContentCommentDto, ContentComment>();
+            CreateMap<UpdateContentCommentDto, ContentComment>();
+            CreateMap<AddContentCommentDto, ContentComment>();
+
+            #endregion
         }
     }
 }

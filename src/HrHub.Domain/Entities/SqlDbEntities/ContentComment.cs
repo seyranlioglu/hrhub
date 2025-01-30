@@ -15,7 +15,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long UserId { get; set; }
         public DateTime ContentDate { get; set; }
         public long MasterContentId { get; set; }
-
+        public int StarCount { get; set; }
 
         [ForeignKey("MasterContentId")]
         public virtual ContentComment MasterContentComment { get; set; }
