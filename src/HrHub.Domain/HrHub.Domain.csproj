@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Contracts\Dtos\CommentVoteDtos\" />
     <Folder Include="Contracts\ViewModels\" />
     <Folder Include="Entities\NoSqlEntities\" />
   </ItemGroup>

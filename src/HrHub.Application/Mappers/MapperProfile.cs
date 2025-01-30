@@ -1,5 +1,6 @@
 ﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Core.Mapper;
+using HrHub.Domain.Contracts.Dtos.CommentVoteDtos;
 using HrHub.Domain.Contracts.Dtos.ContentCommentDtos;
 using HrHub.Domain.Contracts.Dtos.ContentLibraryDtos;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
@@ -220,6 +221,15 @@ namespace HrHub.Application.Mappers
             CreateMap<ContentCommentDto, ContentComment>();
             CreateMap<UpdateContentCommentDto, ContentComment>();
             CreateMap<AddContentCommentDto, ContentComment>();
+
+            #endregion
+
+
+            #region CommentVote
+
+            CreateMap<CommentVoteDto, CommentVote>().ReverseMap();
+            CreateMap<UpdateCommentVoteDto, CommentVote>().ReverseMap();
+            CreateMap<AddCommentVoteDto, CommentVote>().ReverseMap();
 
             #endregion
         }

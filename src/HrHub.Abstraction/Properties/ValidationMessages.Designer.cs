@@ -88,6 +88,24 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comment Vote Exists .
+        /// </summary>
+        internal static string CommentVoteExistsError {
+            get {
+                return ResourceManager.GetString("CommentVoteExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comment Vote Not Found.
+        /// </summary>
+        internal static string CommentVoteNotFoundError {
+            get {
+                return ResourceManager.GetString("CommentVoteNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CompletionTime and unit must be provided.
         /// </summary>
         internal static string CompletionTimeAndUnitMustBeProvided {
