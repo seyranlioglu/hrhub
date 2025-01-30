@@ -39,11 +39,10 @@ namespace HrHub.Application.Managers.UserManagers
         private readonly Repository<Instructor> instructorRepository;
         private readonly IAppUserService appUserService;
         private readonly IAppRoleService appRoleService;
-        //   private readonly ICacheService cacheService;
         private readonly IAuthenticationService authenticationService;
-        private readonly IPasswordHistoryRepository passwordHistoryRepository;
+        private readonly Repository<PasswordHistory> passwordHistoryRepository;
         private readonly MessageSenderFactory messageSenderFactory;
-        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,/* ICacheService cacheService,*/ IAuthenticationService authenticationService, IPasswordHistoryRepository passwordHistoryRepository, MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
+        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,IAuthenticationService authenticationService,MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -52,9 +51,8 @@ namespace HrHub.Application.Managers.UserManagers
             this.userRepository = unitOfWork.CreateRepository<User>();
             this.appUserService = appUserService;
             this.appRoleService = appRoleService;
-            // this.cacheService = cacheService;
             this.authenticationService = authenticationService;
-            this.passwordHistoryRepository = passwordHistoryRepository;
+            this.passwordHistoryRepository = unitOfWork.CreateRepository<PasswordHistory>(); ;
             this.messageSenderFactory = messageSenderFactory;
         }
         public async Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default)

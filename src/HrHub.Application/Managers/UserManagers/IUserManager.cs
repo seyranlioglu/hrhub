@@ -1,16 +1,7 @@
-﻿using HrHub.Abstraction.Enums;
-using HrHub.Abstraction.Result;
-using HrHub.Application.Helpers;
+﻿using HrHub.Abstraction.Result;
 using HrHub.Core.Base;
-using HrHub.Core.Data.UnitOfWork;
-using HrHub.Core.HrFluentValidation;
-using HrHub.Core.Utilties.Encryption;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
 using HrHub.Domain.Contracts.Responses.UserResponses;
-using HrHub.Domain.Entities.SqlDbEntities;
-using HrHub.Identity.Services;
-using HrHub.Infrastructre.Repositories.Concrete;
-using Microsoft.AspNetCore.Http;
 
 namespace HrHub.Application.Managers.UserManagers
 {
