@@ -9,6 +9,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string? FilePath { get; set; }
         public long? FileTypeId { get; set; }
         public long? TrainingContentId { get; set; }
+        public string? Thumbnail { get; set; }
 
         [ForeignKey("TrainingContentId")]
         public virtual TrainingContent TrainingContent { get; set; }

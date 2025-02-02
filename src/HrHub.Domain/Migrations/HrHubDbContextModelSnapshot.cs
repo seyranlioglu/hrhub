@@ -487,6 +487,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("text");
+
                     b.Property<string>("Title")
                         .HasColumnType("text");
 

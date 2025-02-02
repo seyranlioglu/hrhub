@@ -20,6 +20,8 @@ using LinqKit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.X509;
+using SharpCompress.Common;
 
 namespace HrHub.Application.Managers.TrainingContentManagers
 {
@@ -68,14 +70,22 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 AddContentLibraryDto contentLibraryData = new();
                 if (data.File != null /*&& data.FileTypeId.HasValue*/)
                 {
-                    fileName = $"{DateTime.Now:yyyyMMddHHmmss}_{data.File.FileName}";
+                    fileName = $"{data.File.FileName}";
                     using var fileStream = data.File.OpenReadStream();
                     byte[] fileContent = new byte[data.File.Length];
                     await fileStream.ReadAsync(fileContent, cancellationToken);
                     var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
+                    string filePath = Path.Combine(directoryPath, fileName);
                     if (!fileSaved)
-                        return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
-
+                    {
+                        int counter = 1;
+                        while (File.Exists(filePath))
+                        {
+                            fileName = $"{fileName}({counter})";
+                            counter++;
+                        }
+                        //return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
+                    }
                     // ContentLibrary Add
                     var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
                     var fileTypeResponseId = fileTypeResponse.Body.Id;
@@ -158,18 +168,32 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 #region Dosya Güncelleme ve Kitaplık
                 if (data.File != null)
                 {
-                    string directoryPath = Path.Combine("Uploads", existingContent.TrainingSectionId.ToString());
-                    string fileName = $"{DateTime.Now:yyyyMMddHHmmss}_{data.File.FileName}";
+                    var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
+                    if (instructor == null)
+                        return ProduceFailResponse<CommonResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
+
+                    string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
+                    string fileName;
 
                     // Dosyayı kaydet
+                    fileName = $"{data.File.FileName}";
                     using var fileStream = data.File.OpenReadStream();
                     byte[] fileContent = new byte[data.File.Length];
                     await fileStream.ReadAsync(fileContent, cancellationToken);
                     var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
 
+                    string filePath = Path.Combine(directoryPath, fileName);
                     if (!fileSaved)
-                        return ProduceFailResponse<CommonResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
-
+                    {
+                        int counter = 1;
+                        while (File.Exists(filePath))
+                        {
+                            fileName = $"{fileName}({counter})";
+                            counter++;
+                        }
+                        //return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
+                    }
+              
 
                     var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data.File.FileName));
                     if (fileTypeResponse.Body == null)
@@ -334,7 +358,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id, include: i =>i.Include(p=>p.ContentType));
 
             #region Content Delete
-            if (contentEntity.ContentType.Code == ContentTypeConst.Video)
+            if (contentEntity.ContentType.Code == ContentTypeConst.Lecture)
                 await contentRepository.DeleteAsync(contentEntity);
             else
             {
