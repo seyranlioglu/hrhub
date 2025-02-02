@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250202120807_ConfirmDate")]
+    partial class ConfirmDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -693,16 +696,17 @@ namespace HrHub.Domain.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("CartItemId")
+                    b.Property<long>("CartItemId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ConfirmDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ConfirmNotes")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("ConfirmUserId")
+                    b.Property<long>("ConfirmUserId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("CreateUserId")
@@ -729,8 +733,11 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("LicenceCount")
+                    b.Property<int>("LicenceCount")
                         .HasColumnType("integer");
+
+                    b.Property<long>("StatusId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("TrainingId")
                         .HasColumnType("bigint");
@@ -747,7 +754,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasIndex("CurrAccId");
 
-                    b.HasIndex("CurrAccTrainingStatusId");
+                    b.HasIndex("StatusId");
 
                     b.HasIndex("TrainingId");
 
@@ -3365,7 +3372,9 @@ namespace HrHub.Domain.Migrations
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "User")
                         .WithMany("CurrAccTrainings")
-                        .HasForeignKey("ConfirmUserId");
+                        .HasForeignKey("ConfirmUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.CurrAcc", "CurrAcc")
                         .WithMany("CurrAccTrainings")
@@ -3375,7 +3384,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.CurrAccTrainingStatus", "CurrAccTrainingStatus")
                         .WithMany("CurrAccTrainings")
-                        .HasForeignKey("CurrAccTrainingStatusId")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

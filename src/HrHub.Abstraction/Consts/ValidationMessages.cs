@@ -54,6 +54,13 @@ namespace HrHub.Abstraction.Consts
         public static string CommentVoteExistsError => Properties.ValidationMessages.CommentVoteExistsError;
         public static string CommentVoteNotFoundError => Properties.ValidationMessages.CommentVoteNotFoundError;
 
+
+
+        public static string CurrAccNotExistsError => Properties.ValidationMessages.CurrAccNotExistsError;
+        public static string TrainingStatusNotExistsError => Properties.ValidationMessages.TrainingStatusNotExistsError;
+        public static string ConfirmUserNotExistsError => Properties.ValidationMessages.ConfirmUserNotExistsError;
+        public static string TrainingAlreadyAssignedError => Properties.ValidationMessages.TrainingAlreadyAssignedError;
+
         
     }
 }

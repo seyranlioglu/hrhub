@@ -240,4 +240,16 @@
   <data name="CommentVoteNotFoundError" xml:space="preserve">
     <value>Comment Vote Not Found</value>
   </data>
+  <data name="CurrAccNotExistsError" xml:space="preserve">
+    <value>CurrAcc Not Exist</value>
+  </data>
+  <data name="TrainingStatusNotExistsError" xml:space="preserve">
+    <value>TrainingStatus Not Exist</value>
+  </data>
+  <data name="ConfirmUserNotExistsError" xml:space="preserve">
+    <value>Confirm User Not Exist</value>
+  </data>
+  <data name="TrainingAlreadyAssignedError" xml:space="preserve">
+    <value>Training Already Assigned</value>
+  </data>
 </root>

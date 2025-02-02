@@ -4,6 +4,7 @@ using HrHub.Domain.Contracts.Dtos.CommentVoteDtos;
 using HrHub.Domain.Contracts.Dtos.ContentCommentDtos;
 using HrHub.Domain.Contracts.Dtos.ContentLibraryDtos;
 using HrHub.Domain.Contracts.Dtos.ContentTypes;
+using HrHub.Domain.Contracts.Dtos.CurrAccTrainingDtos;
 using HrHub.Domain.Contracts.Dtos.ExamDtos;
 using HrHub.Domain.Contracts.Dtos.FileTypeDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingCategoryDtos;
@@ -232,6 +233,25 @@ namespace HrHub.Application.Mappers
             CreateMap<AddCommentVoteDto, CommentVote>().ReverseMap();
 
             #endregion
+
+            CreateMap<GetCurrAccTrainingDto, CurrAccTraining>().ReverseMap();
+            CreateMap<AddCurrAccTrainingDto, CurrAccTraining>().ReverseMap();
+
+            CreateMap<UpdateCurrAccTrainingDto, CurrAccTraining>()
+                     .ForAllMembers(opt =>
+                         opt.Condition((src, dest, srcMember, context) =>
+                         {
+                             if (srcMember == null)
+                                 return false;
+
+                             var propertyName = opt.DestinationMember.Name;
+                             var fkProperties = new[] { "CurrAccId", "TrainingId", "CurrAccTrainingStatusId", "ConfirmUserId" };
+
+                             if (fkProperties.Contains(propertyName) && srcMember is long longValue && longValue == 0)
+                                 return false;
+
+                             return true;
+                         }));
         }
     }
 }
