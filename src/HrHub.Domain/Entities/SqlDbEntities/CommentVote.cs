@@ -7,7 +7,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public long ContentCommentId { get; set; }
         public long UserId { get; set; }
-
+        public bool Positive { get; set; }
 
         [ForeignKey("ContentCommentId")]
         public virtual ContentComment ContentComment { get; set; }

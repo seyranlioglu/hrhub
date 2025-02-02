@@ -9,6 +9,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             Trainings = new HashSet<Training>();
         }
 
-        public virtual ICollection<Training> Trainings { get; set; }
+        public virtual ICollection<Training> Trainings { get; set; } = null;
     }
 }

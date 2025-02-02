@@ -10,10 +10,10 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             SubTrainingCategories = new HashSet<TrainingCategory>();
         }
 
-        public long MasterCategoryId { get; set; }
+        public long? MasterCategoryId { get; set; }
 
         [ForeignKey("MasterCategoryId")]
-        public virtual TrainingCategory MasterTrainingCategory { get; set; }
+        public virtual TrainingCategory? MasterTrainingCategory { get; set; }
 
         public ICollection<TrainingCategory> SubTrainingCategories { get; set; } = null;
     }

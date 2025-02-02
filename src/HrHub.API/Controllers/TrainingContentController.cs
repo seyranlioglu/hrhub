@@ -24,24 +24,24 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<ReturnIdResponse>> AddTraining([FromBody] AddTrainingContentDto data)
+        public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromBody] AddTrainingContentDto data)
         {
             var response = await trainingContentManager.AddTrainingContentAsync(data).ConfigureAwait(false);
             return response;
         }
 
+
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<CommonResponse>> UpdateTraining([FromBody] UpdateTrainingContentDto data)
+        // [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> UpdateTrainingContent([FromForm] UpdateTrainingContentDto data)
         {
             var response = await trainingContentManager.UpdateTrainingContentAsync(data).ConfigureAwait(false);
             return response;
         }
 
         [HttpDelete("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<CommonResponse>> DeleteTraining([FromBody] long id)
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<CommonResponse>> DeleteTrainingContent([FromBody] long id)
         {
             var response = await trainingContentManager.DeleteTrainingContentAsync(id).ConfigureAwait(false);
             return response;
@@ -54,7 +54,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<GetTrainingContentDto>> GetAsync([FromRoute] long id)
+        public async Task<Response<GetTrainingContentDto>> GetByIdAsync([FromRoute] long id)
         {
             return await trainingContentManager.GetTrainingContentAsync(id).ConfigureAwait(false);
         }

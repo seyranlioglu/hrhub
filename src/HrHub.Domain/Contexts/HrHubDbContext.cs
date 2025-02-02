@@ -91,7 +91,9 @@ namespace HrHub.Domain.Contexts
                                     .HasForeignKey(cart => cart.ConfirmUserId)
                                     .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<User>().ToTable("AspNetUsers");
+            modelBuilder.Entity<User>().ToTable("AspNetUsers")
+                .HasOne(u => u.Instructor).WithOne(i => i.User)
+                .HasForeignKey<Instructor>(i => i.UserId);
             OnModelCreatingPartial(modelBuilder);
         }
 

@@ -53,12 +53,6 @@ namespace HrHub.Container.Bootstrappers
                 config.Username = smsSettings.Username;
                 config.Password = smsSettings.Password;
                 config.Originator = smsSettings.Originator;
-                config.Channel = smsSettings.Channel;
-                config.BlackListFilter = smsSettings.BlackListFilter;
-                config.IysFilter = smsSettings.IysFilter;
-                config.BrandCode = smsSettings.BrandCode;
-                config.RetailerCode = smsSettings.RetailerCode;
-                config.RecipientType = smsSettings.RecipientType;
             });
 
             var mailSettings = AppSettingsHelper.GetData<MailServiceSettings>();

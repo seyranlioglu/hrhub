@@ -68,21 +68,7 @@ namespace HrHub.API.Controllers
             var result = await userManager.ChangePassword(changePassword);
             return result;
         }
-        [AllowAnonymous]
-        [HttpPost("[Action]")]
-        public async Task<Response<CommonResponse>> ForgotPassword([FromBody] ChangePasswordDto changePassword)
-        {
-            var result = await userManager.ChangePassword(changePassword);
-            return result;
-        }
-        [AllowAnonymous]
-        [HttpPost("[Action]")]
-        public async Task<Response<CommonResponse>> ForgotPasswordReset([FromBody] PasswordResetDto passwordReset)
-        {
-            var result = await userManager.PasswordReset(passwordReset, "Forgot Password");
-            return result;
-        }
- 
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User},{Roles.Admin}")]
         [HttpPost("[Action]")]
         public async Task<Response<CommonResponse>> VerifyChangePassword([FromBody] VerifyChangePasswordDto verifyChangePassword)
         {
@@ -90,16 +76,37 @@ namespace HrHub.API.Controllers
             return result;
         }
 
-    
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User},{Roles.Admin}")]
         [HttpPost("[Action]")]
-        public async Task<Response<CommonResponse>> PasswordReset([FromBody] PasswordResetDto passwordReset)
+        public async Task<Response<CommonResponse>> ChangePasswordReset([FromBody] PasswordResetDto passwordReset)
         {
-            var result = await userManager.PasswordReset(passwordReset,"Password Change");
+            var result = await userManager.PasswordReset(passwordReset, "Password Change");
             return result;
         }
 
+        [AllowAnonymous]
+        [HttpPost("[Action]")]
+        public async Task<Response<CommonResponse>> ForgotPassword([FromBody] ForgotPasswordDto forgotPassword)
+        {
+            var result = await userManager.ForgotPassword(forgotPassword);
+            return result;
+        }
+        [AllowAnonymous]
+        [HttpPost("[Action]")]
+        public async Task<Response<CommonResponse>> VerifyForgotPassword([FromBody] VerifyForgotPasswordDto verifyChangePassword)
+        {
+            var result = await userManager.VerifyCodeAndForgotPassword(verifyChangePassword);
+            return result;
+        }
 
-    
+        [AllowAnonymous]
+        [HttpPost("[Action]")]
+        public async Task<Response<CommonResponse>> ForgotPasswordReset([FromBody] PasswordResetDto passwordReset)
+        {
+            var result = await userManager.PasswordReset(passwordReset, "Forgot Password");
+            return result;
+        }
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
         [HttpGet("[Action]")]
         public async Task<Response<List<GetUserResponse>>> GetList()
         {
@@ -138,5 +145,22 @@ namespace HrHub.API.Controllers
             var result = await userManager.UpdateUser(updateUserDto);
             return result;
         }
+
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+        [HttpDelete("[action]/{userId:long}")]
+        public async Task<Response<CommonResponse>> Delete(long userId)
+        {
+            var result = await userManager.DeleteUser(userId);
+            return result;
+        }
+
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+        [HttpPost("[action]")]
+        public async Task<Response<CommonResponse>> SetUserInstructor(UserInstructorDto dto)
+        {
+            var result = await userManager.SetUserInstructor(dto);
+            return result;
+        }
+
     }
 }

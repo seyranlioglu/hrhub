@@ -38,7 +38,7 @@ namespace HrHub.Application.BusinessRules.TrainingCategoryBusinessRule
 
                     // Recursive kontrol: Kategori kendi altına atanıyor mu?
                     if (categoryDto.MasterCategoryId == categoryDto.Id)
-                        return (false, ValidationMessages.RecursiveCategoryError);
+                        return (false, ValidationMessages.RecursiveCategoryAlreadyExistError);
 
                 }
 

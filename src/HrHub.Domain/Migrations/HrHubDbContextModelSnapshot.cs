@@ -349,6 +349,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("Positive")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -414,6 +417,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool>("Pinned")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("StarCount")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
@@ -467,12 +473,13 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FilePath")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<long?>("FileTypeId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -483,7 +490,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.Property<long>("TrainingContentId")
+                    b.Property<long?>("TrainingContentId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -493,6 +500,8 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FileTypeId");
 
                     b.HasIndex("TrainingContentId");
 
@@ -1396,6 +1405,55 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("ExamVersionStatuses", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FileType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileType", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ForWhom", b =>
                 {
                     b.Property<long>("Id")
@@ -1490,6 +1548,10 @@ namespace HrHub.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("InstructorCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<long>("InstructorTypeId")
                         .HasColumnType("bigint");
 
@@ -1532,7 +1594,8 @@ namespace HrHub.Domain.Migrations
 
                     b.HasIndex("InstructorTypeId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Instructors", "public");
                 });
@@ -1976,7 +2039,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Abbreviation")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<decimal?>("Amount")
                         .HasColumnType("numeric");
 
                     b.Property<long>("CategoryId")
@@ -1985,7 +2048,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<decimal>("CertificateOfAchievementRate")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("CertificateOfParticipationRate")
+                    b.Property<decimal?>("CertificateOfParticipationRate")
                         .HasColumnType("numeric");
 
                     b.Property<string>("Code")
@@ -1994,15 +2057,13 @@ namespace HrHub.Domain.Migrations
                     b.Property<DateTime?>("CompletionTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("CompletionTimeUnitId")
+                    b.Property<long?>("CompletionTimeUnitId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("CongratulationMessage")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CourseImage")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<long?>("CreateUserId")
@@ -2011,7 +2072,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("CurrentAmount")
+                    b.Property<decimal?>("CurrentAmount")
                         .HasColumnType("numeric");
 
                     b.Property<DateTime?>("DeleteDate")
@@ -2023,19 +2084,19 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("DiscountRate")
+                    b.Property<decimal?>("DiscountRate")
                         .HasColumnType("numeric");
 
-                    b.Property<long>("EducationLevelId")
+                    b.Property<long?>("EducationLevelId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("ForWhomId")
+                    b.Property<long?>("ForWhomId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("HeaderImage")
                         .HasColumnType("text");
 
-                    b.Property<long>("InstructorId")
+                    b.Property<long?>("InstructorId")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
@@ -2045,40 +2106,37 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Labels")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LangCode")
                         .HasColumnType("text");
 
-                    b.Property<long>("PreconditionId")
+                    b.Property<long?>("PreconditionId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("PriceTierId")
+                    b.Property<long?>("PriceTierId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("SubTitle")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("TaxRate")
+                    b.Property<decimal?>("TaxRate")
                         .HasColumnType("numeric");
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
                     b.Property<string>("Trailer")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("TrainingLevelId")
+                    b.Property<long?>("TrainingLevelId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("TrainingStatusId")
+                    b.Property<long?>("TrainingStatusId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("TrainingType")
-                        .HasColumnType("text");
+                    b.Property<long?>("TrainingTypeId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
@@ -2087,7 +2145,6 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("WelcomeMessage")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -2109,6 +2166,8 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("TrainingLevelId");
 
                     b.HasIndex("TrainingStatusId");
+
+                    b.HasIndex("TrainingTypeId");
 
                     b.ToTable("Trainings", "public");
                 });
@@ -2329,7 +2388,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("MasterCategoryId")
+                    b.Property<long?>("MasterCategoryId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Title")
@@ -2365,7 +2424,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("CompletedRate")
+                    b.Property<decimal?>("CompletedRate")
                         .HasColumnType("numeric");
 
                     b.Property<long>("ContentTypeId")
@@ -2390,7 +2449,6 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("FilePath")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
@@ -2399,25 +2457,22 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("Mandatory")
+                    b.Property<bool?>("Mandatory")
                         .HasColumnType("boolean");
 
                     b.Property<int?>("MinReadTimeThreshold")
                         .HasColumnType("integer");
 
-                    b.Property<long>("OrderId")
+                    b.Property<long?>("OrderId")
                         .HasColumnType("bigint");
 
                     b.Property<int?>("PageCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PartCount")
+                    b.Property<int?>("PartCount")
                         .HasColumnType("integer");
 
-                    b.Property<long>("SectionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<TimeSpan>("Time")
+                    b.Property<TimeSpan?>("Time")
                         .HasColumnType("interval");
 
                     b.Property<string>("Title")
@@ -2438,7 +2493,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasIndex("ExamId");
 
-                    b.HasIndex("SectionId");
+                    b.HasIndex("TrainingSectionId");
 
                     b.ToTable("TrainingContents", "public");
                 });
@@ -3138,7 +3193,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.Property<long>("TrainingId")
+                    b.Property<long?>("TrainingId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -3267,11 +3322,15 @@ namespace HrHub.Domain.Migrations
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentLibrary", b =>
                 {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.FileType", "FileType")
+                        .WithMany("ContentLibraries")
+                        .HasForeignKey("FileTypeId");
+
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingContent", "TrainingContent")
                         .WithMany("ContentLibraries")
-                        .HasForeignKey("TrainingContentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TrainingContentId");
+
+                    b.Navigation("FileType");
 
                     b.Navigation("TrainingContent");
                 });
@@ -3344,7 +3403,7 @@ namespace HrHub.Domain.Migrations
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CurrAccTrainingUser", b =>
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.CurrAccTraining", "CurrAccTrainings")
-                        .WithMany()
+                        .WithMany("CurrAccTrainingUsers")
                         .HasForeignKey("CurrAccTrainingsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3472,8 +3531,8 @@ namespace HrHub.Domain.Migrations
                         .IsRequired();
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "User")
-                        .WithMany("Instructors")
-                        .HasForeignKey("UserId")
+                        .WithOne("Instructor")
+                        .HasForeignKey("HrHub.Domain.Entities.SqlDbEntities.Instructor", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3522,51 +3581,39 @@ namespace HrHub.Domain.Migrations
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TimeUnit", "TimeUnit")
                         .WithMany("Trainings")
-                        .HasForeignKey("CompletionTimeUnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompletionTimeUnitId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.EducationLevel", "EducationLevel")
                         .WithMany("Trainings")
-                        .HasForeignKey("EducationLevelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EducationLevelId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.ForWhom", "ForWhom")
                         .WithMany("Trainings")
-                        .HasForeignKey("ForWhomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ForWhomId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Instructor", "Instructor")
                         .WithMany("Trainings")
-                        .HasForeignKey("InstructorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("InstructorId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Precondition", "Precondition")
                         .WithMany("Trainings")
-                        .HasForeignKey("PreconditionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PreconditionId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.PriceTier", "PriceTier")
                         .WithMany("Trainings")
-                        .HasForeignKey("PriceTierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PriceTierId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingLevel", "TrainingLevel")
                         .WithMany("Trainings")
-                        .HasForeignKey("TrainingLevelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TrainingLevelId");
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingStatus", "TrainingStatus")
                         .WithMany("Trainings")
-                        .HasForeignKey("TrainingStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TrainingStatusId");
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingType", "TrainingType")
+                        .WithMany("Trainings")
+                        .HasForeignKey("TrainingTypeId");
 
                     b.Navigation("EducationLevel");
 
@@ -3585,6 +3632,8 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("TrainingLevel");
 
                     b.Navigation("TrainingStatus");
+
+                    b.Navigation("TrainingType");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingAmount", b =>
@@ -3640,9 +3689,7 @@ namespace HrHub.Domain.Migrations
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingCategory", "MasterTrainingCategory")
                         .WithMany("SubTrainingCategories")
-                        .HasForeignKey("MasterCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MasterCategoryId");
 
                     b.Navigation("MasterTrainingCategory");
                 });
@@ -3661,7 +3708,7 @@ namespace HrHub.Domain.Migrations
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", "TrainingSection")
                         .WithMany("TrainingContents")
-                        .HasForeignKey("SectionId")
+                        .HasForeignKey("TrainingSectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3795,9 +3842,7 @@ namespace HrHub.Domain.Migrations
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
                         .WithMany("WhatYouWillLearns")
-                        .HasForeignKey("TrainingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TrainingId");
 
                     b.Navigation("Training");
                 });
@@ -3845,6 +3890,11 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("UserContentsViewLogs");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CurrAccTraining", b =>
+                {
+                    b.Navigation("CurrAccTrainingUsers");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CurrAccTrainingStatus", b =>
@@ -3910,6 +3960,11 @@ namespace HrHub.Domain.Migrations
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamVersionStatus", b =>
                 {
                     b.Navigation("ExamVersions");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FileType", b =>
+                {
+                    b.Navigation("ContentLibraries");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ForWhom", b =>
@@ -4002,6 +4057,11 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("Trainings");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingType", b =>
+                {
+                    b.Navigation("Trainings");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.User", b =>
                 {
                     b.Navigation("AddCartUser");
@@ -4022,7 +4082,8 @@ namespace HrHub.Domain.Migrations
 
                     b.Navigation("Exams");
 
-                    b.Navigation("Instructors");
+                    b.Navigation("Instructor")
+                        .IsRequired();
 
                     b.Navigation("Reviews");
 

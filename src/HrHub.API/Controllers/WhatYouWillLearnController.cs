@@ -20,7 +20,7 @@ namespace HrHub.API.Controllers
             this.whatYouWillLearnManager = whatYouWillLearnManager;
         }
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<ReturnIdResponse>> AddWhatYouWillLearnAsync([FromBody] AddWhatYouWillLearnDto data)
         {
             var response = await whatYouWillLearnManager.AddWhatYouWillLearnAsync(data).ConfigureAwait(false);
@@ -28,7 +28,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<CommonResponse>> UpdateWhatYouWillLearnAsync([FromBody] UpdateWhatYouWillLearnDto data)
         {
             var response = await whatYouWillLearnManager.UpdateWhatYouWillLearnAsync(data).ConfigureAwait(false);
@@ -50,7 +50,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<GetWhatYouWillLearnDto>> GetAsync([FromRoute] long id)
+        public async Task<Response<GetWhatYouWillLearnDto>> GetByIdAsync([FromRoute] long id)
         {
             return await whatYouWillLearnManager.GetWhatYouWillLearnByIdAsync(id).ConfigureAwait(false);
         }

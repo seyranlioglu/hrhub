@@ -69,8 +69,8 @@ namespace HrHub.Identity.Security.Token
                 new Claim(ClaimTypes.Name,$"{tokenModel.UserName}"),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Acr,tokenModel.Channel),
-                new Claim("IsMainUser", tokenModel.IsMainUser.ToString()),
-                new Claim("CurrAccId" , tokenModel.IsMainUser.ToString()),
+                new Claim("IsMainUser", tokenModel.IsMainUser.ToString().ToLower()),
+                new Claim("CurrAccId" , tokenModel.CurrAccId.ToString()),
 
 
             };

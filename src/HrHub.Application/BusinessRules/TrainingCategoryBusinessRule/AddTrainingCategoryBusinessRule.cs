@@ -36,7 +36,7 @@ namespace HrHub.Application.BusinessRules.TrainingCategoryBusinessRule
                     var isMasterCategoryIdExist = trainingCategoryRepository.Exists(predicate: p => p.Id == categoryDto.MasterCategoryId);
 
                     if (isMasterCategoryIdExist)
-                        return (false, ValidationMessages.CategoryExistsError);
+                        return (false, ValidationMessages.MasterCategoryAlreadyExists);
 
                 }
             }

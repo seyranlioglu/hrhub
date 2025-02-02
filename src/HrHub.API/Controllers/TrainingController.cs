@@ -1,4 +1,5 @@
-﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+﻿using HrHub.Abstraction.Consts;
+using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Result;
 using HrHub.Application.Managers.ContentTypes;
 using HrHub.Application.Managers.ExamOperationManagers;
@@ -17,6 +18,7 @@ namespace HrHub.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class TrainingController : ApiControllerBase
     {
         private readonly ITrainingManager trainingManager;
@@ -27,7 +29,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
         public async Task<Response<ReturnIdResponse>> AddTraining([FromBody] AddTrainingDto data)
         {
             var response = await trainingManager.AddTrainingAsync(data).ConfigureAwait(false);
@@ -35,7 +37,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
         public async Task<Response<CommonResponse>> UpdateTraining([FromBody] UpdateTrainingDto data)
         {
             var response = await trainingManager.UpdateTrainingAsync(data).ConfigureAwait(false);
@@ -43,7 +45,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpDelete("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
         public async Task<Response<CommonResponse>> DeleteTraining([FromBody] long id)
         {
             var response = await trainingManager.DeleteTrainingAsync(id).ConfigureAwait(false);
@@ -57,7 +59,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<GetTrainingDto>> GetAsync([FromRoute] long id)
+        public async Task<Response<GetTrainingDto>> GetByIdAsync(long id)
         {
             return await trainingManager.GetTrainingByIdAsync(id).ConfigureAwait(false);
         }

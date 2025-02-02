@@ -15,18 +15,18 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         }
         public long TrainingSectionId { get; set; }
         public long ContentTypeId { get; set; }
-        public TimeSpan Time { get; set; }
+        public TimeSpan? Time { get; set; }
         [AllowNull]
         public int? PageCount { get; set; }
         [AllowNull]
-        public decimal CompletedRate { get; set; }
+        public decimal? CompletedRate { get; set; }
         [AllowNull]
-        public string FilePath { get; set; }
-        public bool Mandatory { get; set; }
-        public long OrderId { get; set; }
+        public string? FilePath { get; set; }
+        public bool? Mandatory { get; set; }
+        public long? OrderId { get; set; }
         [AllowNull]
         public bool? AllowSeeking { get; set; }
-        public int PartCount { get; set; }
+        public int? PartCount { get; set; }
         [AllowNull]
         public int? MinReadTimeThreshold { get; set; }
         [AllowNull]
@@ -34,7 +34,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         [ForeignKey("ExamId")]
         public virtual Exam Exam { get; set; }
-        [ForeignKey("SectionId")]
+        [ForeignKey("TrainingSectionId")]
         public virtual TrainingSection TrainingSection { get; set; } = null;
 
         [ForeignKey("ContentTypeId")]

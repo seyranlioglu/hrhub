@@ -33,8 +33,9 @@ builder.Services.RegisterImplementations<IMongoRepository<MongoDbEntity>>("HrHub
 builder.Services.RegisterImplementations<IBaseManager>("HrHub.Application");
 builder.Services.RegisterImplementations<IBusinessRule>("HrHub.Application");
 builder.Services.RegisterTypeManagers();
-builder.Services.RegisterManagers();
+//builder.Services.RegisterManagers();
 builder.Services.RegisterNotificationService();
+builder.Services.RegisterValidator();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

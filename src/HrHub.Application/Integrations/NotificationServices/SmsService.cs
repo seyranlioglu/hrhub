@@ -1,5 +1,6 @@
 ﻿using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Exceptions;
+using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Factories;
 using HrHub.Abstraction.Notification;
 using HrHub.Abstraction.Notification.BaseModel;
@@ -9,6 +10,7 @@ using HrHub.Application.Helpers;
 using HrHub.Core.Helpers;
 using HrHub.Domain.Contracts.Dtos.NotificationDtos;
 using ServiceStack.Web;
+using System.Net.Mail;
 
 namespace HrHub.Application.Integrations.NotificationServices
 {
@@ -28,19 +30,26 @@ namespace HrHub.Application.Integrations.NotificationServices
                 var smsSettings = AppSettingsHelper.GetData<SmsServiceSettings>();
                 if (smsSettings.IsActive && smsSettings != null)
                 {
+                    if (!smsMessage.Parameters.IsNullOrEmpty())
+                    {
+                        foreach (var item in smsMessage.Parameters)
+                        {
+                            smsMessage.Content = smsMessage.Content.Replace("" + item.Key + "", "" + item.Value + "");
+                        }
+                    }
                     var sendSmsModel = new SendSmsDto
                     {
-                        BlackListFilter = smsSettings.BlackListFilter,
-                        BrandCode = smsSettings.BrandCode,
-                        BroadCastMessage = smsMessage.Recipient,
-                        SmsMessages = smsMessage.Content,
-                        Channel = smsSettings.Channel,
-                        IysFilter = smsSettings.IysFilter,
                         Originator = smsSettings.Originator,
                         Password = smsSettings.Password,
-                        RecipientType = smsSettings.RecipientType,
-                        RetailerCode = smsSettings.RetailerCode,
-                        Username = smsSettings.Username
+                        User = smsSettings.Username,
+                        SmsMessages = new List<SmsMessage>
+                        {
+                            new SmsMessage
+                            {
+                                Messagetext = smsMessage.Content,
+                                Recipient = smsMessage.Recipient
+                            }
+                        }
                     };
                     //TODO devam edecek
 
@@ -70,21 +79,28 @@ namespace HrHub.Application.Integrations.NotificationServices
                 var smsSettings = AppSettingsHelper.GetData<SmsServiceSettings>();
                 if (smsSettings.IsActive && smsSettings != null)
                 {
+                    if (!smsMessage.Parameters.IsNullOrEmpty())
+                    {
+                        foreach (var item in smsMessage.Parameters)
+                        {
+                            smsMessage.Content = smsMessage.Content.Replace("" + item.Key + "", "" + item.Value + "");
+                        }
+                    }
+                 
                     var sendSmsModel = new SendSmsDto
                     {
-                        BlackListFilter = smsSettings.BlackListFilter,
-                        BrandCode = smsSettings.BrandCode,
-                        BroadCastMessage = smsMessage.Recipient,
-                        SmsMessages = smsMessage.Content,
-                        Channel = smsSettings.Channel,
-                        IysFilter = smsSettings.IysFilter,
                         Originator = smsSettings.Originator,
                         Password = smsSettings.Password,
-                        RecipientType = smsSettings.RecipientType,
-                        RetailerCode = smsSettings.RetailerCode,
-                        Username = smsSettings.Username
+                        User = smsSettings.Username,
+                        SmsMessages = new List<SmsMessage>
+                        {
+                            new SmsMessage
+                            {
+                                Messagetext = smsMessage.Content,
+                                Recipient = smsMessage.Recipient
+                            }
+                        }
                     };
-
                     var client = AppSettingsHelper.GetData<Abstraction.Settings.HttpClientConfiguration>().HttpClients
                            .Find(w => w.Name == Abstraction.Enums.HttpClients.SmsServer.ToString());
                     if (client == null)

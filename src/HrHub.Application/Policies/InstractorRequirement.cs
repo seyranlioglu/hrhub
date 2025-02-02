@@ -19,15 +19,15 @@ namespace HrHub.Application.Policies
         }
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InstractorRequirement requirement)
         {
-            if (context.User.Identity.IsAuthenticated)
+            if (!context.User.Identity.IsAuthenticated)
             {
                 context.Fail();
                 return;
             }
             long userId = Convert.ToInt64(context.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var isInstructorExists = await instructorRepository.ExistsAsync(p => p.UserId == userId);
+            var isInstructorExists =  instructorRepository.Count(p => p.UserId == userId);
 
-            if (isInstructorExists)
+            if (isInstructorExists>0)
             {
                 context.Succeed(requirement);
             }

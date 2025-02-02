@@ -11,7 +11,10 @@ namespace HrHub.Application.Managers.ContentTypes
 {
     public interface IContentTypeManager : IBaseManager
     {
+        Task<Response<CommonResponse>> AddContentTypeAsync(AddContentTypeDto data, CancellationToken cancellationToken = default);
+        Task<Response<CommonResponse>> DeleteContentTypeAsync(long id, CancellationToken cancellationToken = default);
         Task<Response<ContentTypeDto>> GetByIdForContentTypeAsync(long id);
         Task<Response<IEnumerable<ContentTypeDto>>> GetListForContentTypeAsync();
+        Task<Response<CommonResponse>> UpdateContentTypeAsync(UpdateContentTypeDto data, CancellationToken cancellationToken = default);
     }
 }

@@ -32,7 +32,7 @@ namespace HrHub.Application.Managers.TrainingSections
 
         public async Task<Response<ReturnIdResponse>> AddTrainingSectionAsync(AddTrainingSectionDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddTrainingSectionDto>(data, typeof(AddTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddTrainingSectionDto>(data, typeof(IAddTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var trainingSectionEntity = mapper.Map<TrainingSection>(data);
@@ -64,14 +64,15 @@ namespace HrHub.Application.Managers.TrainingSections
         public async Task<Response<CommonResponse>> DeleteTrainingSectionAsync(long id, CancellationToken cancellationToken = default)
         {
             var trainingDto = await trainingSectionRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingSectionDto>(s));
-            if (ValidationHelper.RuleBasedValidator<DeleteTrainingSectionDto>(trainingDto, typeof(ExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<DeleteTrainingSectionDto>(trainingDto, typeof(IExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var trainingSectionEntity = await trainingSectionRepository.GetAsync(predicate: p => p.Id == id);
             trainingSectionEntity.IsDelete = true;
-            var deletedData = mapper.Map(trainingDto, trainingSectionEntity);
+            trainingSectionEntity.DeleteDate = DateTime.UtcNow;
+            trainingSectionEntity.DeleteUserId = this.GetCurrentUserId();
 
-            trainingSectionRepository.Update(deletedData);
+            trainingSectionRepository.Update(trainingSectionEntity);
             await hrUnitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse
             {
@@ -82,23 +83,20 @@ namespace HrHub.Application.Managers.TrainingSections
         }
         public async Task<Response<IEnumerable<GetTrainingSectionDto>>> GetTrainingSectionListAsync()
         {
-            var trainingSectionListDto = await trainingSectionRepository.GetListAsync(predicate: p => p.IsActive,
+            var trainingSectionListDto = await trainingSectionRepository.GetListAsync(predicate: p =>p.IsDelete != true,
                                                                         include: i => i.Include(s => s.Training),
                                                                         selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingSectionListDto.FirstOrDefault(), typeof(ExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<IEnumerable<GetTrainingSectionDto>>();
+   
 
             return ProduceSuccessResponse(trainingSectionListDto);
         }
         public async Task<Response<GetTrainingSectionDto>> GetTrainingSectionByIdAsync(long id)
         {
-            var trainingDto = await trainingSectionRepository.GetAsync(predicate: p => p.IsActive && p.Id == id,
+            var trainingDto = await trainingSectionRepository.GetAsync(predicate: p => p.IsDelete != true && p.Id == id,
                                                                        include: i => i.Include(s => s.Training),
                                                                        selector: s => mapper.Map<GetTrainingSectionDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<GetTrainingSectionDto>(trainingDto, typeof(ExistTrainingSectionBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<GetTrainingSectionDto>();
 
             return ProduceSuccessResponse(trainingDto);
         }

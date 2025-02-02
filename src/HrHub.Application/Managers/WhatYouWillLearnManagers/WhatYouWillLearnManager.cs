@@ -36,7 +36,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         }
         public async Task<Response<ReturnIdResponse>> AddWhatYouWillLearnAsync(AddWhatYouWillLearnDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddWhatYouWillLearnDto>(data, typeof(AddWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddWhatYouWillLearnDto>(data, typeof(IAddWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var mapperData = mapper.Map<WhatYouWillLearn>(data);
@@ -51,7 +51,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         {
             var entity = await whatYouWillLearnRepository.GetAsync(predicate: t => t.Id == dto.Id);
 
-            if (ValidationHelper.RuleBasedValidator<UpdateWhatYouWillLearnDto>(dto, typeof(UpdateWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateWhatYouWillLearnDto>(dto, typeof(IUpdateWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             mapper.Map(dto, entity);
@@ -70,15 +70,15 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         {
             var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteWhatYouWillLearnDto>(s));
 
-            if (ValidationHelper.RuleBasedValidator<DeleteWhatYouWillLearnDto>(entityDto, typeof(ExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<DeleteWhatYouWillLearnDto>(entityDto, typeof(IExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var entity = await whatYouWillLearnRepository.GetAsync(predicate: p => p.Id == id);
             entity.IsDelete = true;
+            entity.DeleteDate = DateTime.UtcNow;
+            //entity.DeleteUserId = this.GetCurrentUserId();
 
-            var deletedData = mapper.Map(entityDto, entity);
-
-            whatYouWillLearnRepository.Update(deletedData);
+            whatYouWillLearnRepository.Update(entity);
             await hrUnitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse
             {
@@ -90,48 +90,19 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
 
         public async Task<Response<IEnumerable<GetWhatYouWillLearnDto>>> GetWhatYouWillLearnListAsync()
         {
-            var entityDto = await whatYouWillLearnRepository.GetListAsync(predicate: p => p.IsActive,
+            var entityDto = await whatYouWillLearnRepository.GetListAsync(predicate: p => p.IsDelete != true,
                                                                         include: i => i.Include(s => s.Training),
-                                                                        selector: s => new GetWhatYouWillLearnDto
-                                                                        {
-                                                                            Id = s.Id,
-                                                                            Code = s.Code,
-                                                                            Abbreviation = s.Abbreviation,
-                                                                            Description = s.Description,
-                                                                            Title = s.Title,
-                                                                            IsActive = s.IsActive,
-                                                                            TrainingCode = s.Training.Code,
-                                                                            TrainingAbbreviation = s.Training.Abbreviation,
-                                                                            TrainingDescription = s.Training.Description,
-                                                                            TrainingTitle = s.Training.Title
-                                                                        });
+                                                                        selector: s => mapper.Map<GetWhatYouWillLearnDto>(s)
 
-            if (ValidationHelper.RuleBasedValidator<GetWhatYouWillLearnDto>(entityDto.FirstOrDefault(), typeof(ExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<IEnumerable<GetWhatYouWillLearnDto>>();
-
+                                                                        );
             return ProduceSuccessResponse(entityDto);
         }
         public async Task<Response<GetWhatYouWillLearnDto>> GetWhatYouWillLearnByIdAsync(long id)
         {
-            var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: p => p.IsActive,
+            var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: p => p.IsDelete != true,
                                                                               include: i => i.Include(s => s.Training),
-                                                                              selector: s => new GetWhatYouWillLearnDto
-                                                                              {
-                                                                                  Id = s.Id,
-                                                                                  Code = s.Code,
-                                                                                  Abbreviation = s.Abbreviation,
-                                                                                  Description = s.Description,
-                                                                                  Title = s.Title,
-                                                                                  IsActive = s.IsActive,
-                                                                                  TrainingCode = s.Training.Code,
-                                                                                  TrainingAbbreviation = s.Training.Abbreviation,
-                                                                                  TrainingDescription = s.Training.Description,
-                                                                                  TrainingTitle = s.Training.Title
-                                                                              });
-
-            if (ValidationHelper.RuleBasedValidator<GetWhatYouWillLearnDto>(entityDto, typeof(ExistWhatYouWillLearnBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-                return cBasedValidResult.SendResponse<GetWhatYouWillLearnDto>();
-
+                                                                              selector: s => mapper.Map<GetWhatYouWillLearnDto>(s)
+                                                                        );
             return ProduceSuccessResponse(entityDto);
         }
     }

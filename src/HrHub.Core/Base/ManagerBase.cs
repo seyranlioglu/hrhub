@@ -1,23 +1,22 @@
 ﻿using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Exceptions;
 using HrHub.Abstraction.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HrHub.Core.Base
 {
     public class ManagerBase
     {
         public readonly IHttpContextAccessor httpContextAccessor;
-
+        private readonly IAuthorizationService authorizationService;
         public ManagerBase(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
+            var serviceProvider = httpContextAccessor.HttpContext?.RequestServices;
+            authorizationService = serviceProvider.GetService<IAuthorizationService>();
         }
 
         protected Response<TBody> ProduceSuccessResponse<TBody>(TBody body, ResponseHeader header = null) where TBody : class
@@ -45,7 +44,7 @@ namespace HrHub.Core.Base
         {
 
             var user = GetUser();
-            return Convert.ToInt64(user.FindFirst(ClaimTypes.NameIdentifier).Value);
+            return long.Parse(user.FindFirst(ClaimTypes.NameIdentifier).Value);
         }
 
         public ClaimsPrincipal GetUser()
@@ -64,12 +63,14 @@ namespace HrHub.Core.Base
         }
         public bool IsMainUser()
         {
-            return GetUser().HasClaim("Policy", Policies.MainUser);
+            return GetUser().HasClaim(Policies.MainUser, "true");
         }
 
         public bool IsInstructor()
         {
-            return GetUser().HasClaim("Policy", Policies.Instructor);
+            var user = GetUser();
+            var authorizationResult = authorizationService.AuthorizeAsync(user, null, Policies.Instructor).Result;
+            return authorizationResult.Succeeded;
         }
 
         public bool IsSuperAdmin()

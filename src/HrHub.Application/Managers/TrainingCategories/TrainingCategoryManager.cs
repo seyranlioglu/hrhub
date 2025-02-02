@@ -15,6 +15,7 @@ using HrHub.Domain.Contracts.Dtos.WhatYouWillLearnsDtos;
 using HrHub.Infrastructre.Repositories.Concrete;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
+using HrHub.Infrastructre.Repositories.Abstract;
 
 namespace HrHub.Application.Managers.TrainingCategories
 {
@@ -34,7 +35,7 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<CommonResponse>> AddTrainingCategoryAsync(AddTrainingCategoryDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<AddTrainingCategoryDto>(data, typeof(AddTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<AddTrainingCategoryDto>(data, typeof(IAddTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var trainingCategory = mapper.Map<TrainingCategory>(data);
@@ -52,11 +53,11 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<CommonResponse>> UpdateTrainingCategoryAsync(UpdateTrainingCategoryDto data, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<UpdateTrainingCategoryDto>(data, typeof(UpdateTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            if (ValidationHelper.RuleBasedValidator<UpdateTrainingCategoryDto>(data, typeof(IUpdateTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
             var updData = await categoryRepository.GetAsync(predicate: p => p.Id == data.Id);
-            mapper.Map(updData, data);
+            mapper.Map(data, updData);
 
             categoryRepository.Update(updData);
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -71,11 +72,15 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<CommonResponse>> DeleteTrainingCategoryAsync(long id, CancellationToken cancellationToken = default)
         {
-            if (ValidationHelper.RuleBasedValidator<DeleteTrainingCategoryDto>(data, typeof(DeleteTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+            var entityDto = await categoryRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingCategoryDto>(s));
+
+            if (ValidationHelper.RuleBasedValidator<DeleteTrainingCategoryDto>(entityDto, typeof(IDeleteTrainingCategoryBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
-            var updData = await categoryRepository.GetAsync(predicate: p => p.Id == data.Id);
+            var updData = await categoryRepository.GetAsync(predicate: p => p.Id == entityDto.Id);
             updData.IsDelete = false;
+            updData.DeleteDate = DateTime.UtcNow;
+            //updData.DeleteUserId = this.GetCurrentUserId;
             categoryRepository.Update(updData);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse
@@ -88,7 +93,7 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<IEnumerable<GetTrainingCategoryDto>>> GetListTrainingCategoryAsync()
         {
-            var categories = await categoryRepository.GetListAsync(predicate: p => p.IsActive,
+            var categories = await categoryRepository.GetListAsync(predicate: p => (p.IsDelete == false || p.IsDelete == null),
                                                                include: i => i.Include(c => c.MasterTrainingCategory));
 
             var categoryDto = mapper.Map<IEnumerable<GetTrainingCategoryDto>>(categories);
@@ -97,7 +102,8 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<GetTrainingCategoryDto>> GetTrainingCategoryAsync(long id)
         {
-            var categories = await categoryRepository.GetAsync(predicate: p => p.IsActive,
+            var categories = await categoryRepository.GetAsync(predicate: p => p.Id == id
+                                                                              && (p.IsDelete == false || p.IsDelete == null),
                                                                include: i => i.Include(
                                                                c => c.MasterTrainingCategory));
 
