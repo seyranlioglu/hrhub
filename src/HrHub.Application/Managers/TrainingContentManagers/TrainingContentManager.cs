@@ -379,7 +379,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         }
         public async Task<Response<IEnumerable<GetTrainingContentDto>>> GetTrainingContentListAsync()
         {
-            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsDelete != true,
+            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsDelete != false,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
                                                                         .Include(s => s.ContentLibraries));
@@ -390,7 +390,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
         public async Task<Response<GetTrainingContentDto>> GetTrainingContentAsync(long id)
         {
-            var trainingListDto = await contentRepository.GetAsync(predicate: p => p.IsDelete != true && p.Id == id,
+            var trainingListDto = await contentRepository.GetAsync(predicate: p => p.IsDelete != false && p.Id == id,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
                                                                         .Include(s => s.ContentLibraries),
