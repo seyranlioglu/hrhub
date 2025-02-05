@@ -9,20 +9,20 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
     public class GetTrainingContentDto
     {
         public bool? IsDelete { get; set; }
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
         public string? Title { get; set; }
         public string? Abbreviation { get; set; }
         public string? Code { get; set; }
         public string? Description { get; set; }    
-        public TimeSpan Time { get; set; }
-        public int PageCount { get; set; }
-        public decimal CompletedRate { get; set; }
-        public string FilePath { get; set; }
-        public bool Mandatory { get; set; }
-        public long OrderId { get; set; }
-        public bool AllowSeeking { get; set; }
-        public int PartCount { get; set; }
-        public int MinReadTimeThreshold { get; set; }
+        public TimeSpan? Time { get; set; }
+        public int? PageCount { get; set; }
+        public decimal? CompletedRate { get; set; }
+        public string? FilePath { get; set; }
+        public bool? Mandatory { get; set; }
+        public long? OrderId { get; set; }
+        public bool? AllowSeeking { get; set; }
+        public int? PartCount { get; set; }
+        public int? MinReadTimeThreshold { get; set; }
      
 
         //TrainingSection
@@ -40,7 +40,10 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
 
 
         //ContentLibrary
-        public string ContentLibraryFilePath { get; set; }
-        public string ContentLibraryFileName { get; set; }
+        public string? ContentLibraryFilePath { get; set; }
+        public string? ContentLibraryFileName { get; set; }
+        public string? ContentLibraryThumbnail { get; set; }
+
+
     }
 }

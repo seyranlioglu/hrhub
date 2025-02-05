@@ -11,7 +11,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default);
         Task<Response<CommonResponse>> DeleteTrainingContentAsync(long id, CancellationToken cancellationToken = default);
         Task<Response<GetTrainingContentDto>> GetTrainingContentAsync(long id);
-        Task<Response<IEnumerable<GetTrainingContentDto>>> GetTrainingContentListAsync();
+        Task<Response<IEnumerable<GetListTrainingContentDto>>> GetTrainingContentListAsync();
         Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default);
     }
 }
