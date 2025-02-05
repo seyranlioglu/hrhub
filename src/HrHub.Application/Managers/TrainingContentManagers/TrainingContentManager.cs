@@ -25,6 +25,7 @@ using SharpCompress.Common;
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing;
+using HrHub.Abstraction.Settings;
 
 namespace HrHub.Application.Managers.TrainingContentManagers
 {
@@ -51,47 +52,13 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             this.fileTypeManager = fileTypeManager;
         }
 
-        private void GenerateThumbnail(string videoPath, string outputImagePath, int second = 5)
-        {
-            string ffmpegPath = @"C:\ffmpeg\bin\ffmpeg.exe"; // FFmpeg yolu
-
-            if (!File.Exists(ffmpegPath))
-            {
-                return;
-            }
-
-            // **Eğer thumbnail dosyası zaten varsa, sil
-            if (File.Exists(outputImagePath))
-            {
-                try
-                {
-                    File.Delete(outputImagePath);
-                }
-                catch (Exception ex)
-                {
-                    return;
-                }
-            }
-
-            ProcessStartInfo processInfo = new ProcessStartInfo
-            {
-                FileName = ffmpegPath,
-                Arguments = $"-i \"{videoPath}\" -ss {second} -vframes 1 \"{outputImagePath}\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (Process process = new Process { StartInfo = processInfo })
-            {
-                process.Start();
-            }
-        }
+      
 
 
         public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
         {
+            var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
+
             var maxRowNum = await contentRepository.MaxAsync(
                 predicate: c => c.ContentTypeId == data.ContentTypeId,
                 selector: s => s.OrderId
@@ -102,7 +69,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             try
             {
                 #region InstructorCodeWithDirectory
-                var instructor = await instructorRepository.GetAsync(i => i.UserId == 15); // this.GetCurrentUserId());
+                var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
                 if (instructor == null)
                     return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
@@ -149,7 +116,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
                     if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
-                        GenerateThumbnail(filePath, thumbnailFilePath, 5); // 5. saniyeden kare al
+                        GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // 5. saniyeden kare al
                     }
 
 
@@ -165,7 +132,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         TrainingContentId = null, // Şimdilik null, aşağıda güncellenecek
                         Thumbnail = thumbnailFilePath, // Thumbnail dosya yolu
                         CreatedDate = DateTime.UtcNow,
-                        CreateUserId = 15, // this.GetCurrentUserId(),
+                        CreateUserId = this.GetCurrentUserId(),
                         IsActive = true
                     };
                 }
@@ -211,6 +178,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         }
         public async Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default)
         {
+            var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
             await unitOfWork.BeginTransactionAsync();
 
             try
@@ -230,7 +198,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 #region Dosya Güncelleme ve Kitaplık
                 if (data.File != null)
                 {
-                    var instructor = await instructorRepository.GetAsync(i => i.UserId == 15);// this.GetCurrentUserId());
+                    var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
                     if (instructor == null)
                         return ProduceFailResponse<CommonResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
@@ -252,8 +220,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     string extension = Path.GetExtension(data.File.FileName)?.ToLowerInvariant();
                     string fileName = $"{sanitizedFileName}{extension}";
                     string filePath = Path.Combine(directoryPath, fileName);
-
-                    // **Aynı isimde bir dosya varsa "(1)", "(2)" ekleyerek benzersiz hale getir**
+         
                     int counter = 1;
                     while (File.Exists(filePath))
                     {
@@ -274,7 +241,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
                     if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
-                        GenerateThumbnail(filePath, thumbnailFilePath, 5); // **Videolar için 5. saniyeden thumbnail al**
+                        GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // **Videolar için 5. saniyeden thumbnail al**
                     }
 
                     //Dosya formatını kontrol et
@@ -289,7 +256,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         contentLibrary.FileName = fileName;
                         contentLibrary.FilePath = filePath;
                         contentLibrary.FileTypeId = fileTypeResponse.Body.Id;
-                        contentLibrary.Thumbnail = thumbnailFilePath; // **Yeni thumbnail bilgisini güncelle**
+                        contentLibrary.Thumbnail = thumbnailFilePath;
                         contentLibrary.UpdateUserId = this.GetCurrentUserId();
                         contentLibrary.UpdateDate = DateTime.UtcNow;
                         contentLibraryRepository.Update(contentLibrary);
@@ -679,6 +646,44 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                                                                         });
             return ProduceSuccessResponse(trainingListDto);
 
+        }
+
+        private void GenerateThumbnail(string videoPath, string outputImagePath, int second = 5)
+        {
+            string ffmpegPath = @"C:\ffmpeg\bin\ffmpeg.exe"; // FFmpeg yolu
+
+            if (!File.Exists(ffmpegPath))
+            {
+                return;
+            }
+
+            // **Eğer thumbnail dosyası zaten varsa, sil
+            if (File.Exists(outputImagePath))
+            {
+                try
+                {
+                    File.Delete(outputImagePath);
+                }
+                catch (Exception ex)
+                {
+                    return;
+                }
+            }
+
+            ProcessStartInfo processInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = $"-i \"{videoPath}\" -ss {second} -vframes 1 \"{outputImagePath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = processInfo })
+            {
+                process.Start();
+            }
         }
     }
 }
