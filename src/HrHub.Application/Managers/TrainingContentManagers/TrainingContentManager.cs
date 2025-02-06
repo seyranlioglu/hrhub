@@ -52,9 +52,6 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             this.fileTypeManager = fileTypeManager;
         }
 
-      
-
-
         public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
         {
             var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
@@ -63,6 +60,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 predicate: c => c.ContentTypeId == data.ContentTypeId,
                 selector: s => s.OrderId
             );
+
+
 
             await unitOfWork.BeginTransactionAsync();
 
@@ -73,7 +72,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 if (instructor == null)
                     return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
-                string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
+                string directoryPath = Path.Combine("Uploads", "15");//instructor.InstructorCode);
                 string thumbnailDirectoryPath = Path.Combine(directoryPath, "Thumbnails");
 
                 // Klasörleri oluştur
@@ -108,7 +107,9 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     using var fileStream = data.File.OpenReadStream();
                     byte[] fileContent = new byte[data.File.Length];
                     await fileStream.ReadAsync(fileContent, cancellationToken);
+
                     await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
+
 
                     // **Thumbnail oluşturma işlemi**
                     string thumbnailFileName = $"{sanitizedFileName}.jpg";
@@ -119,6 +120,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // 5. saniyeden kare al
                     }
 
+                    var videoDuration = await GetVideoDurationAsync(filePath);
 
                     // **ContentLibrary Add**
                     var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
@@ -128,6 +130,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     {
                         FileName = fileName,
                         FilePath = filePath,
+                        VideoDuration = videoDuration,
                         FileTypeId = fileTypeResponseId,
                         TrainingContentId = null, // Şimdilik null, aşağıda güncellenecek
                         Thumbnail = thumbnailFilePath, // Thumbnail dosya yolu
@@ -220,7 +223,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     string extension = Path.GetExtension(data.File.FileName)?.ToLowerInvariant();
                     string fileName = $"{sanitizedFileName}{extension}";
                     string filePath = Path.Combine(directoryPath, fileName);
-         
+
                     int counter = 1;
                     while (File.Exists(filePath))
                     {
@@ -249,7 +252,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     if (fileTypeResponse.Body == null)
                         return ProduceFailResponse<CommonResponse>("Desteklenmeyen dosya türü.", HrStatusCodes.Status117FileFormatError);
 
-                    // **ContentLibrary Güncelle
+                    // **ContentLibrary
+                    var videoDuration = await GetVideoDurationAsync(filePath);
                     var contentLibrary = existingContent.ContentLibraries.FirstOrDefault();
                     if (contentLibrary != null)
                     {
@@ -259,6 +263,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         contentLibrary.Thumbnail = thumbnailFilePath;
                         contentLibrary.UpdateUserId = this.GetCurrentUserId();
                         contentLibrary.UpdateDate = DateTime.UtcNow;
+                        contentLibrary.VideoDuration = videoDuration;
                         contentLibraryRepository.Update(contentLibrary);
                     }
                     else
@@ -272,6 +277,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                             Thumbnail = thumbnailFilePath, // **Yeni thumbnail dosya yolu**
                             CreatedDate = DateTime.UtcNow,
                             CreateUserId = this.GetCurrentUserId(),
+                            VideoDuration = videoDuration,
                             IsActive = true
                         };
                         await contentLibraryRepository.AddAsync(newContentLibrary, cancellationToken);
@@ -601,7 +607,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                                                                               {
                                                                                   FileName = cl.FileName,
                                                                                   FilePath = cl.FilePath,
-                                                                                  Thumbnail = cl.Thumbnail
+                                                                                  Thumbnail = cl.Thumbnail,
+                                                                                  VideoDuration = cl.VideoDuration
                                                                               }).ToList()
                                                                           });
             return ProduceSuccessResponse(trainingList);
@@ -642,7 +649,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                                                                             TrainingContentLangCode = s.ContentType.LangCode,
                                                                             ContentLibraryFileName = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).FileName,
                                                                             ContentLibraryFilePath = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).FilePath,
-                                                                            ContentLibraryThumbnail = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).Thumbnail
+                                                                            ContentLibraryThumbnail = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).Thumbnail,
+                                                                            ContentLibraryVideoDuration = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).VideoDuration
                                                                         });
             return ProduceSuccessResponse(trainingListDto);
 
@@ -683,6 +691,41 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             using (Process process = new Process { StartInfo = processInfo })
             {
                 process.Start();
+            }
+        }
+        private async Task<TimeSpan?> GetVideoDurationAsync(string videoPath)
+        {
+
+            string ffmpegPath = @"C:\ffmpeg\bin\ffmpeg.exe";
+
+            ProcessStartInfo processInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = $"-i \"{videoPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = processInfo })
+            {
+                process.Start();
+                string output = await process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+
+                //Regex ile Süre bul
+                var match = System.Text.RegularExpressions.Regex.Match(output, @"Duration: (\d+):(\d+):(\d+.\d+)");
+                if (match.Success)
+                {
+                    int hours = int.Parse(match.Groups[1].Value);
+                    int minutes = int.Parse(match.Groups[2].Value);
+                    double seconds = double.Parse(match.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture);
+
+                    return new TimeSpan(0, hours, minutes, (int)seconds);
+                }
+
+                return null;
             }
         }
     }

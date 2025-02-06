@@ -43,6 +43,7 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
         public string? ContentLibraryFilePath { get; set; }
         public string? ContentLibraryFileName { get; set; }
         public string? ContentLibraryThumbnail { get; set; }
+        public TimeSpan? ContentLibraryVideoDuration { get; set; }
 
 
     }

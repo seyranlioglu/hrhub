@@ -502,6 +502,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<long?>("UpdateUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<TimeSpan?>("VideoDuration")
+                        .HasColumnType("interval");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FileTypeId");

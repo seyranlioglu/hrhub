@@ -40,8 +40,9 @@
     }
     public class GetContentLibraryDto
     {
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
-        public string Thumbnail { get; set; }
+        public string? FileName { get; set; }
+        public string? FilePath { get; set; }
+        public string? Thumbnail { get; set; }
+        public TimeSpan? VideoDuration { get; set; }
     }
 }
