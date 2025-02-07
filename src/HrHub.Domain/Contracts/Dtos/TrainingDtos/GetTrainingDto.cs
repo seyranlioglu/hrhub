@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using HrHub.Domain.Contracts.Dtos.TrainingContentDtos;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
 {
@@ -120,6 +121,7 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         public string? Description { get; set; }
         public long? ExamId { get; set; }
         public TrainingContentTypeDto ContentType { get; set; } = new();
+        public TrainingContentLibraryDto TrainingContentLibraryDto { get; set; } = new();
 
 
     }
@@ -132,5 +134,11 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         public string? Title { get; set; }
         public string? Description { get; set; }
     }
-
+    public class TrainingContentLibraryDto
+    {
+        public string? TrainingContentLibraryFileName { get; set; }
+        public string? TrainingContentLibraryFilePath { get; set; }
+        public string? TrainingContentLibraryThumbnail { get; set; }
+        public TimeSpan? TrainingContentLibraryVideoDuration { get; set; }
+    }
 }

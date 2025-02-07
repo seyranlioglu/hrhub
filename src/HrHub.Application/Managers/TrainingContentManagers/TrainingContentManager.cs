@@ -36,6 +36,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         private readonly Repository<TrainingContent> contentRepository;
         private readonly Repository<ContentLibrary> contentLibraryRepository;
         private readonly Repository<Instructor> instructorRepository;
+        private readonly Repository<TrainingSection> trainingSectionRepository;
+        private readonly Repository<Training> trainingRepository;
         private readonly IFileTypeManager fileTypeManager;
         private readonly IMapper mapper;
 
@@ -49,6 +51,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             this.mapper = mapper;
             this.contentLibraryRepository = unitOfWork.CreateRepository<ContentLibrary>();
             this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
+            this.trainingSectionRepository = unitOfWork.CreateRepository<TrainingSection>();
+            this.trainingRepository = unitOfWork.CreateRepository<Training>();
             this.fileTypeManager = fileTypeManager;
         }
 
@@ -56,11 +60,11 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         {
             var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
 
+            var trainingId = await trainingSectionRepository.GetAsync(predicate: t => t.Id == data.TrainingSectionId, selector : s => s.TrainingId);                 
             var maxRowNum = await contentRepository.MaxAsync(
-                predicate: c => c.ContentTypeId == data.ContentTypeId,
+                predicate: c => c.TrainingSection.TrainingId == trainingId && c.ContentTypeId == data.ContentTypeId,
                 selector: s => s.OrderId
             );
-
 
 
             await unitOfWork.BeginTransactionAsync();

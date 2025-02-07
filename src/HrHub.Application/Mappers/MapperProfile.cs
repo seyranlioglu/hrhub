@@ -265,6 +265,18 @@ namespace HrHub.Application.Mappers
 
                              return true;
                          }));
+
+            CreateMap<TrainingContent, TrainingContentDto>()
+                .ForMember(dest => dest.TrainingContentLibraryDto, opt => opt.MapFrom(src =>
+                    src.ContentLibraries.FirstOrDefault() != null
+                        ? new TrainingContentLibraryDto
+                        {
+                            TrainingContentLibraryFileName = src.ContentLibraries.FirstOrDefault().FileName,
+                            TrainingContentLibraryFilePath = src.ContentLibraries.FirstOrDefault().FilePath,
+                            TrainingContentLibraryThumbnail = src.ContentLibraries.FirstOrDefault().Thumbnail,
+                            TrainingContentLibraryVideoDuration = src.ContentLibraries.FirstOrDefault().VideoDuration
+                        }
+                        : null));
         }
     }
 }
