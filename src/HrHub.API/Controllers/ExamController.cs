@@ -22,7 +22,6 @@ namespace HrHub.API.Controllers
             this.examManager = examManager;
         }
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<AddExamResponse>> AddExam([FromBody] AddExamDto data)
         {
             var response = await examManager.AddExamAsync(data).ConfigureAwait(false);

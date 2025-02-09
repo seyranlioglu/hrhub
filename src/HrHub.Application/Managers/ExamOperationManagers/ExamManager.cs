@@ -90,6 +90,11 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 
             var lastVersion = addResponse.ExamVersions.Where(w => w.IsPublished == true).FirstOrDefault();
 
+            if (lastVersion is null)
+                lastVersion = addResponse.ExamVersions
+                    .OrderBy(w => w.CreatedDate)
+                    .FirstOrDefault();
+
             return ProduceSuccessResponse(new AddExamResponse
             {
                 Id = addResponse.Id,
@@ -840,6 +845,5 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 Message = isSuccess ? "Congratulations, you passed the exam!" : "Unfortunately, you did not meet the passing criteria."
             });
         }
-
     }
 }

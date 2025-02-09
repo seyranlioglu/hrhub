@@ -27,6 +27,9 @@ namespace HrHub.Application.Mappers
             CreateMap<ContentTypeDto, ContentType>().ReverseMap();
             CreateMap<AddExamDto, Exam>()
             .ForMember(dest => dest.ExamVersions, opt => opt.MapFrom(src => new List<AddExamVersionDto> { src.VersionInfo }));
+            CreateMap<AddExamVersionDto, ExamVersion>()
+    .ForMember(dest => dest.ExamTime, opt => opt.MapFrom(src =>
+        src.ExamTime.HasValue ? src.ExamTime.Value : TimeSpan.Zero));
             CreateMap<ExamTopic, AddExamTopicDto>().ReverseMap();
             CreateMap<AddExamQuestionDto, ExamQuestion>()
                 .ForMember(dest => dest.QuestionOptions, opt => opt.MapFrom(src => src.QuestionOptions))
@@ -148,10 +151,10 @@ namespace HrHub.Application.Mappers
                                   return false;
 
                               var propertyName = opt.DestinationMember.Name;
-                              var fkProperties = new[] { "ContentTypeId", "TrainingSectionId" }; 
+                              var fkProperties = new[] { "ContentTypeId", "TrainingSectionId" };
 
                               if (fkProperties.Contains(propertyName) && srcMember is long longValue && longValue == 0)
-                                  return false; 
+                                  return false;
 
                               return true;
                           }));

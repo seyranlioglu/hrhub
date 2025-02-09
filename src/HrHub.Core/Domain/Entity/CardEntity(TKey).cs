@@ -11,7 +11,7 @@ namespace HrHub.Core.Domain.Entity
 
         [AllowNull]
         public long? CreateUserId { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         [AllowNull]
         public long? UpdateUserId { get; set; }
