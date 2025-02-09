@@ -12,8 +12,10 @@ using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Infrastructre.UnitOfWorks;
+using LinqKit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HrHub.Application.Managers.Trainings;
 
@@ -23,6 +25,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
     private readonly IMapper mapper;
     private readonly Repository<Training> trainingRepository;
     private readonly Repository<TrainingStatus> trainingStatuRepository;
+    private readonly Repository<TrainingContent> trainingContentRepository;
 
     public TrainingManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork hrUnitOfWork,
@@ -31,6 +34,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         this.hrUnitOfWork = hrUnitOfWork;
         trainingRepository = hrUnitOfWork.CreateRepository<Training>();
         trainingStatuRepository = hrUnitOfWork.CreateRepository<TrainingStatus>();
+        trainingContentRepository = hrUnitOfWork.CreateRepository<TrainingContent>();
         this.mapper = mapper;
     }
 
@@ -51,6 +55,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         trainingEntity.EducationLevelId = data.EducationLevelId == 0 ? (long?)null : data.EducationLevelId;
         trainingEntity.PriceTierId = data.PriceTierId == 0 ? (long?)null : data.PriceTierId;
         trainingEntity.CurrentAmount = data.Amount - (data.Amount * data.DiscountRate / 100); // Bunu konuşuruz!!! 
+        trainingEntity.CompletionTime = data.CompletionTime;
         //CompletionTime hesaplanacak, elle girilmeyecek. Konuşacağız
         trainingEntity.TrainingStatusId = await trainingStatuRepository.GetAsync(predicate: p => p.Code == TrainingStatuConst.Preparing,
                                                                                  selector: s => s.Id);
@@ -68,13 +73,33 @@ public class TrainingManager : ManagerBase, ITrainingManager
     {
         var training = await trainingRepository.GetAsync(predicate: t => t.Id == dto.Id);
 
-        if (ValidationHelper.RuleBasedValidator<UpdateTrainingDto>(dto, typeof(IUpdateTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-            return cBasedValidResult.SendResponse<CommonResponse>();
+        if (training is not null)
+        {
+            if (ValidationHelper.RuleBasedValidator<UpdateTrainingDto>(dto, typeof(IUpdateTrainingBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
 
-        var mapperData = mapper.Map(dto, training);
-        training.CurrentAmount = dto.Amount - (dto.Amount * dto.DiscountRate / 100);
+            var mapperData = mapper.Map(dto, training);
+            training.CurrentAmount = dto.Amount - (dto.Amount * dto.DiscountRate / 100);
+            trainingRepository.Update(mapperData);
+        }
 
-        trainingRepository.Update(mapperData);
+        var contentIds = dto.ContentOrderIds.Select(c => c.ContentId).ToList();
+        var contents = await trainingContentRepository.GetListAsync(c => contentIds.Contains(c.Id));
+
+        if (contents.Any())
+        {
+            contents.ForEach(content =>
+            {
+                var newOrder = dto.ContentOrderIds.Find(o => o.ContentId == content.Id);
+                if (newOrder is not null)
+                {
+                    content.OrderId = newOrder.OrderId;
+                    content.UpdateDate = DateTime.UtcNow;
+                    content.UpdateUserId = this.GetCurrentUserId();
+                }
+            });
+            await trainingContentRepository.UpdateListAsync(contents.ToList());
+        }
         await hrUnitOfWork.SaveChangesAsync(cancellationToken);
 
         return ProduceSuccessResponse(new CommonResponse
@@ -84,6 +109,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
             Result = true
         });
     }
+
     public async Task<Response<CommonResponse>> DeleteTrainingAsync(long id, CancellationToken cancellationToken = default)
     {
         var trainingDto = await trainingRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingDto>(s));
@@ -117,8 +143,13 @@ public class TrainingManager : ManagerBase, ITrainingManager
                                                                     .Include(s => s.ForWhom)
                                                                     .Include(s => s.Precondition)
                                                                     .Include(s => s.PriceTier)
-                                                                    .Include(s => s.TrainingSections).ThenInclude(d => d.TrainingContents).ThenInclude(e => e.ContentType)
-                                                                    .Include(s => s.TrainingType),
+                                                                    .Include(s => s.TrainingType)
+                                                                    .Include(s => s.TrainingSections)
+                                                                        .ThenInclude(d => d.TrainingContents)
+                                                                            .ThenInclude(e => e.ContentType)
+                                                                    .Include(s => s.TrainingSections)
+                                                                        .ThenInclude(d => d.TrainingContents)
+                                                                            .ThenInclude(e => e.ContentLibraries), // **ContentLibrary Eklendi**
                                                                     selector: s => mapper.Map<GetTrainingDto>(s));
         return ProduceSuccessResponse(trainingListDto);
 
@@ -127,19 +158,30 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
     public async Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id)
     {
-        var trainingDto = await trainingRepository.GetAsync(predicate: p => p.Id == id && p.IsDelete != true,
-                                                            include: i => i.Include(s => s.TrainingCategory)
-                                                                    .Include(s => s.Instructor)
-                                                                    .Include(s => s.TimeUnit)
-                                                                    .Include(s => s.TrainingLevel)
-                                                                    .Include(s => s.TrainingStatus)
-                                                                    .Include(s => s.EducationLevel)
-                                                                    .Include(s => s.ForWhom)
-                                                                    .Include(s => s.Precondition)
-                                                                    .Include(s => s.PriceTier)
-                                                                    .Include(s => s.TrainingSections).ThenInclude(d => d.TrainingContents).ThenInclude(e=>e.ContentType)
-                                                                    .Include(s => s.TrainingType),
-                                                                    selector: s => mapper.Map<GetTrainingDto>(s));
+        var trainingDto = await trainingRepository.GetAsync(
+            predicate: p => p.Id == id,
+            include: i => i.Include(s => s.TrainingCategory)
+                           .Include(s => s.Instructor)
+                           .Include(s => s.TimeUnit)
+                           .Include(s => s.TrainingLevel)
+                           .Include(s => s.TrainingStatus)
+                           .Include(s => s.EducationLevel)
+                           .Include(s => s.ForWhom)
+                           .Include(s => s.Precondition)
+                           .Include(s => s.PriceTier)
+                           .Include(s => s.TrainingType)
+                           .Include(s => s.TrainingSections)
+                                .ThenInclude(d => d.TrainingContents)
+                                    .ThenInclude(e => e.ContentType)
+                           .Include(s => s.TrainingSections)
+                                .ThenInclude(d => d.TrainingContents)
+                                    .ThenInclude(e => e.ContentLibraries), // **ContentLibrary Eklendi**
+
+
+            selector: s => mapper.Map<GetTrainingDto>(s)
+        );
+
         return ProduceSuccessResponse(trainingDto);
     }
+
 }

@@ -24,7 +24,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromBody] AddTrainingContentDto data)
+        public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromForm] AddTrainingContentDto data)
         {
             var response = await trainingContentManager.AddTrainingContentAsync(data).ConfigureAwait(false);
             return response;
@@ -48,13 +48,13 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<IEnumerable<GetTrainingContentDto>>> GetListAsync()
+        public async Task<Response<IEnumerable<GetListTrainingContentDto>>> GetListAsync()
         {
             return await trainingContentManager.GetTrainingContentListAsync().ConfigureAwait(false);
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<GetTrainingContentDto>> GetByIdAsync([FromRoute] long id)
+        public async Task<Response<GetTrainingContentDto>> GetByIdAsync([FromQuery] long id)
         {
             return await trainingContentManager.GetTrainingContentAsync(id).ConfigureAwait(false);
         }

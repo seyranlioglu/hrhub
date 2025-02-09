@@ -12,11 +12,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long CurrAccId { get; set; }
         public long TrainingId { get; set; }
         public long CurrAccTrainingStatusId { get; set; }
-        public DateTime ConfirmDate { get; set; }
-        public long ConfirmUserId { get; set; }
-        public string ConfirmNotes { get; set; }
-        public int LicenceCount { get; set; }
-        public long CartItemId { get; set; }
+        public DateTime? ConfirmDate { get; set; }
+        public long? ConfirmUserId { get; set; }
+        public string? ConfirmNotes { get; set; }
+        public int? LicenceCount { get; set; }
+        public long? CartItemId { get; set; }
 
 
         [ForeignKey("CurrAccId")]
@@ -25,7 +25,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         [ForeignKey("TrainingId")]
         public virtual Training Training { get; set; }
 
-        [ForeignKey("StatusId")]
+        [ForeignKey("CurrAccTrainingStatusId")]
         public virtual CurrAccTrainingStatus CurrAccTrainingStatus { get; set; }
 
         [ForeignKey("ConfirmUserId")]

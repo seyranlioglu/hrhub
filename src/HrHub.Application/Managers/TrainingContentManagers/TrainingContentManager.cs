@@ -20,6 +20,12 @@ using LinqKit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.X509;
+using SharpCompress.Common;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing;
+using HrHub.Abstraction.Settings;
 
 namespace HrHub.Application.Managers.TrainingContentManagers
 {
@@ -30,6 +36,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         private readonly Repository<TrainingContent> contentRepository;
         private readonly Repository<ContentLibrary> contentLibraryRepository;
         private readonly Repository<Instructor> instructorRepository;
+        private readonly Repository<TrainingSection> trainingSectionRepository;
+        private readonly Repository<Training> trainingRepository;
         private readonly IFileTypeManager fileTypeManager;
         private readonly IMapper mapper;
 
@@ -43,50 +51,95 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             this.mapper = mapper;
             this.contentLibraryRepository = unitOfWork.CreateRepository<ContentLibrary>();
             this.instructorRepository = unitOfWork.CreateRepository<Instructor>();
+            this.trainingSectionRepository = unitOfWork.CreateRepository<TrainingSection>();
+            this.trainingRepository = unitOfWork.CreateRepository<Training>();
             this.fileTypeManager = fileTypeManager;
         }
 
-
         public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
         {
+            var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
+
+            var trainingId = await trainingSectionRepository.GetAsync(predicate: t => t.Id == data.TrainingSectionId, selector : s => s.TrainingId);                 
             var maxRowNum = await contentRepository.MaxAsync(
-                predicate: c => c.ContentTypeId == data.ContentTypeId,
+                predicate: c => c.TrainingSection.TrainingId == trainingId && c.ContentTypeId == data.ContentTypeId,
                 selector: s => s.OrderId
             );
+
 
             await unitOfWork.BeginTransactionAsync();
 
             try
             {
                 #region InstructorCodeWithDirectory
-                var instructor = await instructorRepository.GetAsync(i => i.UserId == 15);// this.GetCurrentUserId());
+                var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
                 if (instructor == null)
                     return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
-                string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
+                string directoryPath = Path.Combine("Uploads", "15");//instructor.InstructorCode);
+                string thumbnailDirectoryPath = Path.Combine(directoryPath, "Thumbnails");
+
+                // Klasörleri oluştur
+                if (!Directory.Exists(directoryPath))
+                    Directory.CreateDirectory(directoryPath);
+                if (!Directory.Exists(thumbnailDirectoryPath))
+                    Directory.CreateDirectory(thumbnailDirectoryPath);
+
                 string fileName;
                 AddContentLibraryDto contentLibraryData = new();
-                if (data.File != null /*&& data.FileTypeId.HasValue*/)
+
+                if (data.File != null)
                 {
-                    fileName = $"{DateTime.Now:yyyyMMddHHmmss}_{data.File.FileName}";
+                    string sanitizedFileName = Path.GetFileNameWithoutExtension(data.File.FileName)
+                        .Replace(" ", "-")
+                        .Replace("_", "-")
+                        .ToLowerInvariant();
+
+                    string extension = Path.GetExtension(data.File.FileName)?.ToLowerInvariant();
+                    fileName = $"{sanitizedFileName}{extension}";
+                    string filePath = Path.Combine(directoryPath, fileName);
+
+                    // Eğer aynı isimde bir dosya varsa "(1)", "(2)" ekleyerek benzersiz hale getir
+                    int counter = 1;
+                    while (File.Exists(filePath))
+                    {
+                        fileName = $"{sanitizedFileName}({counter}){extension}";
+                        filePath = Path.Combine(directoryPath, fileName);
+                        counter++;
+                    }
+                    // Dosya kaydetme işlemi
                     using var fileStream = data.File.OpenReadStream();
                     byte[] fileContent = new byte[data.File.Length];
                     await fileStream.ReadAsync(fileContent, cancellationToken);
-                    var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
-                    if (!fileSaved)
-                        return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
 
-                    // ContentLibrary Add
+                    await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
+
+
+                    // **Thumbnail oluşturma işlemi**
+                    string thumbnailFileName = $"{sanitizedFileName}.jpg";
+                    string thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
+
+                    if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
+                    {
+                        GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // 5. saniyeden kare al
+                    }
+
+                    var videoDuration = await GetVideoDurationAsync(filePath);
+
+                    // **ContentLibrary Add**
                     var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
                     var fileTypeResponseId = fileTypeResponse.Body.Id;
 
                     contentLibraryData = new AddContentLibraryDto
                     {
                         FileName = fileName,
-                        FilePath = Path.Combine(directoryPath, fileName),
-                        FileTypeId = /*data.FileTypeId.Value*/fileTypeResponseId,
+                        FilePath = filePath,
+                        VideoDuration = videoDuration,
+                        FileTypeId = fileTypeResponseId,
+                        TrainingContentId = null, // Şimdilik null, aşağıda güncellenecek
+                        Thumbnail = thumbnailFilePath, // Thumbnail dosya yolu
                         CreatedDate = DateTime.UtcNow,
-                        CreateUserId = 15,//this.GetCurrentUserId(),
+                        CreateUserId = this.GetCurrentUserId(),
                         IsActive = true
                     };
                 }
@@ -116,11 +169,6 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 {
                     contentLibraryData.TrainingContentId = result.Id;
                     contentLibraryEntity = mapper.Map<ContentLibrary>(contentLibraryData);
-                    //if (data.FileTypeId is null)
-                    //{ 
-                    //    var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
-                    //    contentLibraryEntity.FileTypeId = fileTypeResponse.Body.Id;
-                    //}
                     await contentLibraryRepository.AddAsync(contentLibraryEntity, cancellationToken);
                 }
                 #endregion
@@ -135,15 +183,14 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return ProduceFailResponse<ReturnIdResponse>($"İşlem sırasında bir hata oluştu: {ex.Message}", 500);
             }
         }
-
-
         public async Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default)
         {
+            var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
             await unitOfWork.BeginTransactionAsync();
 
             try
             {
-                #region Eğitim İçeriğini Bulma
+                #region **Eğitim İçeriğini Bulma**
                 var existingContent = await contentRepository.GetAsync(
                     predicate: p => p.Id == data.Id,
                     include: c => c.Include(s => s.ContentLibraries)
@@ -158,32 +205,69 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 #region Dosya Güncelleme ve Kitaplık
                 if (data.File != null)
                 {
-                    string directoryPath = Path.Combine("Uploads", existingContent.TrainingSectionId.ToString());
-                    string fileName = $"{DateTime.Now:yyyyMMddHHmmss}_{data.File.FileName}";
+                    var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
+                    if (instructor == null)
+                        return ProduceFailResponse<CommonResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
-                    // Dosyayı kaydet
+                    string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
+                    string thumbnailDirectoryPath = Path.Combine(directoryPath, "Thumbnails");
+
+                    // **Dizinleri oluştur**
+                    if (!Directory.Exists(directoryPath))
+                        Directory.CreateDirectory(directoryPath);
+                    if (!Directory.Exists(thumbnailDirectoryPath))
+                        Directory.CreateDirectory(thumbnailDirectoryPath);
+
+                    // **Dosya adını oluştur ve temizle**
+                    string sanitizedFileName = Path.GetFileNameWithoutExtension(data.File.FileName)
+                        .Replace(" ", "-")
+                        .Replace("_", "-")
+                        .ToLowerInvariant();
+
+                    string extension = Path.GetExtension(data.File.FileName)?.ToLowerInvariant();
+                    string fileName = $"{sanitizedFileName}{extension}";
+                    string filePath = Path.Combine(directoryPath, fileName);
+
+                    int counter = 1;
+                    while (File.Exists(filePath))
+                    {
+                        fileName = $"{sanitizedFileName}({counter}){extension}";
+                        filePath = Path.Combine(directoryPath, fileName);
+                        counter++;
+                    }
+
+                    // **Dosya kaydetme işlemi
                     using var fileStream = data.File.OpenReadStream();
                     byte[] fileContent = new byte[data.File.Length];
                     await fileStream.ReadAsync(fileContent, cancellationToken);
-                    var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
+                    await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
 
-                    if (!fileSaved)
-                        return ProduceFailResponse<CommonResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
+                    // **Thumbnail oluşturma
+                    string thumbnailFileName = $"{sanitizedFileName}.jpg";
+                    string thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
 
+                    if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
+                    {
+                        GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // **Videolar için 5. saniyeden thumbnail al**
+                    }
 
-                    var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data.File.FileName));
+                    //Dosya formatını kontrol et
+                    var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(extension);
                     if (fileTypeResponse.Body == null)
                         return ProduceFailResponse<CommonResponse>("Desteklenmeyen dosya türü.", HrStatusCodes.Status117FileFormatError);
 
-
+                    // **ContentLibrary
+                    var videoDuration = await GetVideoDurationAsync(filePath);
                     var contentLibrary = existingContent.ContentLibraries.FirstOrDefault();
                     if (contentLibrary != null)
                     {
                         contentLibrary.FileName = fileName;
-                        contentLibrary.FilePath = Path.Combine(directoryPath, fileName);
+                        contentLibrary.FilePath = filePath;
                         contentLibrary.FileTypeId = fileTypeResponse.Body.Id;
+                        contentLibrary.Thumbnail = thumbnailFilePath;
                         contentLibrary.UpdateUserId = this.GetCurrentUserId();
                         contentLibrary.UpdateDate = DateTime.UtcNow;
+                        contentLibrary.VideoDuration = videoDuration;
                         contentLibraryRepository.Update(contentLibrary);
                     }
                     else
@@ -191,11 +275,13 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         var newContentLibrary = new ContentLibrary
                         {
                             FileName = fileName,
-                            FilePath = Path.Combine(directoryPath, fileName),
+                            FilePath = filePath,
                             FileTypeId = fileTypeResponse.Body.Id,
                             TrainingContentId = data.Id,
+                            Thumbnail = thumbnailFilePath, // **Yeni thumbnail dosya yolu**
                             CreatedDate = DateTime.UtcNow,
                             CreateUserId = this.GetCurrentUserId(),
+                            VideoDuration = videoDuration,
                             IsActive = true
                         };
                         await contentLibraryRepository.AddAsync(newContentLibrary, cancellationToken);
@@ -203,10 +289,10 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 }
                 #endregion
 
-                #region Eğitim İçeriği Güncelleme
+                #region **Eğitim İçeriği Güncelleme**
                 mapper.Map(data, existingContent);
                 existingContent.UpdateDate = DateTime.UtcNow;
-                existingContent.UpdateUserId = 15;// this.GetCurrentUserId();
+                existingContent.UpdateUserId = this.GetCurrentUserId();
 
                 contentRepository.Update(existingContent);
                 #endregion
@@ -224,106 +310,216 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             catch (Exception ex)
             {
                 await unitOfWork.RollBackTransactionAsync();
-                return ProduceFailResponse<CommonResponse>($"Güncelleme işlemi sırasında bir hata oluştu", StatusCodes.Status500InternalServerError);
+                return ProduceFailResponse<CommonResponse>($"Güncelleme işlemi sırasında bir hata oluştu: {ex.Message}", StatusCodes.Status500InternalServerError);
             }
         }
 
-
+        #region OldAdd_Update
         //public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
         //{
-        //    // Validation
-        //    //if (ValidationHelper.RuleBasedValidator<AddTrainingContentDto>(data, typeof(IAddTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-        //    //    return cBasedValidResult.SendResponse<ReturnIdResponse>();
-
-        //    // Max Row Number for OrderId
-        //    var maxRowNum = (await contentRepository.MaxAsync(predicate: c => c.ContentTypeId == data.ContentTypeId
-        //                                                                        && c.TrainingSectionId == data.TrainingSectionId,                                                                            
-        //                                                                        selector: s => s.OrderId));
-
-
+        //    var maxRowNum = await contentRepository.MaxAsync(
+        //        predicate: c => c.ContentTypeId == data.ContentTypeId,
+        //        selector: s => s.OrderId
+        //    );
 
         //    await unitOfWork.BeginTransactionAsync();
 
         //    try
         //    {
+        //        #region InstructorCodeWithDirectory
+        //        var instructor = await instructorRepository.GetAsync(i => i.UserId == 15);// this.GetCurrentUserId());
+        //        if (instructor == null)
+        //            return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
+
+        //        string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
+        //        string fileName;
+        //        AddContentLibraryDto contentLibraryData = new();
+        //        if (data.File != null /*&& data.FileTypeId.HasValue*/)
+        //        {
+        //            fileName = $"{data.File.FileName}";
+        //            using var fileStream = data.File.OpenReadStream();
+        //            byte[] fileContent = new byte[data.File.Length];
+        //            await fileStream.ReadAsync(fileContent, cancellationToken);
+        //            var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
+        //            string filePath = Path.Combine(directoryPath, fileName);
+        //            if (!fileSaved)
+        //            {
+        //                int counter = 1;
+        //                while (File.Exists(filePath))
+        //                {
+        //                    fileName = $"{fileName}({counter})";
+        //                    counter++;
+        //                }
+        //                //return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
+        //            }
+        //            // ContentLibrary Add
+        //            var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
+        //            var fileTypeResponseId = fileTypeResponse.Body.Id;
+
+        //            contentLibraryData = new AddContentLibraryDto
+        //            {
+        //                FileName = fileName,
+        //                FilePath = Path.Combine(directoryPath, fileName),
+        //                FileTypeId = /*data.FileTypeId.Value*/fileTypeResponseId,
+        //                CreatedDate = DateTime.UtcNow,
+        //                CreateUserId = 15,//this.GetCurrentUserId(),
+        //                IsActive = true
+        //            };
+        //        }
+        //        #endregion
+
+        //        #region AddTrainingContent
         //        var newContent = mapper.Map<TrainingContent>(data);
         //        newContent.OrderId = maxRowNum.HasValue ? maxRowNum.Value + 1 : 1;
 
         //        var result = await contentRepository.AddAndReturnAsync(newContent, cancellationToken);
         //        await unitOfWork.SaveChangesAsync(cancellationToken);
+        //        #endregion
 
-        //        var contentLibrary = await contentLibraryRepository.GetAsync(predicate: p => p.FileName == data.ContentLibraryFileName);
-        //        if (contentLibrary is null)
+        //        #region Library
+        //        ContentLibrary contentLibraryEntity = null;
+        //        if (data.ContentLibraryId.HasValue) // Kitaplıktan bir içerik seçildiyse
         //        {
-        //            var contentLibrayData = mapper.Map<ContentLibrary>(data);
-        //            contentLibrayData.TrainingContentId = result.Id;
-        //            await contentLibraryRepository.AddAsync(contentLibrayData, cancellationToken);
-        //            await unitOfWork.SaveChangesAsync(cancellationToken);
+        //            var existingLibraryContent = await contentLibraryRepository.GetAsync(c => c.Id == data.ContentLibraryId.Value);
+        //            if (existingLibraryContent != null)
+        //            {
+        //                existingLibraryContent.TrainingContentId = result.Id;
+        //                contentLibraryEntity = contentLibraryRepository.UpdateAndReturn(existingLibraryContent);
+        //                await unitOfWork.SaveChangesAsync(cancellationToken);
+        //            }
         //        }
-        //        await unitOfWork.CommitTransactionAsync();
-
-        //        return ProduceSuccessResponse(new ReturnIdResponse
+        //        else
         //        {
-        //            Id = newContent.Id
-        //        });
+        //            contentLibraryData.TrainingContentId = result.Id;
+        //            contentLibraryEntity = mapper.Map<ContentLibrary>(contentLibraryData);
+        //            //if (data.FileTypeId is null)
+        //            //{ 
+        //            //    var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
+        //            //    contentLibraryEntity.FileTypeId = fileTypeResponse.Body.Id;
+        //            //}
+        //            await contentLibraryRepository.AddAsync(contentLibraryEntity, cancellationToken);
+        //        }
+        //        #endregion
+
+        //        await unitOfWork.SaveChangesAsync(cancellationToken);
+        //        await unitOfWork.CommitTransactionAsync();
+        //        return ProduceSuccessResponse(new ReturnIdResponse { Id = newContent.Id });
         //    }
         //    catch (Exception ex)
         //    {
         //        await unitOfWork.RollBackTransactionAsync();
-        //        return ProduceFailResponse<ReturnIdResponse>("İşlem sırasında bir hata oluştu", 404);
+        //        return ProduceFailResponse<ReturnIdResponse>($"İşlem sırasında bir hata oluştu: {ex.Message}", 500);
         //    }
         //}
 
 
         //public async Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default)
         //{
-        //    //var validationResult = ValidationHelper.RuleBasedValidator<UpdateTrainingContentDto>(data, typeof(IUpdateTrainingContentBusinessRule));
-        //    //if (validationResult is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
-        //    //    return cBasedValidResult.SendResponse<CommonResponse>();
-
-
-
-        //    //var contentLibraryExists = await contentLibraryRepository.ExistsAsync(p => p.FileName == data.ContentLibraryFileName
-        //    //                                                                           && p.TrainingContentId != data.Id);
-        //    //if (contentLibraryExists)
-        //    //    return ProduceFailResponse<CommonResponse>("Bu içerik zaten yüklenmiş!", 404);
-
         //    await unitOfWork.BeginTransactionAsync();
+
         //    try
         //    {
-        //        var existingContent = await contentRepository.GetAsync(predicate: p => p.Id == data.Id);
+        //        #region Eğitim İçeriğini Bulma
+        //        var existingContent = await contentRepository.GetAsync(
+        //            predicate: p => p.Id == data.Id,
+        //            include: c => c.Include(s => s.ContentLibraries)
+        //        );
+
+        //        if (existingContent == null)
+        //        {
+        //            return ProduceFailResponse<CommonResponse>("Güncellenecek içerik bulunamadı.", StatusCodes.Status404NotFound);
+        //        }
+        //        #endregion
+
+        //        #region Dosya Güncelleme ve Kitaplık
+        //        if (data.File != null)
+        //        {
+        //            var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
+        //            if (instructor == null)
+        //                return ProduceFailResponse<CommonResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
+
+        //            string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
+        //            string fileName;
+
+        //            // Dosyayı kaydet
+        //            fileName = $"{data.File.FileName}";
+        //            using var fileStream = data.File.OpenReadStream();
+        //            byte[] fileContent = new byte[data.File.Length];
+        //            await fileStream.ReadAsync(fileContent, cancellationToken);
+        //            var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
+
+        //            string filePath = Path.Combine(directoryPath, fileName);
+        //            if (!fileSaved)
+        //            {
+        //                int counter = 1;
+        //                while (File.Exists(filePath))
+        //                {
+        //                    fileName = $"{fileName}({counter})";
+        //                    counter++;
+        //                }
+        //                //return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
+        //            }
 
 
+        //            var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data.File.FileName));
+        //            if (fileTypeResponse.Body == null)
+        //                return ProduceFailResponse<CommonResponse>("Desteklenmeyen dosya türü.", HrStatusCodes.Status117FileFormatError);
 
+
+        //            var contentLibrary = existingContent.ContentLibraries.FirstOrDefault();
+        //            if (contentLibrary != null)
+        //            {
+        //                contentLibrary.FileName = fileName;
+        //                contentLibrary.FilePath = Path.Combine(directoryPath, fileName);
+        //                contentLibrary.FileTypeId = fileTypeResponse.Body.Id;
+        //                contentLibrary.UpdateUserId = this.GetCurrentUserId();
+        //                contentLibrary.UpdateDate = DateTime.UtcNow;
+        //                contentLibraryRepository.Update(contentLibrary);
+        //            }
+        //            else
+        //            {
+        //                var newContentLibrary = new ContentLibrary
+        //                {
+        //                    FileName = fileName,
+        //                    FilePath = Path.Combine(directoryPath, fileName),
+        //                    FileTypeId = fileTypeResponse.Body.Id,
+        //                    TrainingContentId = data.Id,
+        //                    CreatedDate = DateTime.UtcNow,
+        //                    CreateUserId = this.GetCurrentUserId(),
+        //                    IsActive = true
+        //                };
+        //                await contentLibraryRepository.AddAsync(newContentLibrary, cancellationToken);
+        //            }
+        //        }
+        //        #endregion
+
+        //        #region Eğitim İçeriği Güncelleme
         //        mapper.Map(data, existingContent);
-        //        existingContent.OrderId = data.OrderId;
+        //        existingContent.UpdateDate = DateTime.UtcNow;
+        //        existingContent.UpdateUserId = 15;// this.GetCurrentUserId();
 
         //        contentRepository.Update(existingContent);
-
-        //        var contentLibrary = await contentLibraryRepository.GetAsync(predicate: p => p.Id == data.Id);
-        //        if (contentLibrary is not null)
-        //        {
-        //            contentLibrary.FileName = data.ContentLibraryFileName;
-        //            contentLibrary.FilePath = data.ContentLibraryFilePath;
-        //            await contentLibraryRepository.UpdateAsync(contentLibrary);
-        //        }
+        //        #endregion
 
         //        await unitOfWork.SaveChangesAsync(cancellationToken);
         //        await unitOfWork.CommitTransactionAsync();
 
         //        return ProduceSuccessResponse(new CommonResponse
         //        {
+        //            Message = "Eğitim içeriği başarıyla güncellendi.",
         //            Code = StatusCodes.Status200OK,
-        //            Message = "Success",
         //            Result = true
         //        });
         //    }
         //    catch (Exception ex)
         //    {
         //        await unitOfWork.RollBackTransactionAsync();
-        //        return ProduceFailResponse<CommonResponse>("İşlem sırasında bir hata oluştu!", 500);
+        //        return ProduceFailResponse<CommonResponse>($"Güncelleme işlemi sırasında bir hata oluştu", StatusCodes.Status500InternalServerError);
         //    }
         //}
+        #endregion
+
+
 
         public async Task<Response<CommonResponse>> DeleteTrainingContentAsync(long id, CancellationToken cancellationToken = default)
         {
@@ -331,10 +527,10 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             if (ValidationHelper.RuleBasedValidator<DeleteTrainingContentDto>(contentDto, typeof(IDeleteTrainingContentBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
-            var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id, include: i =>i.Include(p=>p.ContentType));
+            var contentEntity = await contentRepository.GetAsync(predicate: p => p.Id == id, include: i => i.Include(p => p.ContentType));
 
             #region Content Delete
-            if (contentEntity.ContentType.Code == ContentTypeConst.Video)
+            if (contentEntity.ContentType.Code == ContentTypeConst.Lecture)
                 await contentRepository.DeleteAsync(contentEntity);
             else
             {
@@ -377,26 +573,164 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return ProduceFailResponse<CommonResponse>("İşlem sırasında bir hata oluştu!", 500);
             }
         }
-        public async Task<Response<IEnumerable<GetTrainingContentDto>>> GetTrainingContentListAsync()
+        public async Task<Response<IEnumerable<GetListTrainingContentDto>>> GetTrainingContentListAsync()
         {
-            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsDelete != true,
+            var trainingList = await contentRepository.GetListAsync(predicate: p => p.IsDelete != false,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
-                                                                        .Include(s => s.ContentLibraries));
-            var trainingListDto = mapper.Map<IEnumerable<GetTrainingContentDto>>(trainingList);
-            return ProduceSuccessResponse(trainingListDto);
+                                                                        .Include(s => s.ContentLibraries),
+                                                                          selector: s => new GetListTrainingContentDto
+                                                                          {
+                                                                              Id = s.Id,
+                                                                              IsActive = s.IsActive,
+                                                                              Title = s.Title,
+                                                                              Abbreviation = s.Abbreviation,
+                                                                              Code = s.Code,
+                                                                              Description = s.Description,
+                                                                              Time = s.Time,
+                                                                              PageCount = s.PageCount,
+                                                                              CompletedRate = s.CompletedRate,
+
+                                                                              Mandatory = s.Mandatory,
+                                                                              OrderId = s.OrderId,
+                                                                              AllowSeeking = s.AllowSeeking,
+                                                                              PartCount = s.PartCount,
+                                                                              MinReadTimeThreshold = s.MinReadTimeThreshold,
+
+                                                                              TrainingSectionTitle = s.TrainingSection.Title,
+                                                                              TrainingContentAbbreviation = s.TrainingSection.Abbreviation,
+                                                                              TrainingSectionCode = s.TrainingSection.Code,
+                                                                              TrainingSectionDescription = s.TrainingSection.Description,
+
+                                                                              TrainingContentTitle = s.ContentType.Title,
+                                                                              TrainingContentCode = s.ContentType.Code,
+                                                                              TrainingContentDescription = s.ContentType.Description,
+                                                                              TrainingContentLangCode = s.ContentType.LangCode,
+
+                                                                              ContentLibraries = s.ContentLibraries.Select(cl => new GetContentLibraryDto
+                                                                              {
+                                                                                  FileName = cl.FileName,
+                                                                                  FilePath = cl.FilePath,
+                                                                                  Thumbnail = cl.Thumbnail,
+                                                                                  VideoDuration = cl.VideoDuration
+                                                                              }).ToList()
+                                                                          });
+            return ProduceSuccessResponse(trainingList);
 
         }
 
         public async Task<Response<GetTrainingContentDto>> GetTrainingContentAsync(long id)
         {
-            var trainingListDto = await contentRepository.GetAsync(predicate: p => p.IsDelete != true && p.Id == id,
+            var trainingListDto = await contentRepository.GetAsync(predicate: p => p.Id == id,
                                                                         include: i => i.Include(s => s.ContentType)
                                                                         .Include(s => s.TrainingSection)
                                                                         .Include(s => s.ContentLibraries),
-                                                                        selector: s => mapper.Map<GetTrainingContentDto>(s));
+                                                                        selector: s => new GetTrainingContentDto
+                                                                        {
+                                                                            IsActive = s.IsActive,
+                                                                            Title = s.Title,
+                                                                            Abbreviation = s.Abbreviation,
+                                                                            Code = s.Code,
+                                                                            Description = s.Description,
+                                                                            Time = s.Time,
+                                                                            PageCount = s.PageCount,
+                                                                            CompletedRate = s.CompletedRate,
+
+                                                                            Mandatory = s.Mandatory,
+                                                                            OrderId = s.OrderId,
+                                                                            AllowSeeking = s.AllowSeeking,
+                                                                            PartCount = s.PartCount,
+                                                                            MinReadTimeThreshold = s.MinReadTimeThreshold,
+
+                                                                            TrainingSectionTitle = s.TrainingSection.Title,
+                                                                            TrainingContentAbbreviation = s.TrainingSection.Abbreviation,
+                                                                            TrainingSectionCode = s.TrainingSection.Code,
+                                                                            TrainingSectionDescription = s.TrainingSection.Description,
+
+                                                                            TrainingContentTitle = s.ContentType.Title,
+                                                                            TrainingContentCode = s.ContentType.Code,
+                                                                            TrainingContentDescription = s.ContentType.Description,
+                                                                            TrainingContentLangCode = s.ContentType.LangCode,
+                                                                            ContentLibraryFileName = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).FileName,
+                                                                            ContentLibraryFilePath = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).FilePath,
+                                                                            ContentLibraryThumbnail = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).Thumbnail,
+                                                                            ContentLibraryVideoDuration = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).VideoDuration
+                                                                        });
             return ProduceSuccessResponse(trainingListDto);
 
+        }
+
+        private void GenerateThumbnail(string videoPath, string outputImagePath, int second = 5)
+        {
+            string ffmpegPath = @"C:\ffmpeg\bin\ffmpeg.exe"; // FFmpeg yolu
+
+            if (!File.Exists(ffmpegPath))
+            {
+                return;
+            }
+
+            // **Eğer thumbnail dosyası zaten varsa, sil
+            if (File.Exists(outputImagePath))
+            {
+                try
+                {
+                    File.Delete(outputImagePath);
+                }
+                catch (Exception ex)
+                {
+                    return;
+                }
+            }
+
+            ProcessStartInfo processInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = $"-i \"{videoPath}\" -ss {second} -vframes 1 \"{outputImagePath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = processInfo })
+            {
+                process.Start();
+            }
+        }
+        private async Task<TimeSpan?> GetVideoDurationAsync(string videoPath)
+        {
+
+            string ffmpegPath = @"C:\ffmpeg\bin\ffmpeg.exe";
+
+            ProcessStartInfo processInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+                Arguments = $"-i \"{videoPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = processInfo })
+            {
+                process.Start();
+                string output = await process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+
+                //Regex ile Süre bul
+                var match = System.Text.RegularExpressions.Regex.Match(output, @"Duration: (\d+):(\d+):(\d+.\d+)");
+                if (match.Success)
+                {
+                    int hours = int.Parse(match.Groups[1].Value);
+                    int minutes = int.Parse(match.Groups[2].Value);
+                    double seconds = double.Parse(match.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture);
+
+                    return new TimeSpan(0, hours, minutes, (int)seconds);
+                }
+
+                return null;
+            }
         }
     }
 }

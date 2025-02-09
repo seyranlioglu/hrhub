@@ -2,7 +2,7 @@
 {
     public static class ContentTypeConst
     {
-        public const string Video = "01";
-        public const string Document = "02";
+        public const string Lecture = "lec";
+        public const string Exam = "exm";
     }
 }

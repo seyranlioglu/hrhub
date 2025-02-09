@@ -33,6 +33,12 @@
         public string? SubTitle { get; set; }
         public string? Labels { get; set; }
         public string? CourseImage { get; set; }
+        public List<ContentOrderIds?> ContentOrderIds { get; set; } = new();
+    }
 
+    public class ContentOrderIds
+    {
+        public long? ContentId { get; set; }
+        public int? OrderId { get; set; }
     }
 }

@@ -115,6 +115,15 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Confirm User Not Exist.
+        /// </summary>
+        internal static string ConfirmUserNotExistsError {
+            get {
+                return ResourceManager.GetString("ConfirmUserNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ContentCommen Exists.
         /// </summary>
         internal static string ContentCommenAlreadyExists {
@@ -138,6 +147,15 @@ namespace HrHub.Abstraction.Properties {
         internal static string ContentCommentNotFoundError {
             get {
                 return ResourceManager.GetString("ContentCommentNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CurrAcc Not Exist.
+        /// </summary>
+        internal static string CurrAccNotExistsError {
+            get {
+                return ResourceManager.GetString("CurrAccNotExistsError", resourceCulture);
             }
         }
         
@@ -313,6 +331,15 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Training Already Assigned.
+        /// </summary>
+        internal static string TrainingAlreadyAssignedError {
+            get {
+                return ResourceManager.GetString("TrainingAlreadyAssignedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TrainingContent Not Found.
         /// </summary>
         internal static string TrainingContentNotExistsError {
@@ -381,6 +408,15 @@ namespace HrHub.Abstraction.Properties {
         internal static string TrainingSectionNotExistsError {
             get {
                 return ResourceManager.GetString("TrainingSectionNotExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TrainingStatus Not Exist.
+        /// </summary>
+        internal static string TrainingStatusNotExistsError {
+            get {
+                return ResourceManager.GetString("TrainingStatusNotExistsError", resourceCulture);
             }
         }
         
