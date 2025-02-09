@@ -145,8 +145,6 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             long userId = GetCurrentUserId();
             ExpressionStarter<Exam> predicateBuilder = PredicateBuilder.New<Exam>();
 
-            if (filter.TrainingId is not null)
-                predicateBuilder = predicateBuilder.And(w => w.TrainingId == filter.TrainingId);
             if (filter.IsActive is not null)
                 predicateBuilder = predicateBuilder.And(w => w.IsActive == filter.IsActive);
 
