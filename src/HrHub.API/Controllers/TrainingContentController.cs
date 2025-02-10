@@ -14,6 +14,8 @@ namespace HrHub.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequestSizeLimit(5L * 1024 * 1024 * 1024)] // Video boyutu için 5gb olacak şekilde ayarlandı*** 
+
     public class TrainingContentController : ControllerBase
     {
         private readonly ITrainingContentManager trainingContentManager;
@@ -22,7 +24,6 @@ namespace HrHub.API.Controllers
         {
             this.trainingContentManager = trainingContentManager;
         }
-
         [HttpPost("[Action]")]
         public async Task<Response<ReturnIdResponse>> AddTrainingContent([FromForm] AddTrainingContentDto data)
         {

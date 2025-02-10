@@ -277,7 +277,9 @@ namespace HrHub.Application.Mappers
                             TrainingContentLibraryFileName = src.ContentLibraries.FirstOrDefault().FileName,
                             TrainingContentLibraryFilePath = src.ContentLibraries.FirstOrDefault().FilePath,
                             TrainingContentLibraryThumbnail = src.ContentLibraries.FirstOrDefault().Thumbnail,
-                            TrainingContentLibraryVideoDuration = src.ContentLibraries.FirstOrDefault().VideoDuration
+                            TrainingContentLibraryVideoDuration = src.ContentLibraries.FirstOrDefault().VideoDuration,
+                            TrainingContentLibraryDocumentFileSize = src.ContentLibraries.FirstOrDefault().DocumentFileSize,
+                            TrainingContentLibraryDocumentPageCount = src.ContentLibraries.FirstOrDefault().DocumentPageCount
                         }
                         : null));
         }

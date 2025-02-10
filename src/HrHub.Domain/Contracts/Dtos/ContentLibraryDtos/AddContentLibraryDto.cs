@@ -21,5 +21,7 @@
         public string? Description { get; set; }
         public string Thumbnail { get; set; }
         public TimeSpan? VideoDuration { get; set; }
+        public int? DocumentPageCount { get; set; }
+        public double? DocumentFileSize { get; set; }
     }
 }

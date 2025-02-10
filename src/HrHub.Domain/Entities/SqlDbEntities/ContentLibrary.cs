@@ -11,6 +11,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long? TrainingContentId { get; set; }
         public string? Thumbnail { get; set; }
         public TimeSpan? VideoDuration { get; set; }
+        public int? DocumentPageCount { get; set; } //PDF için sayfa sayısı
+        public double? DocumentFileSize { get; set; } //PDF için dosya boyutu
 
         [ForeignKey("TrainingContentId")]
         public virtual TrainingContent TrainingContent { get; set; }

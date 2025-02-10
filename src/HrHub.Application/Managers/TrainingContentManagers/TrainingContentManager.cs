@@ -26,7 +26,8 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing;
 using HrHub.Abstraction.Settings;
-
+using System.IO;
+using UglyToad.PdfPig;
 namespace HrHub.Application.Managers.TrainingContentManagers
 {
     [LifeCycle(Abstraction.Enums.LifeCycleTypes.Scoped)]
@@ -60,19 +61,18 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         {
             var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
 
-            var trainingId = await trainingSectionRepository.GetAsync(predicate: t => t.Id == data.TrainingSectionId, selector : s => s.TrainingId);                 
+            var trainingId = await trainingSectionRepository.GetAsync(predicate: t => t.Id == data.TrainingSectionId, selector: s => s.TrainingId);
             var maxRowNum = await contentRepository.MaxAsync(
                 predicate: c => c.TrainingSection.TrainingId == trainingId && c.ContentTypeId == data.ContentTypeId,
                 selector: s => s.OrderId
             );
-
 
             await unitOfWork.BeginTransactionAsync();
 
             try
             {
                 #region InstructorCodeWithDirectory
-                var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
+                var instructor = await instructorRepository.GetAsync(i => i.UserId == 15);// this.GetCurrentUserId());
                 if (instructor == null)
                     return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
@@ -111,20 +111,28 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     using var fileStream = data.File.OpenReadStream();
                     byte[] fileContent = new byte[data.File.Length];
                     await fileStream.ReadAsync(fileContent, cancellationToken);
-
                     await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
-
 
                     // **Thumbnail oluşturma işlemi**
                     string thumbnailFileName = $"{sanitizedFileName}.jpg";
-                    string thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
+                    string thumbnailFilePath = null;
+                    TimeSpan? videoDuration = null;
 
+                    int? pageCount = null;
+                    double? fileSize = null;
                     if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
+                        videoDuration = await GetVideoDurationAsync(filePath);
+                        thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
                         GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // 5. saniyeden kare al
                     }
+                    else if (extension == ".pdf")
+                    {
+                        var pdfDetails = await GetPdfDetailsAsync(filePath); // **PDF bilgileri**
+                        pageCount = pdfDetails.PageCount;
+                        fileSize = pdfDetails.FileSize;
+                    }
 
-                    var videoDuration = await GetVideoDurationAsync(filePath);
 
                     // **ContentLibrary Add**
                     var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
@@ -139,8 +147,10 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         TrainingContentId = null, // Şimdilik null, aşağıda güncellenecek
                         Thumbnail = thumbnailFilePath, // Thumbnail dosya yolu
                         CreatedDate = DateTime.UtcNow,
-                        CreateUserId = this.GetCurrentUserId(),
-                        IsActive = true
+                        CreateUserId = 15,// this.GetCurrentUserId(),
+                        IsActive = true,
+                        DocumentFileSize = fileSize,
+                        DocumentPageCount = pageCount
                     };
                 }
                 #endregion
@@ -612,7 +622,9 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                                                                                   FileName = cl.FileName,
                                                                                   FilePath = cl.FilePath,
                                                                                   Thumbnail = cl.Thumbnail,
-                                                                                  VideoDuration = cl.VideoDuration
+                                                                                  VideoDuration = cl.VideoDuration,
+                                                                                  DocumentFileSize = cl.DocumentFileSize,
+                                                                                  DocumentPageCount = cl.DocumentPageCount
                                                                               }).ToList()
                                                                           });
             return ProduceSuccessResponse(trainingList);
@@ -654,7 +666,9 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                                                                             ContentLibraryFileName = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).FileName,
                                                                             ContentLibraryFilePath = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).FilePath,
                                                                             ContentLibraryThumbnail = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).Thumbnail,
-                                                                            ContentLibraryVideoDuration = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).VideoDuration
+                                                                            ContentLibraryVideoDuration = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).VideoDuration,
+                                                                            DocumentFileSize = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).DocumentFileSize,
+                                                                            DocumentPageCount = s.ContentLibraries.FirstOrDefault(d => d.TrainingContentId == id).DocumentPageCount
                                                                         });
             return ProduceSuccessResponse(trainingListDto);
 
@@ -732,5 +746,27 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return null;
             }
         }
+        public async Task<(int PageCount, double FileSize)> GetPdfDetailsAsync(string pdfPath)
+        {
+            try
+            {
+                using (PdfDocument pdfDoc = PdfDocument.Open(pdfPath))
+                {
+                    int pageCount = pdfDoc.NumberOfPages;
+                    long fileSizeBytes = new FileInfo(pdfPath).Length; // **Dosya Boyutunu Byte Olarak Al**
+
+                    double fileSizeMB = Math.Round(fileSizeBytes / (1024.0 * 1024.0), 2);
+
+                    return (pageCount, fileSizeMB);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PDF Bilgileri Okunamadı: {ex.Message}");
+                return (0, 0);
+            }
+        }
+
     }
 }

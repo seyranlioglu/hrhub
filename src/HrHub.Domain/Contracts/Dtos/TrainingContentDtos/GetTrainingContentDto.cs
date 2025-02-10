@@ -44,7 +44,8 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
         public string? ContentLibraryFileName { get; set; }
         public string? ContentLibraryThumbnail { get; set; }
         public TimeSpan? ContentLibraryVideoDuration { get; set; }
-
+        public int? DocumentPageCount { get; set; }
+        public double? DocumentFileSize { get; set; }
 
     }
 }

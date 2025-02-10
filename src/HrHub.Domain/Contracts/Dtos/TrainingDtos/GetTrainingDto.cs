@@ -140,5 +140,7 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         public string? TrainingContentLibraryFilePath { get; set; }
         public string? TrainingContentLibraryThumbnail { get; set; }
         public TimeSpan? TrainingContentLibraryVideoDuration { get; set; }
+        public int? TrainingContentLibraryDocumentPageCount { get; set; }
+        public double? TrainingContentLibraryDocumentFileSize { get; set; }
     }
 }
