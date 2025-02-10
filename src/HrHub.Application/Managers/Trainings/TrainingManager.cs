@@ -95,10 +95,10 @@ public class TrainingManager : ManagerBase, ITrainingManager
                 {
                     content.OrderId = newOrder.OrderId;
                     content.UpdateDate = DateTime.UtcNow;
-                    content.UpdateUserId = this.GetCurrentUserId();
+                    content.UpdateUserId = 15;// this.GetCurrentUserId();
                 }
             });
-            await trainingContentRepository.UpdateListAsync(contents.ToList());
+            trainingContentRepository.UpdateList(contents.ToList());
         }
         await hrUnitOfWork.SaveChangesAsync(cancellationToken);
 
