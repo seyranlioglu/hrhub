@@ -7,6 +7,7 @@ using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.TrainingBusinessRules;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
+using HrHub.Core.Data.UnitOfWork;
 using HrHub.Core.Helpers;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
@@ -65,10 +66,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         {
             Id = result.Id
         });
-
-
     }
-
     public async Task<Response<CommonResponse>> UpdateTrainingAsync(UpdateTrainingDto dto, CancellationToken cancellationToken = default)
     {
         var training = await trainingRepository.GetAsync(predicate: t => t.Id == dto.Id);
@@ -83,23 +81,29 @@ public class TrainingManager : ManagerBase, ITrainingManager
             trainingRepository.Update(mapperData);
         }
 
-        var contentIds = dto.ContentOrderIds.Select(c => c.ContentId).ToList();
-        var contents = await trainingContentRepository.GetListAsync(c => contentIds.Contains(c.Id));
-
-        if (contents.Any())
+        #region **TrainingContent_Section Update
+        if (dto.ContentOrderIds != null && dto.ContentOrderIds.Any())
         {
-            contents.ForEach(content =>
+            foreach (var section in dto.ContentOrderIds)
             {
-                var newOrder = dto.ContentOrderIds.Find(o => o.ContentId == content.Id);
-                if (newOrder is not null)
+                var sectionContents = await trainingContentRepository.GetListAsync(c => c.TrainingSectionId == section.SectionId);
+                int newOrder = 1;
+
+                foreach (var content in section.Contents)
                 {
-                    content.OrderId = newOrder.OrderId;
-                    content.UpdateDate = DateTime.UtcNow;
-                    content.UpdateUserId = 15;// this.GetCurrentUserId();
+                    var existingContent = sectionContents.FirstOrDefault(c => c.Id == content.ContentId);
+                    if (existingContent != null)
+                    {
+                        existingContent.OrderId = newOrder++;
+                        existingContent.UpdateDate = DateTime.UtcNow;
+                        existingContent.UpdateUserId = this.GetCurrentUserId();
+                    }
                 }
-            });
-            trainingContentRepository.UpdateList(contents.ToList());
+                trainingContentRepository.UpdateList(sectionContents.ToList());
+
+            }
         }
+        #endregion
         await hrUnitOfWork.SaveChangesAsync(cancellationToken);
 
         return ProduceSuccessResponse(new CommonResponse
@@ -119,7 +123,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         var trainingEntity = await trainingRepository.GetAsync(predicate: p => p.Id == id);
         trainingEntity.IsDelete = true;
         trainingEntity.DeleteDate = DateTime.UtcNow;
-        //trainingEntity.DeleteUserId = this.GetCurrentUserId();
+        trainingEntity.DeleteUserId = this.GetCurrentUserId();
 
         trainingRepository.Update(trainingEntity);
         await hrUnitOfWork.SaveChangesAsync(cancellationToken);

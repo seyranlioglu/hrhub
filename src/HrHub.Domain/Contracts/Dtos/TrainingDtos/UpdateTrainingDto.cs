@@ -33,12 +33,17 @@
         public string? SubTitle { get; set; }
         public string? Labels { get; set; }
         public string? CourseImage { get; set; }
-        public List<ContentOrderIds?> ContentOrderIds { get; set; } = new();
+        public List<ContentDto?> ContentOrderIds { get; set; } = new();
     }
 
-    public class ContentOrderIds
+    public class ContentDto
     {
-        public long? ContentId { get; set; }
-        public int? OrderId { get; set; }
+        public long SectionId { get; set; } 
+        public List<ContentOrderDto> Contents { get; set; } = new(); 
+    }
+
+    public class ContentOrderDto
+    {
+        public long ContentId { get; set; }
     }
 }

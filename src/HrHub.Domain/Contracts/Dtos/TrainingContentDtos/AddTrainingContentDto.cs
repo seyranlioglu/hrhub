@@ -15,7 +15,7 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
         public TimeSpan? Time { get; set; }
         public int? PageCount { get; set; }
         public decimal? CompletedRate { get; set; }
-        public string? FilePath { get; set; }
+        //public string? FilePath { get; set; }
         public bool? Mandatory { get; set; }
         public long? OrderId { get; set; }
         public bool? AllowSeeking { get; set; }

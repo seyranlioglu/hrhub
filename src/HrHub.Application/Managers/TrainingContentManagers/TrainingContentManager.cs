@@ -4,6 +4,7 @@ using HrHub.Abstraction.Attributes;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
+using HrHub.Abstraction.Settings;
 using HrHub.Abstraction.StatusCodes;
 using HrHub.Application.BusinessRules.TrainingContentBusinessRules;
 using HrHub.Application.Helpers;
@@ -19,14 +20,7 @@ using HrHub.Infrastructre.UnitOfWorks;
 using LinqKit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1.X509;
-using SharpCompress.Common;
 using System.Diagnostics;
-using System.Drawing.Imaging;
-using System.Drawing;
-using HrHub.Abstraction.Settings;
-using System.IO;
 using UglyToad.PdfPig;
 namespace HrHub.Application.Managers.TrainingContentManagers
 {
@@ -72,11 +66,11 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             try
             {
                 #region InstructorCodeWithDirectory
-                var instructor = await instructorRepository.GetAsync(i => i.UserId == 15);// this.GetCurrentUserId());
+                var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
                 if (instructor == null)
                     return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
 
-                string directoryPath = Path.Combine("Uploads", "15");//instructor.InstructorCode);
+                string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
                 string thumbnailDirectoryPath = Path.Combine(directoryPath, "Thumbnails");
 
                 // Klasörleri oluştur
@@ -99,7 +93,6 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     fileName = $"{sanitizedFileName}{extension}";
                     string filePath = Path.Combine(directoryPath, fileName);
 
-                    // Eğer aynı isimde bir dosya varsa "(1)", "(2)" ekleyerek benzersiz hale getir
                     int counter = 1;
                     while (File.Exists(filePath))
                     {
@@ -147,7 +140,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         TrainingContentId = null, // Şimdilik null, aşağıda güncellenecek
                         Thumbnail = thumbnailFilePath, // Thumbnail dosya yolu
                         CreatedDate = DateTime.UtcNow,
-                        CreateUserId = 15,// this.GetCurrentUserId(),
+                        CreateUserId = this.GetCurrentUserId(),
                         IsActive = true,
                         DocumentFileSize = fileSize,
                         DocumentPageCount = pageCount
