@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.ExamDtos
 {
-    public class CalculateExamResultDto
+    public class GetExamDetailDto
     {
-        public long UserExamId { get; set; }
+        public long ExamId { get; set; }
     }
 }

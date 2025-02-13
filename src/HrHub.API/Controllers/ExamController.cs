@@ -22,6 +22,7 @@ namespace HrHub.API.Controllers
             this.examManager = examManager;
         }
         [HttpPost("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructor")]
         public async Task<Response<AddExamResponse>> AddExam([FromBody] AddExamDto data)
         {
             var response = await examManager.AddExamAsync(data).ConfigureAwait(false);
@@ -29,7 +30,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        [Authorize(Roles = "Admin", Policy = "Instructor")]
         public async Task<Response<ReturnIdResponse>> AddExamTopic([FromBody] AddExamTopicDto data)
         {
             var response = await examManager.AddExamTopicAsync(data).ConfigureAwait(false);
@@ -37,7 +38,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        [Authorize(Roles = "Admin", Policy = "Instructor")]
         public async Task<Response<ReturnIdResponse>> AddExamQuestionAsync(AddExamQuestionDto data)
         {
             var response = await examManager.AddExamQuestionAsync(data).ConfigureAwait(false);
@@ -45,10 +46,17 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
-        public async Task<Response<List<GetExamListResponse>>> GetExamListForGridAsync(GetExamListDto filter)
+        //[Authorize(Roles = "Admin", Policy = "Instructor")]
+        public async Task<Response<List<GetExamListResponse>>> GetExamDetail(GetExamDetailDto filter)
         {
-            var response = await examManager.GetExamListForGridAsync(filter).ConfigureAwait(false);
+            var response = await examManager.GetExamDetail(filter).ConfigureAwait(false);
+            return response;
+        }
+
+        [HttpPost("[Action]")]
+        public async Task<Response<GetExamListForLookupResponse>> GetExamListForLookup(GetExamListDto filter)
+        {
+            var response = await examManager.GetExamListForLookup(filter).ConfigureAwait(false);
             return response;
         }
 
@@ -61,7 +69,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        [Authorize(Roles = "Admin", Policy = "Instructor")]
         public async Task<Response<CommonResponse>> UpdateExamInfoAsync(UpdateExamDto updateData)
         {
             var response = await examManager.UpdateExamInfoAsync(updateData).ConfigureAwait(false);
@@ -69,7 +77,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        [Authorize(Roles = "Admin", Policy = "Instructor")]
         public async Task<Response<CommonResponse>> UpdateTopicInfoAsync(UpdateExamTopicDto updateData)
         {
             var response = await examManager.UpdateTopicInfoAsync(updateData).ConfigureAwait(false);
@@ -85,7 +93,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        [Authorize(Roles = "Admin", Policy = "Instructor")]
         public async Task<Response<CommonResponse>> UpdateQuestionAsync(UpdateExamQuestionDto updateData)
         {
             var response = await examManager.UpdateQuestionAsync(updateData).ConfigureAwait(false);
@@ -100,13 +108,13 @@ namespace HrHub.API.Controllers
             return response;
         }
 
-        //[HttpPut("[Action]")]
-        //[Authorize(Roles = "Admin", Policy = "Instructior")]
-        //public async Task<Response<CommonResponse>> PublishVersionAsync(PublishExamVersionDto data)
-        //{
-        //    var response = await examManager.PublishExamVersionAsync(data).ConfigureAwait(false);
-        //    return response;
-        //}
+        [HttpPut("[Action]")]
+        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        public async Task<Response<PublishExamVersionResponse>> PublishVersionAsync(PublishExamVersionDto data)
+        {
+            var response = await examManager.PublishExamVersionAsync(data).ConfigureAwait(false);
+            return response;
+        }
 
         //[HttpPut("[Action]")]
         //[Authorize(Roles = "User")]
