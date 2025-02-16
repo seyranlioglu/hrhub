@@ -8,6 +8,7 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
 {
     public class GetExamListResponse
     {
+        public long Id { get; set; }
         public string Title { get; set; }
         public string TrainingTitle { get; set; }
         /// <summary>
@@ -18,7 +19,7 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
         public decimal? PassingScore { get; set; }
         public int? TotalQuestionCount { get; set; }
         public string ExamStatus { get; set; }
-        public List<GetExamVersionListResponse> Versions { get; set; } = null;
+        public GetExamVersionListResponse ActiveVersions { get; set; } = null;
 
     }
 }

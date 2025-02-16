@@ -12,6 +12,7 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
         public int QuestionCount { get; set; }
         public string Title { get; set; }
         public string ImgPath { get; set; }
+        public int SeqNumber { get; set; }
         public List<GetQuestionResponse> Questions { get; set; }
     }
 }

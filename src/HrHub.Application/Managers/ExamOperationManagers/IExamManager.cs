@@ -14,7 +14,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         Task<Response<AddExamVersionReponse>> AddNewVersionAsync(AddNewVersionDto versionData, CancellationToken cancellationToken = default);
         //Task<Response<CalculateExamResultResponse>> CalculateUserExamResultAsync(long userExamId, CancellationToken cancellationToken = default);
         Task<Response<GetExamResponse>> GetExamByIdWithStudentAsync(GetExamDto filter, CancellationToken cancellationToken = default);
-        Task<Response<List<GetExamListResponse>>> GetExamDetail(GetExamDetailDto filter, CancellationToken cancellationToken = default);
+        Task<Response<GetExamListResponse>> GetExamDetail(GetExamDetailDto filter, CancellationToken cancellationToken = default);
         Task<Response<GetExamListForLookupResponse>> GetExamListForLookup(GetExamListDto filter, CancellationToken cancellationToken = default);
         Task<Response<GetNextQuestionResponse>> GetNextQuestionAsync(GetNextQuestionDto filter, CancellationToken cancellationToken = default);
         Task<Response<GetExamInstructionResponse>> PrePrepareExamForStudentAsync(GetExamDto filter, CancellationToken cancellationToken = default);

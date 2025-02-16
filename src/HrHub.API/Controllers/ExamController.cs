@@ -47,7 +47,7 @@ namespace HrHub.API.Controllers
 
         [HttpPost("[Action]")]
         //[Authorize(Roles = "Admin", Policy = "Instructor")]
-        public async Task<Response<List<GetExamListResponse>>> GetExamDetail(GetExamDetailDto filter)
+        public async Task<Response<GetExamListResponse>> GetExamDetail(GetExamDetailDto filter)
         {
             var response = await examManager.GetExamDetail(filter).ConfigureAwait(false);
             return response;

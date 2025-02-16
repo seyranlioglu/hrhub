@@ -15,6 +15,8 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
         public decimal? SuccessRate { get; set; }
         public decimal? PassingScore { get; set; }
         public int? TotalQuestionCount { get; set; }
-
+        public bool IsPublished { get; set; }
+        public bool IsActive { get; set; }
+        public List<GetExamTopicResponse> Topics { get; set; }
     }
 }

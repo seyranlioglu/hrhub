@@ -10,6 +10,7 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
     {
         public long Id { get; set; }
         public string QuestionText { get; set; }
+        public decimal Score { get; set; }
         public List<GetQuestionOptionsResponse> Options { get; set; }
     }
 }

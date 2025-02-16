@@ -192,7 +192,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         }
 
         // TODO Şükrü: Parametreler için TrainingList ve ContentList merthodları yazılmalı 
-        public async Task<Response<List<GetExamListResponse>>> GetExamDetail(GetExamDetailDto filter, CancellationToken cancellationToken = default)
+        public async Task<Response<GetExamListResponse>> GetExamDetail(GetExamDetailDto filter, CancellationToken cancellationToken = default)
         {
             long userId = GetCurrentUserId();
             ExpressionStarter<Exam> predicateBuilder = PredicateBuilder.New<Exam>(w => w.Id == filter.ExamId);
@@ -241,20 +241,45 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                         Title = exam.Title,
                         TotalQuestionCount = publishedVersion?.TotalQuestionCount,
                         TrainingTitle = exam.Training.Title,
-                        Versions = exam.ExamVersions.Select(vers => new GetExamVersionListResponse
+                        ActiveVersions = new GetExamVersionListResponse
                         {
-                            ExamId = vers.ExamId,
-                            ExamTimeInMin = vers.ExamTime?.TotalMinutes,
-                            PassingScore = vers.PassingScore,
-                            SuccessRate = vers.SuccessRate,
-                            TotalQuestionCount = vers.TotalQuestionCount,
-                            VersionId = vers.Id,
-                            VersionNo = vers.VersionNumber
-                        }).ToList()
+                            ExamId = publishedVersion.ExamId,
+                            ExamTimeInMin = publishedVersion.ExamTime?.TotalMinutes,
+                            PassingScore = publishedVersion.PassingScore,
+                            SuccessRate = publishedVersion.SuccessRate,
+                            TotalQuestionCount = publishedVersion.TotalQuestionCount,
+                            VersionId = publishedVersion.Id,
+                            VersionNo = publishedVersion.VersionNumber,
+                            IsActive = publishedVersion.IsActive,
+                            IsPublished = publishedVersion.IsPublished,
+                            Topics = publishedVersion.ExamTopics
+                            .Select(s => new GetExamTopicResponse
+                            {
+                                Id = s.Id,
+                                ImgPath = s.ImgPath,
+                                QuestionCount = s.QuestionCount ?? s.ExamQuestions.Count,
+                                SeqNumber = s.SeqNumber,
+                                Title = s.Title,
+                                Questions = s.ExamQuestions
+                                .Select(q => new GetQuestionResponse
+                                {
+                                    Id = q.Id,
+                                    Score = q.Score,
+                                    QuestionText = q.QuestionText,
+                                    Options = q.QuestionOptions
+                                    .Select(o => new GetQuestionOptionsResponse
+                                    {
+                                        Id = o.Id,
+                                        IsCorrect = o.IsCorrect,
+                                        OptionText = o.OptionText
+                                    }).ToList()
+                                }).ToList()
+                            }).ToList()
+                        }
                     };
                 });
 
-            return ProduceSuccessResponse(examList.ToList());
+            return ProduceSuccessResponse(examList.FirstOrDefault());
         }
 
         public async Task<Response<AddExamVersionReponse>> AddNewVersionAsync(AddNewVersionDto versionData, CancellationToken cancellationToken = default)
