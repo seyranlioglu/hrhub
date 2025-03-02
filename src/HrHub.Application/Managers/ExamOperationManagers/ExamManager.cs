@@ -220,6 +220,9 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 .ThenInclude(w => w.CurrAcc)
                 .Include(w => w.TrainingContents)
                 .Include(w => w.ExamVersions)
+                .ThenInclude(w => w.ExamTopics)
+                .ThenInclude(w => w.ExamQuestions)
+                .ThenInclude(w => w.QuestionOptions)
                 .Include(w => w.ExamStatus)
                 .Include(w => w.Training));
 
