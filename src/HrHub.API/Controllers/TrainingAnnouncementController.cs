@@ -20,7 +20,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPost("[Action]")]
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}" , Policy = Policies.Instructor)]
         public async Task<Response<CommonResponse>> AddTrainingAnnouncement([FromBody] AddTrainingAnnouncementDto data)
         {
             var response = await trainingAnnouncementManager.AddTrainingAnnouncementAsync(data).ConfigureAwait(false);
@@ -28,7 +28,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpPut("[Action]")]
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
         public async Task<Response<CommonResponse>> UpdateTrainingAnnouncement([FromBody] UpdateTrainingAnnouncementDto data)
         {
             var response = await trainingAnnouncementManager.UpdateTrainingAnnouncementAsync(data).ConfigureAwait(false);
@@ -36,7 +36,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpDelete("[Action]")]
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)]
         public async Task<Response<CommonResponse>> DeleteTrainingAnnouncement([FromBody] long id)
         {
             var response = await trainingAnnouncementManager.DeleteTrainingAnnouncementAsync(id).ConfigureAwait(false);
