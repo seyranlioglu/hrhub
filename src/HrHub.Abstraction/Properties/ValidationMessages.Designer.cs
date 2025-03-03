@@ -340,6 +340,60 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Training Announcement Comment Already  Exists .
+        /// </summary>
+        internal static string TrainingAnnouncementCommentExistsError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementCommentExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Announcement Comment Not Found.
+        /// </summary>
+        internal static string TrainingAnnouncementCommentNotFoundError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementCommentNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not a Training User.
+        /// </summary>
+        internal static string TrainingAnnouncementCommentNotTrainingUserError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementCommentNotTrainingUserError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Announcement Already  Exists .
+        /// </summary>
+        internal static string TrainingAnnouncementExistsError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Announcement Not Found.
+        /// </summary>
+        internal static string TrainingAnnouncementNotFoundError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not A Training User.
+        /// </summary>
+        internal static string TrainingAnnouncementNotTrainingUserError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementNotTrainingUserError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TrainingContent Not Found.
         /// </summary>
         internal static string TrainingContentNotExistsError {
