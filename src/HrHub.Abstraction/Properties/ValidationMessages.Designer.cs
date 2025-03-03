@@ -340,7 +340,34 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Training Announcement Exists .
+        ///   Looks up a localized string similar to Training Announcement Comment Already  Exists .
+        /// </summary>
+        internal static string TrainingAnnouncementCommentExistsError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementCommentExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Announcement Comment Not Found.
+        /// </summary>
+        internal static string TrainingAnnouncementCommentNotFoundError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementCommentNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not a Training User.
+        /// </summary>
+        internal static string TrainingAnnouncementCommentNotTrainingUserError {
+            get {
+                return ResourceManager.GetString("TrainingAnnouncementCommentNotTrainingUserError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Training Announcement Already  Exists .
         /// </summary>
         internal static string TrainingAnnouncementExistsError {
             get {

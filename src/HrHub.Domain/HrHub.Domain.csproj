@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Contracts\Dtos\CommentVoteDtos\" />
+    <Folder Include="Contracts\Dtos\TrainingAnnouncementCommentDtos\" />
     <Folder Include="Contracts\Dtos\TrainingAnnouncementDtos\" />
     <Folder Include="Contracts\ViewModels\" />
     <Folder Include="Entities\NoSqlEntities\" />
