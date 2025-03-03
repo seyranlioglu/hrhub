@@ -61,6 +61,12 @@ namespace HrHub.Abstraction.Consts
         public static string ConfirmUserNotExistsError => Properties.ValidationMessages.ConfirmUserNotExistsError;
         public static string TrainingAlreadyAssignedError => Properties.ValidationMessages.TrainingAlreadyAssignedError;
 
+
+        public static string TrainingAnnouncementNotFoundError => Properties.ValidationMessages.TrainingAnnouncementNotFoundError; 
+        public static string TrainingAnnouncementExistsError => Properties.ValidationMessages.TrainingAnnouncementExistsError;
+        public static string TrainingAnnouncementNotTrainingUserError => Properties.ValidationMessages.TrainingAnnouncementNotTrainingUserError;
+
         
+
     }
 }
