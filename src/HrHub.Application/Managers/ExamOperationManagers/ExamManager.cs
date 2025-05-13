@@ -237,6 +237,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 
                     return new GetExamListResponse
                     {
+                        Id = exam.Id,
                         ExamStatus = exam.ExamStatus.Title,
                         ExamTimeInMin = publishedVersion?.ExamTime?.TotalMinutes,
                         PassingScore = publishedVersion?.PassingScore,
