@@ -252,4 +252,22 @@
   <data name="TrainingAlreadyAssignedError" xml:space="preserve">
     <value>Training Already Assigned</value>
   </data>
+  <data name="TrainingAnnouncementExistsError" xml:space="preserve">
+    <value>Training Announcement Already  Exists </value>
+  </data>
+  <data name="TrainingAnnouncementNotFoundError" xml:space="preserve">
+    <value>Training Announcement Not Found</value>
+  </data>
+  <data name="TrainingAnnouncementNotTrainingUserError" xml:space="preserve">
+    <value>Not A Training User</value>
+  </data>
+  <data name="TrainingAnnouncementCommentExistsError" xml:space="preserve">
+    <value>Training Announcement Comment Already  Exists </value>
+  </data>
+  <data name="TrainingAnnouncementCommentNotFoundError" xml:space="preserve">
+    <value>Training Announcement Comment Not Found</value>
+  </data>
+  <data name="TrainingAnnouncementCommentNotTrainingUserError" xml:space="preserve">
+    <value>Not a Training User</value>
+  </data>
 </root>
