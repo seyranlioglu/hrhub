@@ -81,6 +81,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
 
                 string fileName;
                 AddContentLibraryDto contentLibraryData = new();
+                int? calculatedPartCount = null;
 
                 if (data.File != null)
                 {
@@ -110,14 +111,21 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     string thumbnailFileName = $"{sanitizedFileName}.jpg";
                     string thumbnailFilePath = null;
                     TimeSpan? videoDuration = null;
-
                     int? pageCount = null;
                     double? fileSize = null;
+
                     if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
                         videoDuration = await GetVideoDurationAsync(filePath);
                         thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
                         GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // 5. saniyeden kare al
+                        
+                        if (videoDuration.HasValue)
+                        {
+                            int secondsPerPart = 15 * 60; // 15 dakika
+                            var totalSeconds = videoDuration.Value.TotalSeconds;
+                            calculatedPartCount = (int)Math.Ceiling(totalSeconds / secondsPerPart);
+                        }
                     }
                     else if (extension == ".pdf")
                     {
@@ -151,6 +159,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 #region AddTrainingContent
                 var newContent = mapper.Map<TrainingContent>(data);
                 newContent.OrderId = maxRowNum.HasValue ? maxRowNum.Value + 1 : 1;
+                newContent.PartCount = calculatedPartCount ?? 1;
 
                 var result = await contentRepository.AddAndReturnAsync(newContent, cancellationToken);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -186,6 +195,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return ProduceFailResponse<ReturnIdResponse>($"İşlem sırasında bir hata oluştu: {ex.Message}", 500);
             }
         }
+
         public async Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default)
         {
             var lectureSettings = AppSettingsHelper.GetData<LectureSettings>();
@@ -206,6 +216,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 #endregion
 
                 #region Dosya Güncelleme ve Kitaplık
+                int? calculatedPartCount = null;
                 if (data.File != null)
                 {
                     var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
@@ -248,10 +259,19 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     // **Thumbnail oluşturma
                     string thumbnailFileName = $"{sanitizedFileName}.jpg";
                     string thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
+                    TimeSpan? videoDuration = null;
 
                     if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
                         GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // **Videolar için 5. saniyeden thumbnail al**
+                       
+                        videoDuration = await GetVideoDurationAsync(filePath);                      
+                        if (videoDuration.HasValue)
+                        {
+                            int secondsPerPart = 15 * 60; // veya: lectureSettings.PartLengthInMinutes * 60;
+                            var totalSeconds = videoDuration.Value.TotalSeconds;
+                            calculatedPartCount = (int)Math.Ceiling(totalSeconds / secondsPerPart);
+                        }
                     }
 
                     //Dosya formatını kontrol et
@@ -260,7 +280,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         return ProduceFailResponse<CommonResponse>("Desteklenmeyen dosya türü.", HrStatusCodes.Status117FileFormatError);
 
                     // **ContentLibrary
-                    var videoDuration = await GetVideoDurationAsync(filePath);
+                    //var videoDuration = await GetVideoDurationAsync(filePath);
                     var contentLibrary = existingContent.ContentLibraries.FirstOrDefault();
                     if (contentLibrary != null)
                     {
@@ -296,6 +316,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 mapper.Map(data, existingContent);
                 existingContent.UpdateDate = DateTime.UtcNow;
                 existingContent.UpdateUserId = this.GetCurrentUserId();
+                if (calculatedPartCount.HasValue)
+                    existingContent.PartCount = calculatedPartCount.Value;
 
                 contentRepository.Update(existingContent);
                 #endregion

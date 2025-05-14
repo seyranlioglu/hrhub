@@ -49,7 +49,7 @@ namespace HrHub.API.Controllers
             return await trainingSectionManager.GetTrainingSectionListAsync().ConfigureAwait(false);
         }
 
-        [HttpGet("[Action]")]
+        [HttpGet("{id}")]
         public async Task<Response<GetTrainingSectionDto>> GetByIdAsync([FromRoute] long id)
         {
             return await trainingSectionManager.GetTrainingSectionByIdAsync(id).ConfigureAwait(false);
