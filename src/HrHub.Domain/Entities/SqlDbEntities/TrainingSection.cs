@@ -9,12 +9,12 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         {
             TrainingContents = new HashSet<TrainingContent>();
         }
-        public long TrainingId { get; set; }
+        public long? TrainingId { get; set; }
         public long RowNumber { get; set; }
         public string? LangCode { get; set; }
 
         [ForeignKey("TrainingId")]
-        public virtual Training Training { get; set; }
+        public virtual Training? Training { get; set; }
 
         public virtual ICollection<TrainingContent> TrainingContents { get; set; }
     }
