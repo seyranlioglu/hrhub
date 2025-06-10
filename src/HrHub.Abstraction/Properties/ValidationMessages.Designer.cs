@@ -322,6 +322,15 @@ namespace HrHub.Abstraction.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Same As Last Three Passwords.
+        /// </summary>
+        internal static string SameAsLastThreePasswords {
+            get {
+                return ResourceManager.GetString("SameAsLastThreePasswords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TimeUnit Not Found.
         /// </summary>
         internal static string TimeUnitNotFound {
@@ -480,6 +489,42 @@ namespace HrHub.Abstraction.Properties {
         internal static string TrainingStatusNotFound {
             get {
                 return ResourceManager.GetString("TrainingStatusNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Mail Not Confirmed.
+        /// </summary>
+        internal static string UserMailNotConfirmed {
+            get {
+                return ResourceManager.GetString("UserMailNotConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Mail or Phone Number Already Exists.
+        /// </summary>
+        internal static string UserMailOrPhoneNumberAlReadyExists {
+            get {
+                return ResourceManager.GetString("UserMailOrPhoneNumberAlReadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Not Found.
+        /// </summary>
+        internal static string UserNotFound {
+            get {
+                return ResourceManager.GetString("UserNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Phone Not Confirmed.
+        /// </summary>
+        internal static string UserPhoneNotConfirmed {
+            get {
+                return ResourceManager.GetString("UserPhoneNotConfirmed", resourceCulture);
             }
         }
         
