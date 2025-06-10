@@ -18,6 +18,12 @@ namespace HrHub.Abstraction.Consts
         public static string ExamVersionNotFoundError => Properties.ValidationMessages.ExamVersionNotFoundError;
         public static string WrongValidationModelError => Properties.ValidationMessages.WrongValidationModelError;
         public static string DataAlreadyExists => Properties.ValidationMessages.DataAlreadyExists;
+        public static string UserMailOrPhoneNumberAlReadyExists => Properties.ValidationMessages.UserMailOrPhoneNumberAlReadyExists;
+        public static string UserNotFound => Properties.ValidationMessages.UserNotFound;
+        public static string UserMailNotConfirmed => Properties.ValidationMessages.UserMailNotConfirmed;
+        public static string SameAsLastThreePasswords => Properties.ValidationMessages.SameAsLastThreePasswords;
+        public static string UserPhoneNotConfirmed => Properties.ValidationMessages.UserPhoneNotConfirmed;
+
         public static string DataNotFound => Properties.ValidationMessages.DataNotFoundError;
 
         public static string TrainingExistsError => Properties.ValidationMessages.TrainingExistsError;

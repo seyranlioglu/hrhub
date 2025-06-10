@@ -1,17 +1,23 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using HrHub.Abstraction.Consts;
+using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
+using HrHub.Application.BusinessRules.TrainingBusinessRules;
+using HrHub.Application.BusinessRules.UserBusinessRules;
 using HrHub.Application.Factories;
 using HrHub.Application.Helpers;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
+using HrHub.Core.Helpers;
 using HrHub.Core.HrFluentValidation;
 using HrHub.Core.Utilties.Encryption;
 using HrHub.Domain.Contracts.Dtos.NotificationDtos;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
+using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Identity.Model;
@@ -27,6 +33,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using ServiceStack;
 using ServiceStack.Web;
 using System.Linq.Expressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HrHub.Application.Managers.UserManagers
 {
@@ -57,11 +64,8 @@ namespace HrHub.Application.Managers.UserManagers
         }
         public async Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default)
         {
-            var validator = new FieldBasedValidator<UserSignUpDto>();
-            var validateResult = validator.Validate(data);
-
-            if (!validateResult.IsValid)
-                return validateResult.SendResponse<UserSignUpResponse>();
+            if (ValidationHelper.RuleBasedValidator<UserSignUpDto>(data, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<UserSignUpResponse>();
 
             var currAcc = mapper.Map<CurrAcc>(data);
             currAcc.CreatedDate = DateTime.UtcNow;
@@ -224,23 +228,10 @@ namespace HrHub.Application.Managers.UserManagers
 
         public async Task<Response<UserSignInResponse>> SignIn(UserSignInDto request, CancellationToken cancellationToken = default)
         {
-            var validator = new FieldBasedValidator<UserSignInDto>();
-            var validateResult = validator.Validate(request);
+            if (ValidationHelper.RuleBasedValidator<UserSignInDto>(request, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<UserSignInResponse>();
 
-            if (!validateResult.IsValid)
-                return validateResult.SendResponse<UserSignInResponse>();
-
-            var user = await userRepository.GetAsync(p=>p.Email == request.UserName, include:i=>i.Include(s=>s.Instructor));
-            if(user == null)
-                return ProduceFailResponse<UserSignInResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
-            if (!user.EmailConfirmed)
-            {
-                return ProduceFailResponse<UserSignInResponse>("Kullanıcı mail doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce mail doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
-            }
-            if (!user.PhoneNumberConfirmed)
-            {
-                return ProduceFailResponse<UserSignInResponse>("Kullanıcı telefon doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce telefon doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
-            }
+            var user = await userRepository.GetAsync(p=>p.Email == request.UserName, include:i=>i.Include(s=>s.Instructor));     
             var result = await authenticationService.SignIn(new SignInViewModelResource { Email = request.UserName, Password = request.Password });
             if (result == null)
                 return ProduceFailResponse<UserSignInResponse>("Kullanıcı Girişi Başarısız..", StatusCodes.Status500InternalServerError);
@@ -280,21 +271,8 @@ namespace HrHub.Application.Managers.UserManagers
 
         public async Task<Response<CommonResponse>> AddUser(AddUserDto request, CancellationToken cancellationToken = default)
         {
-            var validator = new FieldBasedValidator<AddUserDto>();
-            var validateResult = validator.Validate(request);
-
-            if (!validateResult.IsValid)
-                return validateResult.SendResponse<CommonResponse>();
-            var isUserExist = await appUserService.GetUserByEmailAsync(request.Email);
-            if(isUserExist!=null)
-            {
-                return ProduceFailResponse<CommonResponse>("Mail adresi daha önce kullanılmış. Lütfen başka mail giriniz.", StatusCodes.Status409Conflict);
-            }
-            var isNumberExist = userRepository.Count(P => P.PhoneNumber == request.PhoneNumber);
-            if (isNumberExist > 0)
-            {
-                return ProduceFailResponse<CommonResponse>("Telefon Numarası daha önce kullanılmış. Lütgen başka numara giriniz.", StatusCodes.Status409Conflict);
-            }
+            if (ValidationHelper.RuleBasedValidator<AddUserDto>(request, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
             string password = PasswordHepler.GeneratePassword(8, true, true, true);
             var signUpModel = mapper.Map<SignUpDto>(request);
             signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
@@ -346,24 +324,9 @@ namespace HrHub.Application.Managers.UserManagers
 
         public async Task<Response<CommonResponse>> ChangePassword(ChangePasswordDto changePassword, CancellationToken cancellationToken = default)
         {
-            var validator = new FieldBasedValidator<ChangePasswordDto>();
-            var validateResult = validator.Validate(changePassword);
-
-            if (!validateResult.IsValid)
-                return validateResult.SendResponse<CommonResponse>();
+            if (ValidationHelper.RuleBasedValidator<ChangePasswordDto>(changePassword, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
             var user = await appUserService.GetUserByEmailAsync(changePassword.UserName);
-            if (user == null)
-            {
-                return ProduceFailResponse<CommonResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
-            }
-            if (!user.EmailConfirmed)
-            {
-                return ProduceFailResponse<CommonResponse>("Kullanıcı mail doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce mail doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
-            }
-            if (!user.PhoneNumberConfirmed)
-            {
-                return ProduceFailResponse<CommonResponse>("Kullanıcı telefon doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce telefon doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
-            }
             string receiver = changePassword.UserName;
             string message = VerificationHelper.MaskEmail(changePassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
             SubmissionTypeEnum type = SubmissionTypeEnum.Email;
@@ -399,24 +362,11 @@ namespace HrHub.Application.Managers.UserManagers
         
         public async Task<Response<CommonResponse>>ForgotPassword(ForgotPasswordDto forgotPassword, CancellationToken cancellationToken = default)
         {
-            var validator = new FieldBasedValidator<ForgotPasswordDto>();
-            var validateResult = validator.Validate(forgotPassword);
+            if (ValidationHelper.RuleBasedValidator<ForgotPasswordDto>(forgotPassword, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
+                return cBasedValidResult.SendResponse<CommonResponse>();
 
-            if (!validateResult.IsValid)
-                return validateResult.SendResponse<CommonResponse>();
-            var user = await appUserService.GetUserByEmailAsync(forgotPassword.UserName);
-            if (user == null)
-            {
-                return ProduceFailResponse<CommonResponse>("Kullanıcı bulunamadı.", StatusCodes.Status404NotFound);
-            }
-            if (!user.EmailConfirmed)
-            {
-                return ProduceFailResponse<CommonResponse>("Kullanıcı mail doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce mail doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
-            }
-            if (!user.PhoneNumberConfirmed)
-            {
-                return ProduceFailResponse<CommonResponse>("Kullanıcı telefon doğrulama işlemleri henüz tamamlanmamış. Lütfen Önce telefon doğrulama işlemlerini tamamlayınız.", StatusCodes.Status500InternalServerError);
-            }
+
+            var user = await appUserService.GetUserByEmailAsync(forgotPassword.UserName); 
             string receiver = forgotPassword.UserName;
             string message = VerificationHelper.MaskEmail(forgotPassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
             SubmissionTypeEnum type = SubmissionTypeEnum.Email;
@@ -460,20 +410,6 @@ namespace HrHub.Application.Managers.UserManagers
                 return validateResult.SendResponse<CommonResponse>();
 
             var user = await appUserService.GetUserByEmailAsync(passwordReset.UserName);
-            if (user == null)
-                return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
-
-            //Son 3 şifre getiriliyor.
-            var userPasswords = await passwordHistoryRepository
-                .GetPagedListAsync(predicate: ph => ph.UserId == user.Id,
-                                   orderBy: o => o.OrderByDescending(p => p.CreatedDate),
-                                   skip: 0, take: 3,
-                                   selector: s => AesEncrypion.DecryptString(s.Password));
-
-            bool isPasswordUsed = userPasswords.Any(decryptedPassword => decryptedPassword == passwordReset.Password);
-            if (isPasswordUsed)
-                return ProduceFailResponse<CommonResponse>("Yeni şifre, son 3 şifre ile aynı olamaz.", StatusCodes.Status400BadRequest);
-
             var token = await authenticationService.GeneratePasswordResetTokenAsync(user);
             var newPasswordResult = await authenticationService.ResetPasswordAsync(user, token, passwordReset.Password);
             if (!newPasswordResult)
