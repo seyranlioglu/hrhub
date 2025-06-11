@@ -310,6 +310,12 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             });
         }
 
+        /// <summary>
+        /// Update ve Add yaparken tüm verileri mecburi tutma. Yayınlarken zaten kontrol yapıyoruz. 
+        /// </summary>
+        /// <param name="updateData"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<Response<CommonResponse>> UpdateExamInfoAsync(UpdateExamDto updateData, CancellationToken cancellationToken = default)
         {
             if (ValidationHelper.FieldBasedValidator<UpdateExamDto>(updateData) is ValidationResult validationResult && !validationResult.IsValid)
