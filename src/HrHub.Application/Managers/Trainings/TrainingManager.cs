@@ -7,16 +7,13 @@ using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.TrainingBusinessRules;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
-using HrHub.Core.Data.UnitOfWork;
 using HrHub.Core.Helpers;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Infrastructre.UnitOfWorks;
-using LinqKit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HrHub.Application.Managers.Trainings;
 
@@ -56,6 +53,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         trainingEntity.EducationLevelId = data.EducationLevelId == 0 ? (long?)null : data.EducationLevelId;
         trainingEntity.PriceTierId = data.PriceTierId == 0 ? (long?)null : data.PriceTierId;
         trainingEntity.CurrentAmount = data.Amount - (data.Amount * data.DiscountRate / 100); // Bunu konuşuruz!!! 
+      
         trainingEntity.CompletionTime = data.CompletionTime;
         //CompletionTime hesaplanacak, elle girilmeyecek. Konuşacağız
         trainingEntity.TrainingStatusId = await trainingStatuRepository.GetAsync(predicate: p => p.Code == TrainingStatuConst.Preparing,

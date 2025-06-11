@@ -23,11 +23,11 @@ namespace HrHub.Application.BusinessRules.TrainingSectionBusinessRules
         {
             if (value is UpdateTrainingSectionDto trainingSectionDto && trainingSectionDto is not null)
             {
-                var isTrainingExist = trainingRepository.Exists(predicate: p => p.Id == trainingSectionDto.TrainingId);
+                var isTrainingExist = trainingSectionRepository.Exists(predicate: p => p.Id == trainingSectionDto.Id);
                 if (!isTrainingExist)
                     return (false, ValidationMessages.TrainingNotExistsError);
             }
-            return (false, string.Empty);
+            return (true, string.Empty);
         }
     }
 }

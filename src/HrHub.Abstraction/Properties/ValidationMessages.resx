@@ -270,4 +270,19 @@
   <data name="TrainingAnnouncementCommentNotTrainingUserError" xml:space="preserve">
     <value>Not a Training User</value>
   </data>
+  <data name="UserMailOrPhoneNumberAlReadyExists" xml:space="preserve">
+    <value>User Mail or Phone Number Already Exists</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User Not Found</value>
+  </data>
+  <data name="UserMailNotConfirmed" xml:space="preserve">
+    <value>User Mail Not Confirmed</value>
+  </data>
+  <data name="UserPhoneNotConfirmed" xml:space="preserve">
+    <value>User Phone Not Confirmed</value>
+  </data>
+  <data name="SameAsLastThreePasswords" xml:space="preserve">
+    <value>Same As Last Three Passwords</value>
+  </data>
 </root>
