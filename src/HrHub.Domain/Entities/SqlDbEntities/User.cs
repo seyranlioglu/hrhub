@@ -14,7 +14,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             AddCartUser = new HashSet<Cart>();
             ContentNotes = new HashSet<ContentNote>();
             CurrAccTrainingUsers = new HashSet<CurrAccTrainingUser>();
-            Instructor = new Instructor();
             Reviews = new HashSet<Review>();
             TrainingAnnouncements = new HashSet<TrainingAnnouncement>();
             TrainingAnnouncementsComments = new HashSet<TrainingAnnouncementsComment>();

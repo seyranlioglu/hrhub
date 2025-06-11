@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using FluentValidation.Results;
 using HrHub.Abstraction.Consts;
-using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Enums;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
-using HrHub.Application.BusinessRules.TrainingBusinessRules;
 using HrHub.Application.BusinessRules.UserBusinessRules;
 using HrHub.Application.Factories;
 using HrHub.Application.Helpers;
@@ -17,23 +14,15 @@ using HrHub.Core.HrFluentValidation;
 using HrHub.Core.Utilties.Encryption;
 using HrHub.Domain.Contracts.Dtos.NotificationDtos;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
-using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Identity.Model;
 using HrHub.Identity.Services;
-using HrHub.Infrastructre.Repositories.Abstract;
-using HrHub.Infrastructre.Repositories.Concrete;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson.IO;
-using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Ocsp;
 using ServiceStack;
-using ServiceStack.Web;
 using System.Linq.Expressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HrHub.Application.Managers.UserManagers
 {
@@ -49,7 +38,7 @@ namespace HrHub.Application.Managers.UserManagers
         private readonly IAuthenticationService authenticationService;
         private readonly Repository<PasswordHistory> passwordHistoryRepository;
         private readonly MessageSenderFactory messageSenderFactory;
-        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService,IAuthenticationService authenticationService,MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
+        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService, IAuthenticationService authenticationService, MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -81,7 +70,7 @@ namespace HrHub.Application.Managers.UserManagers
             var result = await appUserService.SignUpAsync(signUpModel);
             if (result.Item2)
             {
-                
+
                 var appUser = await appUserService.GetUserByEmailAsync(data.Email);
                 if (appUser != null)
                 {
@@ -137,7 +126,7 @@ namespace HrHub.Application.Managers.UserManagers
             }
             // Doğrulama kodu oluştur ve gönder
             string verificationCode = VerificationHelper.GenerateVerificationCode();
-            await SendVerifyCode(verifySendDto.Receiver, verificationCode, verifySendDto.Type,MessageTemplates.Register);
+            await SendVerifyCode(verifySendDto.Receiver, verificationCode, verifySendDto.Type, MessageTemplates.Register);
             VerificationHelper.SaveCode("Confirm_" + verifySendDto.Receiver, verificationCode);
             return ProduceSuccessResponse(new VerifySendResponse { Result = true, Message = message });
         }
@@ -231,7 +220,7 @@ namespace HrHub.Application.Managers.UserManagers
             if (ValidationHelper.RuleBasedValidator<UserSignInDto>(request, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<UserSignInResponse>();
 
-            var user = await userRepository.GetAsync(p=>p.Email == request.UserName, include:i=>i.Include(s=>s.Instructor));     
+            var user = await userRepository.GetAsync(p => p.Email == request.UserName, include: i => i.Include(s => s.Instructor));
             var result = await authenticationService.SignIn(new SignInViewModelResource { Email = request.UserName, Password = request.Password });
             if (result == null)
                 return ProduceFailResponse<UserSignInResponse>("Kullanıcı Girişi Başarısız..", StatusCodes.Status500InternalServerError);
@@ -262,7 +251,7 @@ namespace HrHub.Application.Managers.UserManagers
 
             // Doğrulama kodu oluştur ve gönder
             string verificationCode = VerificationHelper.GenerateVerificationCode();
-            await SendVerifyCode(receiver, verificationCode, type,MessageTemplates.Login);
+            await SendVerifyCode(receiver, verificationCode, type, MessageTemplates.Login);
             VerificationHelper.SaveCode("SignIn_" + request.UserName, verificationCode);
             VerificationHelper.SaveCode("SignInResponse_" + request.UserName, Newtonsoft.Json.JsonConvert.SerializeObject(response));
             // await cacheService.SetAsync(response, "SignIn_" + request.UserName, cancellationToken);
@@ -278,7 +267,7 @@ namespace HrHub.Application.Managers.UserManagers
             signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
             signUpModel.Password = password;
             signUpModel.IsMainUser = false;
-            
+
             var result = await appUserService.SignUpAsync(signUpModel);
             if (result.Item2)
             {
@@ -359,14 +348,14 @@ namespace HrHub.Application.Managers.UserManagers
 
             return ProduceSuccessResponse(new CommonResponse { Message = "Doğrulama Başarılı", Code = 200, Result = true });
         }
-        
-        public async Task<Response<CommonResponse>>ForgotPassword(ForgotPasswordDto forgotPassword, CancellationToken cancellationToken = default)
+
+        public async Task<Response<CommonResponse>> ForgotPassword(ForgotPasswordDto forgotPassword, CancellationToken cancellationToken = default)
         {
             if (ValidationHelper.RuleBasedValidator<ForgotPasswordDto>(forgotPassword, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
 
-            var user = await appUserService.GetUserByEmailAsync(forgotPassword.UserName); 
+            var user = await appUserService.GetUserByEmailAsync(forgotPassword.UserName);
             string receiver = forgotPassword.UserName;
             string message = VerificationHelper.MaskEmail(forgotPassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
             SubmissionTypeEnum type = SubmissionTypeEnum.Email;
@@ -459,7 +448,7 @@ namespace HrHub.Application.Managers.UserManagers
         public async Task<Response<List<GetUserResponse>>> GetUserList(CancellationToken cancellationToken = default)
         {
             List<Attributes> list = new List<Attributes>();
-            if (!this.IsSuperAdmin() &&  this.IsMainUser())
+            if (!this.IsSuperAdmin() && this.IsMainUser())
             {
                 list.Add(new Attributes { Name = "CurrAccId", Value = this.GetCurrAccId(), Type = ExpressionType.Equal });
             }
@@ -525,20 +514,20 @@ namespace HrHub.Application.Managers.UserManagers
         {
             switch (type)
             {
-               
+
                 case SubmissionTypeEnum.Email:
 
                     var content = MailHelper.GetMailBody(MailType.VerifyEmail);
                     var dictionary = new Dictionary<string, string>
                 {
                     { "@VERIFYCODE", code }
-                }; 
-                    var sender =  messageSenderFactory.GetSender(MessageType.Email);
+                };
+                    var sender = messageSenderFactory.GetSender(MessageType.Email);
                     await sender.SendAsync(new EmailMessageDto { Recipient = receiver, Content = content, MessageTemplate = template, Parameters = dictionary });
                     break;
                 case SubmissionTypeEnum.Sms:
                     var senderSms = messageSenderFactory.GetSender(MessageType.Sms);
-                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = "Doğrulama Kodu : "+code, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
+                    await senderSms.SendAsync(new SmsMessageDto { Recipient = receiver, Content = "Doğrulama Kodu : " + code, MessageTemplate = template, Parameters = new Dictionary<string, string>() });
                     break;
             }
         }
@@ -550,8 +539,8 @@ namespace HrHub.Application.Managers.UserManagers
 
             if (!validateResult.IsValid)
                 return validateResult.SendResponse<CommonResponse>();
-            
-            var user = await userRepository.GetAsync(p => p.Id == dto.UserId, include: i=>i.Include(c=>c.CurrAcc));
+
+            var user = await userRepository.GetAsync(p => p.Id == dto.UserId, include: i => i.Include(c => c.CurrAcc));
             if (user == null)
                 return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
             var exist = await instructorRepository.ExistsAsync(p => p.UserId == dto.UserId);
