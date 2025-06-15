@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 8080
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY ["src/HrHub.API/HrHub.API.csproj", "HrHub.API/"]
+RUN dotnet restore "HrHub.API/HrHub.API.csproj"
+
+COPY . .
+WORKDIR "/src/HrHub.API"
+RUN dotnet build "HrHub.API.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "HrHub.API.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "HrHub.API.dll"]
