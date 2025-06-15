@@ -20,7 +20,7 @@
         public decimal? CertificateOfParticipationRate { get; set; }
         public DateTime? CompletionTime { get; set; }
         public long? CompletionTimeUnitId { get; set; }
-        public long TrainingLevelId { get; set; }
+        public long? TrainingLevelId { get; set; }
         public long? TrainingStatusId { get; set; }
         public long? PreconditionId { get; set; }
         public long? ForWhomId { get; set; }

@@ -173,12 +173,12 @@ public class TrainingManager : ManagerBase, ITrainingManager
                            .Include(s => s.PriceTier)
                            .Include(s => s.TrainingType)
                            .Include(s => s.TrainingSections)
-                                .ThenInclude(d => d.TrainingContents)
-                                    .ThenInclude(e => e.ContentType)
+                            .ThenInclude(section => section.TrainingContents)
+                                .ThenInclude(content => content.ContentType)
                            .Include(s => s.TrainingSections)
-                                .ThenInclude(d => d.TrainingContents)
-                                    .ThenInclude(e => e.ContentLibraries), // **ContentLibrary Eklendi**
-
+                            .ThenInclude(section => section.TrainingContents)
+                                .ThenInclude(content => content.ContentLibraries),
+                         // **ContentLibrary Eklendi**
 
             selector: s => mapper.Map<GetTrainingDto>(s)
         );

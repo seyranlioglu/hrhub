@@ -24,13 +24,11 @@ namespace HrHub.Application.BusinessRules.WhatYouWillLearnBusinessRule
         {
             if (value is UpdateWhatYouWillLearnDto dto && dto is not null)
             {
-                var trainingExist = trainingRepository.Exists(predicate: p => p.Id == dto.TrainingId);
-                if (!trainingExist)
-                    return (false, ValidationMessages.TrainingNotExistsError);
+                //var trainingExist = trainingRepository.Exists(predicate: p => p.Id == dto.TrainingId);
+                //if (!trainingExist)
+                //    return (false, ValidationMessages.TrainingNotExistsError);
 
-                var isEntityExist = whatYouWillLearnRepository.Exists(predicate: p => p.TrainingId == dto.TrainingId
-                                                                                      && p.Code == dto.Code
-                                                                                      && p.Title == dto.Title);
+                var isEntityExist = whatYouWillLearnRepository.Exists(predicate: p => p.TrainingId == dto.TrainingId);
                 if (!isEntityExist)
                     return (false, ValidationMessages.WhatYouWillLearnNotExistsError);
             }
