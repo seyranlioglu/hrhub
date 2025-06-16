@@ -163,7 +163,7 @@ namespace HrHub.API.Controllers
         }
         [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin},{Roles.User}", Policy = Policies.MainUser)]
         [HttpGet("[Action]")]
-        public async Task<Response<List<CurrAccTypeDto>>> CurAccTypeList()
+        public async Task<Response<List<CurrAccTypeDto>>> CurrAccTypeList()
         {
             var result = await userManager.GetCurrAccTypeList();
             return result;
