@@ -10,7 +10,6 @@ namespace HrHub.Domain.Contracts.Responses.ExamResponses
     {
         public long Id { get; set; }
         public string Title { get; set; }
-        public string TrainingTitle { get; set; }
         /// <summary>
         /// Dakika Cinsinden Sınav Süresi
         /// </summary>

@@ -168,8 +168,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             (predicate: predicateBuilder,
             include: i => i.Include(w => w.Instructor)
             .ThenInclude(w => w.CurrAcc)
-            .Include(w => w.ExamStatus)
-            .Include(w => w.Training),
+            .Include(w => w.ExamStatus),
             selector: s => new ExamItem
             {
                 ExamId = s.Id,
@@ -191,7 +190,6 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 return ProduceFailResponse<GetExamListForLookupResponse>("Sınav Bulunamadı!", HrStatusCodes.Status111DataNotFound);
         }
 
-        // TODO Şükrü: Parametreler için TrainingList ve ContentList merthodları yazılmalı 
         public async Task<Response<GetExamListResponse>> GetExamDetail(GetExamDetailDto filter, CancellationToken cancellationToken = default)
         {
             long userId = GetCurrentUserId();
@@ -223,8 +221,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 .ThenInclude(w => w.ExamTopics)
                 .ThenInclude(w => w.ExamQuestions)
                 .ThenInclude(w => w.QuestionOptions)
-                .Include(w => w.ExamStatus)
-                .Include(w => w.Training));
+                .Include(w => w.ExamStatus));
 
             var examList = examQuery
                 .Select(exam =>
@@ -244,7 +241,6 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                         SuccessRate = publishedVersion?.SuccessRate,
                         Title = exam.Title,
                         TotalQuestionCount = publishedVersion?.TotalQuestionCount,
-                        TrainingTitle = exam.Training.Title,
                         ActiveVersions = new GetExamVersionListResponse
                         {
                             ExamId = publishedVersion.ExamId,
@@ -847,87 +843,86 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             return ProduceSuccessResponse(response);
         }
 
+        public async Task<Response<CalculateExamResultResponse>> CalculateUserExamResultAsync(CalculateExamResultDto data, CancellationToken cancellationToken = default)
+        {
+            // Fetch UserExam with associated answers and exam details
+            var userExam = await userExamRepository.GetQuery(
+                ue => ue.Id == data.UserExamId,
+                include: ue => ue.Include(e => e.ExamVersion)
+                                 .ThenInclude(ev => ev.ExamTopics)
+                                 .ThenInclude(et => et.ExamQuestions)
+                                 .ThenInclude(eq => eq.QuestionOptions)
+                                 .Include(u => u.UserAnswers))
+                .FirstOrDefaultAsync();
 
-        //public async Task<Response<CalculateExamResultResponse>> CalculateUserExamResultAsync(CalculateExamResultDto data, CancellationToken cancellationToken = default)
-        //{
-        //    // Fetch UserExam with associated answers and exam details
-        //    var userExam = await userExamRepository.GetQuery(
-        //        ue => ue.Id == data.UserExamId,
-        //        include: ue => ue.Include(e => e.ExamVersion)
-        //                         .ThenInclude(ev => ev.ExamTopics)
-        //                         .ThenInclude(et => et.ExamQuestions)
-        //                         .ThenInclude(eq => eq.QuestionOptions)
-        //                         .Include(u => u.UserAnswers))
-        //        .FirstOrDefaultAsync();
+            if (userExam == null)
+                return ProduceFailResponse<CalculateExamResultResponse>("Completed exam not found.", HrStatusCodes.Status111DataNotFound);
 
-        //    if (userExam == null)
-        //        return ProduceFailResponse<CalculateExamResultResponse>("Completed exam not found.", HrStatusCodes.Status111DataNotFound);
+            var totalScore = 0m;
+            var userScore = 0m;
 
-        //    var totalScore = 0m;
-        //    var userScore = 0m;
+            foreach (var topic in userExam.ExamVersion.ExamTopics)
+            {
+                foreach (var question in topic.ExamQuestions)
+                {
+                    totalScore += question.Score;
 
-        //    foreach (var topic in userExam.ExamVersion.ExamTopics)
-        //    {
-        //        foreach (var question in topic.ExamQuestions)
-        //        {
-        //            totalScore += question.Score;
+                    var userAnswer = userExam.UserAnswers.FirstOrDefault(ua => ua.QuestionId == question.Id);
+                    if (userAnswer != null)
+                    {
+                        var correctOption = question.QuestionOptions.FirstOrDefault(qo => qo.IsCorrect);
+                        if (correctOption != null && userAnswer.SelectedOptionId == correctOption.Id)
+                        {
+                            userScore += question.Score;
+                        }
+                    }
+                }
+            }
 
-        //            var userAnswer = userExam.UserAnswers.FirstOrDefault(ua => ua.QuestionId == question.Id);
-        //            if (userAnswer != null)
-        //            {
-        //                var correctOption = question.QuestionOptions.FirstOrDefault(qo => qo.IsCorrect);
-        //                if (correctOption != null && userAnswer. == correctOption.Id)
-        //                {
-        //                    userScore += question.Score;
-        //                }
-        //            }
-        //        }
-        //    }
+            var successRate = (userScore / totalScore) * 100;
+            var passingScore = userExam.ExamVersion.PassingScore ?? 0;
 
-        //    var successRate = (userScore / totalScore) * 100;
-        //    var passingScore = userExam.ExamVersion.PassingScore ?? 0;
+            // Determine if the user passed the exam
+            var isSuccess = successRate >= passingScore;
 
-        //    // Determine if the user passed the exam
-        //    var isSuccess = successRate >= passingScore;
+            // Update UserExam with the results
+            userExam.TotalScore = totalScore;
+            userExam.ExamScore = userScore;
+            userExam.SuccessRate = successRate;
+            userExam.IsSuccess = isSuccess;
+            await userExamRepository.UpdateAsync(userExam, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        //    // Update UserExam with the results
-        //    userExam.TotalScore = totalScore;
-        //    userExam.ExamScore = userScore;
-        //    userExam.SuccessRate = successRate;
-        //    userExam.IsSuccess = isSuccess;
-        //    await userExamRepository.UpdateAsync(userExam, cancellationToken);
-        //    await unitOfWork.SaveChangesAsync(cancellationToken);
+            // Execute actions based on the result
+            var examAction = await examActionRepository.GetQuery(
+            ea => ea.Exams.Any(e => e.Id == userExam.ExamVersionId))
+            .FirstOrDefaultAsync();
+            if (examAction != null)
+            {
+                if (!isSuccess)
+                {
+                    if (examAction.Title == "ResetTraining")
+                    {
+                        // TODO : Eğitim resetleme işlemi burada yapılacak.
+                        //await trainingManager.ResetTrainingAsync(userExam.UserId, cancellationToken);
+                    }
+                    else if (examAction.Title == "ResetTopic")
+                    {
+                        // TODO : Eğitim resetleme işlemi burada yapılacak.
+                        //await trainingManager.ResetTopicAsync(userExam.UserId, userExam.Exam.Id, cancellationToken);
+                    }
+                }
+            }
 
-        //    // Execute actions based on the result
-        //    var examAction = await examActionRepository.GetQuery(
-        //    ea => ea.Exams.Any(e => e.Id == userExam.ExamVersionId))
-        //    .FirstOrDefaultAsync();
-        //    if (examAction != null)
-        //    {
-        //        if (!isSuccess)
-        //        {
-        //            if (examAction.Title == "ResetTraining")
-        //            {
-        //                // TODO : Eğitim resetleme işlemi burada yapılacak.
-        //                //await trainingManager.ResetTrainingAsync(userExam.UserId, cancellationToken);
-        //            }
-        //            else if (examAction.Title == "ResetTopic")
-        //            {
-        //                // TODO : Eğitim resetleme işlemi burada yapılacak.
-        //                //await trainingManager.ResetTopicAsync(userExam.UserId, userExam.Exam.Id, cancellationToken);
-        //            }
-        //        }
-        //    }
-
-        //    return ProduceSuccessResponse(new CalculateExamResultResponse
-        //    {
-        //        UserExamId = userExam.Id,
-        //        TotalScore = totalScore,
-        //        UserScore = userScore,
-        //        SuccessRate = successRate,
-        //        IsSuccess = isSuccess,
-        //        Message = isSuccess ? "Congratulations, you passed the exam!" : "Unfortunately, you did not meet the passing criteria."
-        //    });
-        //}
+            return ProduceSuccessResponse(new CalculateExamResultResponse
+            {
+                UserExamId = userExam.Id,
+                TotalScore = totalScore,
+                UserScore = userScore,
+                SuccessRate = successRate,
+                IsSuccess = isSuccess,
+                Message = isSuccess ? "Congratulations, you passed the exam!" : "Unfortunately, you did not meet the passing criteria."
+            });
+        }
     }
 }

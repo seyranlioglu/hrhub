@@ -22,7 +22,7 @@ namespace HrHub.API.Controllers
         public ExamController(IExamManager examManager)
         {
             this.examManager = examManager;
-        }
+        }   
         [HttpPost("[Action]")]
         public async Task<Response<AddExamResponse>> AddExam([FromBody] AddExamDto data)
         {
@@ -108,12 +108,12 @@ namespace HrHub.API.Controllers
             return response;
         }
 
-        //[HttpPut("[Action]")]
-        //[Authorize(Roles = "User")]
-        //public async Task<Response<CalculateExamResultResponse>> CalculateExamResultAsync(CalculateExamResultDto examResult)
-        //{
-        //    var response = await examManager.CalculateUserExamResultAsync(examResult).ConfigureAwait(false);
-        //    return response;
-        //}
+        [HttpPost("[Action]")]
+        [Authorize(Roles = "User")]
+        public async Task<Response<CalculateExamResultResponse>> CalculateExamResultAsync(CalculateExamResultDto examResult)
+        {
+            var response = await examManager.CalculateUserExamResultAsync(examResult).ConfigureAwait(false);
+            return response;
+        }
     }
 }

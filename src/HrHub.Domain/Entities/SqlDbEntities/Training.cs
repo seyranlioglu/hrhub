@@ -9,7 +9,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public Training()
         {
             CartItems = new HashSet<CartItem>();
-            Exams = new HashSet<Exam>();
             Reviews = new HashSet<Review>();
             TrainingAnnouncements = new HashSet<TrainingAnnouncement>();
             TrainingSections = new HashSet<TrainingSection>();
@@ -75,7 +74,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual PriceTier? PriceTier { get; set; }
 
         public virtual ICollection<CartItem> CartItems { get; set; } = null;
-        public virtual ICollection<Exam> Exams { get; set; } = null;
         public virtual ICollection<Review> Reviews { get; set; } = null;
         public virtual ICollection<TrainingAnnouncement> TrainingAnnouncements { get; set; } = null;
         public virtual ICollection<TrainingSection> TrainingSections { get; set; } = null;

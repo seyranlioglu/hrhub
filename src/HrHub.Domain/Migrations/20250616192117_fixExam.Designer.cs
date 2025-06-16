@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250616192117_fixExam")]
+    partial class fixExam
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -873,12 +876,6 @@ namespace HrHub.Domain.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Abbreviation")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
                     b.Property<long?>("CreateUserId")
                         .HasColumnType("bigint");
 
@@ -891,9 +888,6 @@ namespace HrHub.Domain.Migrations
                     b.Property<long?>("DeleteUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
                     b.Property<bool>("EnterpriseAcc")
                         .HasColumnType("boolean");
 
@@ -904,9 +898,6 @@ namespace HrHub.Domain.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("LangCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -2057,7 +2048,7 @@ namespace HrHub.Domain.Migrations
                     b.Property<decimal?>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<long?>("CategoryId")
+                    b.Property<long>("CategoryId")
                         .HasColumnType("bigint");
 
                     b.Property<decimal>("CertificateOfAchievementRate")
@@ -3580,7 +3571,9 @@ namespace HrHub.Domain.Migrations
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingCategory", "TrainingCategory")
                         .WithMany()
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TimeUnit", "TimeUnit")
                         .WithMany("Trainings")
