@@ -15,8 +15,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string Title { get; set; }
         [AllowNull]
         public string? Description { get; set; }
-
-        public long TrainingId { get; set; }
         public long ExamStatusId { get; set; }
         public long InstructorId { get; set; }
         public long ActionId { get; set; }
@@ -26,8 +24,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ExamAction ExamAction { get; set; }
         [ForeignKey("InstructorId")]
         public User Instructor { get; set; }
-        [ForeignKey("TrainingId")]
-        public virtual Training Training { get; set; }
+
         [ForeignKey("ExamStatusId")]
         public virtual ExamStatus ExamStatus { get; set; }
         public virtual ICollection<ExamVersion> ExamVersions { get; set; } = null;
