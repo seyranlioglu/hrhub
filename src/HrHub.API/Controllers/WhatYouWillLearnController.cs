@@ -36,7 +36,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpDelete("[Action]")]
-        [Authorize(Roles = "Admin", Policy = "Instructior")]
+        //[Authorize(Roles = "Admin", Policy = "Instructior")]
         public async Task<Response<CommonResponse>> DeleteWhatYouWillLearnAsync([FromBody] long id)
         {
             var response = await whatYouWillLearnManager.DeleteWhatYouWillLearnAsync(id).ConfigureAwait(false);
@@ -50,7 +50,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("[Action]")]
-        public async Task<Response<GetWhatYouWillLearnDto>> GetByIdAsync([FromRoute] long id)
+        public async Task<Response<GetWhatYouWillLearnDto>> GetByIdAsync(long id)
         {
             return await whatYouWillLearnManager.GetWhatYouWillLearnByIdAsync(id).ConfigureAwait(false);
         }

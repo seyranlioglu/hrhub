@@ -60,11 +60,15 @@ namespace HrHub.Application.BusinessRules.TrainingBusinessRules
                 //                  p.Id == trainingDto.InstructorId);
                 //if (!isInstructorExist)
                 //    return (false, ValidationMessages.InstructorNotFound);
-                //var isCategoryExist = categoryRepository
-                //                            .Exists(p =>
-                //                                p.Id == trainingDto.CategoryId);
-                //if (!isCategoryExist)
-                //    return (false, ValidationMessages.CategoryNotFound);
+                if (trainingDto.CategoryId != null)
+                {
+
+                    var isCategoryExist = categoryRepository
+                                                .Exists(p =>
+                                                    p.Id == trainingDto.CategoryId);
+                    if (!isCategoryExist)
+                        return (false, ValidationMessages.CategoryNotFound);
+                }
                 //var islevelExist = levelRepository
                 //                      .Exists(p =>
                 //                          p.Id == trainingDto.TrainingLevelId);

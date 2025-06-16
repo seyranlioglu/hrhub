@@ -3,6 +3,7 @@ using System;
 using HrHub.Domain.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HrHub.Domain.Migrations
 {
     [DbContext(typeof(HrHubDbContext))]
-    partial class HrHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250615140037_TrainingCategoryFK")]
+    partial class TrainingCategoryFK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -999,6 +1002,9 @@ namespace HrHub.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long>("TrainingId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1012,6 +1018,8 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("ExamStatusId");
 
                     b.HasIndex("InstructorId");
+
+                    b.HasIndex("TrainingId");
 
                     b.ToTable("Exams", "public");
                 });
@@ -3440,11 +3448,19 @@ namespace HrHub.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
+                        .WithMany("Exams")
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ExamAction");
 
                     b.Navigation("ExamStatus");
 
                     b.Navigation("Instructor");
+
+                    b.Navigation("Training");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ExamQuestion", b =>
@@ -3996,6 +4012,8 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("CartItems");
 
                     b.Navigation("CurrAccTrainings");
+
+                    b.Navigation("Exams");
 
                     b.Navigation("Reviews");
 

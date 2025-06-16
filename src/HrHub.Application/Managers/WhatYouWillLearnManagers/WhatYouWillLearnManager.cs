@@ -99,7 +99,7 @@ namespace HrHub.Application.Managers.WhatYouWillLearnManagers
         }
         public async Task<Response<GetWhatYouWillLearnDto>> GetWhatYouWillLearnByIdAsync(long id)
         {
-            var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: p => p.IsDelete != true,
+            var entityDto = await whatYouWillLearnRepository.GetAsync(predicate: p => p.IsDelete != true && p.Id == id,
                                                                               include: i => i.Include(s => s.Training),
                                                                               selector: s => mapper.Map<GetWhatYouWillLearnDto>(s)
                                                                         );

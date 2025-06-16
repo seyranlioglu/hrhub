@@ -19,7 +19,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         public string? HeaderImage { get; set; }
         public string? LangCode { get; set; }
-        public long CategoryId { get; set; }
+        public long? CategoryId { get; set; }
         public long? InstructorId { get; set; }
         public long? TrainingTypeId { get; set; }
         public decimal? CurrentAmount { get; set; }
@@ -47,7 +47,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual TrainingType TrainingType { get; set; }
 
         [ForeignKey("CategoryId")]
-        public virtual TrainingCategory TrainingCategory { get; set; }
+        public virtual TrainingCategory? TrainingCategory { get; set; }
 
         [ForeignKey("InstructorId")]
         public virtual Instructor? Instructor { get; set; }
