@@ -7,6 +7,7 @@ using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.UserBusinessRules;
 using HrHub.Application.Factories;
 using HrHub.Application.Helpers;
+using HrHub.Application.Managers.TypeManagers;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.Helpers;
@@ -32,13 +33,14 @@ namespace HrHub.Application.Managers.UserManagers
         private readonly IMapper mapper;
         private readonly Repository<CurrAcc> currAccRepository;
         private readonly Repository<User> userRepository;
+        private readonly ICommonTypeBaseManager<CurrAccType> commonTypeBaseManager;
         private readonly Repository<Instructor> instructorRepository;
         private readonly IAppUserService appUserService;
         private readonly IAppRoleService appRoleService;
         private readonly IAuthenticationService authenticationService;
         private readonly Repository<PasswordHistory> passwordHistoryRepository;
         private readonly MessageSenderFactory messageSenderFactory;
-        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService, IAuthenticationService authenticationService, MessageSenderFactory messageSenderFactory) : base(httpContextAccessor)
+        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService, IAuthenticationService authenticationService, MessageSenderFactory messageSenderFactory, ICommonTypeBaseManager<CurrAccType> commonTypeBaseManager) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -50,6 +52,7 @@ namespace HrHub.Application.Managers.UserManagers
             this.authenticationService = authenticationService;
             this.passwordHistoryRepository = unitOfWork.CreateRepository<PasswordHistory>(); ;
             this.messageSenderFactory = messageSenderFactory;
+            this.commonTypeBaseManager = commonTypeBaseManager;
         }
         public async Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default)
         {
@@ -557,6 +560,12 @@ namespace HrHub.Application.Managers.UserManagers
             await instructorRepository.AddAsync(entity);
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "İşlem Tamamlandı.", Code = 200, Result = true });
+        }
+
+        public async Task<Response<List<CurrAccTypeDto>>> GetCurrAccTypeList(CancellationToken cancellationToken = default)
+        {
+            var list= await commonTypeBaseManager.GetList<CurrAccTypeDto>(predicate:p => p.IsActive && p.IsDelete!= true);
+            return ProduceSuccessResponse(list.ToList());
         }
     }
 }

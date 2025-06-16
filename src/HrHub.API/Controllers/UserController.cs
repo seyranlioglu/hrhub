@@ -161,6 +161,12 @@ namespace HrHub.API.Controllers
             var result = await userManager.SetUserInstructor(dto);
             return result;
         }
-
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin},{Roles.User}", Policy = Policies.MainUser)]
+        [HttpGet("[Action]")]
+        public async Task<Response<List<CurrAccTypeDto>>> CurAccTypeList()
+        {
+            var result = await userManager.GetCurrAccTypeList();
+            return result;
+        }
     }
 }
