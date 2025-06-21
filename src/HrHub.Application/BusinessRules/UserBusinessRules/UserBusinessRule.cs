@@ -31,27 +31,27 @@ namespace HrHub.Application.BusinessRules.UserBusinessRules
         }
         public (bool IsValid, string ErrorMessage) Validate(object value, string fieldName)
         {
-            if (value is UserSignUpDto userSignUpDto && userSignUpDto is not null)
-            {
-                var isContentTypeExist = userRepository
-                   .GetList(
-                   predicate: p => p.UserName == userSignUpDto.Email
-                                   || p.PhoneNumber == userSignUpDto.PhoneNumber);
-                if (isContentTypeExist.Any())
-                    return (false, ValidationMessages.UserMailOrPhoneNumberAlReadyExists);
+            //if (value is UserSignUpDto userSignUpDto && userSignUpDto is not null)
+            //{
+            //    var isContentTypeExist = userRepository
+            //       .GetList(
+            //       predicate: p => p.UserName == userSignUpDto.Email
+            //                       || p.PhoneNumber == userSignUpDto.PhoneNumber);
+            //    if (isContentTypeExist.Any())
+            //        return (false, ValidationMessages.UserMailOrPhoneNumberAlReadyExists);
 
-            }
+            //}
 
-            if (value is AddUserDto addUserDto && addUserDto is not null)
-            {
-                var isContentTypeExist = userRepository
-                   .GetList(
-                   predicate: p => p.UserName == addUserDto.Email
-                                   || p.PhoneNumber == addUserDto.PhoneNumber);
-                if (isContentTypeExist.Any())
-                    return (false, ValidationMessages.UserMailOrPhoneNumberAlReadyExists);
+            //if (value is AddUserDto addUserDto && addUserDto is not null)
+            //{
+            //    var isContentTypeExist = userRepository
+            //       .GetList(
+            //       predicate: p => p.UserName == addUserDto.Email
+            //                       || p.PhoneNumber == addUserDto.PhoneNumber);
+            //    if (isContentTypeExist.Any())
+            //        return (false, ValidationMessages.UserMailOrPhoneNumberAlReadyExists);
 
-            }
+            //}
             if (value is UserSignInDto userSignInDto && userSignInDto is not null)
             {
                 var user = userRepository
