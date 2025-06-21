@@ -90,6 +90,9 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
 
         //TrainingSection
         public List<TrainingSectionDto> TrainingSections { get; set; } = new();
+
+        public List<WhatYouWillLearnDto> WhatYouWillLearns { get; set; }
+
     }
 
     public class TrainingSectionDto
@@ -142,5 +145,17 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         public TimeSpan? TrainingContentLibraryVideoDuration { get; set; }
         public int? TrainingContentLibraryDocumentPageCount { get; set; }
         public double? TrainingContentLibraryDocumentFileSize { get; set; }
+    }
+
+    public class WhatYouWillLearnDto
+    {
+        public long WhatYouWillLearnId { get; set; }
+        public bool? WhatYouWillLearnIsDelete { get; set; }
+        public bool WhatYouWillLearnIsActive { get; set; }
+        public string? WhatYouWillLearnTitle { get; set; }
+        public string? WhatYouWillLearnAbbreviation { get; set; }
+        public string? WhatYouWillLearnCode { get; set; }
+        public string? WhatYouWillLearnDescription { get; set; }
+        public string? WhatYouWillLearnTrainingId { get; set; }
     }
 }

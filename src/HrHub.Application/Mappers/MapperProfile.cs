@@ -72,7 +72,19 @@ namespace HrHub.Application.Mappers
                 .ForMember(dest => dest.CertificateOfAchievementRate, opt => opt.MapFrom(src => src.CertificateOfAchievementRate))
                 .ForMember(dest => dest.CertificateOfParticipationRate, opt => opt.MapFrom(src => src.CertificateOfParticipationRate))
                 .ForMember(dest => dest.CompletionTime, opt => opt.MapFrom(src => src.CompletionTime))
-                .ForMember(dest => dest.TrainingSections, opt => opt.MapFrom(src => src.TrainingSections));
+                .ForMember(dest => dest.TrainingSections, opt => opt.MapFrom(src => src.TrainingSections))
+                .ForMember(dest => dest.WhatYouWillLearns, opt => opt.MapFrom(src => src.WhatYouWillLearns.Where(w => w.TrainingId == src.Id).ToList()));
+
+
+            CreateMap<WhatYouWillLearn, WhatYouWillLearnDto>()
+                   .ForMember(dest => dest.WhatYouWillLearnId, opt => opt.MapFrom(src => src.Id))
+                   .ForMember(dest => dest.WhatYouWillLearnIsDelete, opt => opt.MapFrom(src => src.IsDelete))
+                   .ForMember(dest => dest.WhatYouWillLearnIsActive, opt => opt.MapFrom(src => src.IsActive))
+                   .ForMember(dest => dest.WhatYouWillLearnTitle, opt => opt.MapFrom(src => src.Title))
+                   .ForMember(dest => dest.WhatYouWillLearnAbbreviation, opt => opt.MapFrom(src => src.Abbreviation))
+                   .ForMember(dest => dest.WhatYouWillLearnCode, opt => opt.MapFrom(src => src.Code))
+                   .ForMember(dest => dest.WhatYouWillLearnDescription, opt => opt.MapFrom(src => src.Description))
+                   .ForMember(dest => dest.WhatYouWillLearnTrainingId, opt => opt.MapFrom(src => src.TrainingId));
 
 
             CreateMap<TrainingSection, TrainingSectionDto>()
@@ -119,7 +131,32 @@ namespace HrHub.Application.Mappers
 
             #region TrainingSection
             CreateMap<AddTrainingSectionDto, TrainingSection>().ReverseMap();
-            CreateMap<UpdateTrainingSectionDto, TrainingSection>().ReverseMap();
+            CreateMap<UpdateTrainingSectionDto, TrainingSection>()
+                                                .ForMember(dest => dest.TrainingId, opt =>
+                                                    opt.Condition(src => src.TrainingId != null && src.TrainingId != 0))
+
+                                                .ForMember(dest => dest.IsActive, opt =>
+                                                    opt.Condition(src => src.IsActive != null))
+
+                                                .ForMember(dest => dest.Title, opt =>
+                                                    opt.Condition(src => !string.IsNullOrWhiteSpace(src.Title)))
+
+                                                .ForMember(dest => dest.Abbreviation, opt =>
+                                                    opt.Condition(src => !string.IsNullOrWhiteSpace(src.Abbreviation)))
+
+                                                .ForMember(dest => dest.Code, opt =>
+                                                    opt.Condition(src => !string.IsNullOrWhiteSpace(src.Code)))
+
+                                                .ForMember(dest => dest.Description, opt =>
+                                                    opt.Condition(src => !string.IsNullOrWhiteSpace(src.Description)))
+
+                                                .ForMember(dest => dest.RowNumber, opt =>
+                                                    opt.Condition(src => src.RowNumber != null && src.RowNumber != 0))
+
+                                                .ForMember(dest => dest.LangCode, opt =>
+                                                    opt.Condition(src => !string.IsNullOrWhiteSpace(src.LangCode)));
+
+
             CreateMap<DeleteTrainingSectionDto, TrainingSection>().ReverseMap();
             CreateMap<GetTrainingSectionDto, TrainingSection>().ReverseMap();
             #endregion

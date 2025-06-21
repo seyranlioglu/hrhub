@@ -36,6 +36,8 @@ namespace HrHub.Application.Managers.TrainingSections
                 return cBasedValidResult.SendResponse<ReturnIdResponse>();
 
             var trainingSectionEntity = mapper.Map<TrainingSection>(data);
+            trainingSectionEntity.CreatedDate = DateTime.UtcNow;
+            trainingSectionEntity.CreateUserId = this.GetCurrentUserId();
             var result = await trainingSectionRepository.AddAndReturnAsync(trainingSectionEntity);
             await hrUnitOfWork.SaveChangesAsync();
 
@@ -51,6 +53,8 @@ namespace HrHub.Application.Managers.TrainingSections
 
             var trainingSectionEntity = await trainingSectionRepository.GetAsync(predicate: p => p.Id == dto.Id);
             var mapperData = mapper.Map(dto, trainingSectionEntity);
+            mapperData.UpdateDate = DateTime.UtcNow;
+            mapperData.UpdateUserId = this.GetCurrentUserId();
             trainingSectionRepository.Update(mapperData);
             await hrUnitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -71,7 +75,7 @@ namespace HrHub.Application.Managers.TrainingSections
             trainingSectionEntity.IsDelete = true;
             trainingSectionEntity.DeleteDate = DateTime.UtcNow;
             trainingSectionEntity.DeleteUserId = this.GetCurrentUserId();
-
+            
             trainingSectionRepository.Update(trainingSectionEntity);
             await hrUnitOfWork.SaveChangesAsync(cancellationToken);
             return ProduceSuccessResponse(new CommonResponse

@@ -53,7 +53,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         trainingEntity.EducationLevelId = data.EducationLevelId == 0 ? (long?)null : data.EducationLevelId;
         trainingEntity.PriceTierId = data.PriceTierId == 0 ? (long?)null : data.PriceTierId;
         trainingEntity.CurrentAmount = data.Amount - (data.Amount * data.DiscountRate / 100); // Bunu konuşuruz!!! 
-      
+
         trainingEntity.CompletionTime = data.CompletionTime;
         //CompletionTime hesaplanacak, elle girilmeyecek. Konuşacağız
         trainingEntity.TrainingStatusId = await trainingStatuRepository.GetAsync(predicate: p => p.Code == TrainingStatuConst.Preparing,
@@ -177,8 +177,8 @@ public class TrainingManager : ManagerBase, ITrainingManager
                                 .ThenInclude(content => content.ContentType)
                            .Include(s => s.TrainingSections)
                             .ThenInclude(section => section.TrainingContents)
-                                .ThenInclude(content => content.ContentLibraries),
-                         // **ContentLibrary Eklendi**
+                                .ThenInclude(content => content.ContentLibraries)
+                            .Include(s => s.WhatYouWillLearns),
 
             selector: s => mapper.Map<GetTrainingDto>(s)
         );

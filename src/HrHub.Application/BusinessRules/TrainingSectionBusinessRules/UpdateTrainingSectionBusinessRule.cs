@@ -25,7 +25,7 @@ namespace HrHub.Application.BusinessRules.TrainingSectionBusinessRules
             {
                 var isTrainingExist = trainingSectionRepository.Exists(predicate: p => p.Id == trainingSectionDto.Id);
                 if (!isTrainingExist)
-                    return (false, ValidationMessages.TrainingNotExistsError);
+                    return (false, ValidationMessages.TrainingSectionExistsError);
             }
             return (true, string.Empty);
         }
