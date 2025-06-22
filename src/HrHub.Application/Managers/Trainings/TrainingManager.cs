@@ -53,7 +53,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         trainingEntity.EducationLevelId = data.EducationLevelId == 0 ? (long?)null : data.EducationLevelId;
         trainingEntity.PriceTierId = data.PriceTierId == 0 ? (long?)null : data.PriceTierId;
         trainingEntity.CurrentAmount = data.Amount - (data.Amount * data.DiscountRate / 100); // Bunu konuşuruz!!! 
-
+        trainingEntity.TrainingLanguageId = data.TrainingLanguageId;
         trainingEntity.CompletionTime = data.CompletionTime;
         //CompletionTime hesaplanacak, elle girilmeyecek. Konuşacağız
         trainingEntity.TrainingStatusId = await trainingStatuRepository.GetAsync(predicate: p => p.Code == TrainingStatuConst.Preparing,
@@ -138,6 +138,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         var trainingListDto = await trainingRepository.GetListAsync(predicate: p => p.IsDelete != true,
                                                                     include: i => i.Include(s => s.TrainingCategory)
                                                                     .Include(s => s.Instructor)
+                                                                    .Include(s => s.TrainingLanguage)
                                                                     .Include(s => s.TimeUnit)
                                                                     .Include(s => s.TrainingLevel)
                                                                     .Include(s => s.TrainingStatus)
@@ -151,8 +152,9 @@ public class TrainingManager : ManagerBase, ITrainingManager
                                                                             .ThenInclude(e => e.ContentType)
                                                                     .Include(s => s.TrainingSections)
                                                                         .ThenInclude(d => d.TrainingContents)
-                                                                            .ThenInclude(e => e.ContentLibraries), // **ContentLibrary Eklendi**
-                                                                    selector: s => mapper.Map<GetTrainingDto>(s));
+                                                                            .ThenInclude(e => e.ContentLibraries) // **ContentLibrary Eklendi**
+                                                                    .Include(s => s.WhatYouWillLearns),
+                                                                            selector: s => mapper.Map<GetTrainingDto>(s));
         return ProduceSuccessResponse(trainingListDto);
 
     }
@@ -160,10 +162,11 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
     public async Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id)
     {
-        var trainingDto = await trainingRepository.GetAsync(
-            predicate: p => p.Id == id,
+        var training = await trainingRepository.GetAsync(
+            predicate: p => p.Id == id && (p.IsDelete == false || p.IsDelete == null),
             include: i => i.Include(s => s.TrainingCategory)
                            .Include(s => s.Instructor)
+                           .Include(s => s.TrainingLanguage)
                            .Include(s => s.TimeUnit)
                            .Include(s => s.TrainingLevel)
                            .Include(s => s.TrainingStatus)
@@ -172,18 +175,18 @@ public class TrainingManager : ManagerBase, ITrainingManager
                            .Include(s => s.Precondition)
                            .Include(s => s.PriceTier)
                            .Include(s => s.TrainingType)
+                           .Include(s => s.TrainingSections.Where(t => t.IsDelete == false || t.IsDelete == null))
+                               .ThenInclude(section => section.TrainingContents.Where(c => c.IsDelete == false || c.IsDelete == null))
+                                   .ThenInclude(content => content.ContentType)
                            .Include(s => s.TrainingSections)
-                            .ThenInclude(section => section.TrainingContents)
-                                .ThenInclude(content => content.ContentType)
-                           .Include(s => s.TrainingSections)
-                            .ThenInclude(section => section.TrainingContents)
-                                .ThenInclude(content => content.ContentLibraries)
-                            .Include(s => s.WhatYouWillLearns),
-
-            selector: s => mapper.Map<GetTrainingDto>(s)
+                               .ThenInclude(section => section.TrainingContents)
+                                   .ThenInclude(content => content.ContentLibraries)
+                           .Include(s => s.WhatYouWillLearns.Where(w => w.IsDelete == false || w.IsDelete == null))
         );
 
+        var trainingDto = mapper.Map<GetTrainingDto>(training);
         return ProduceSuccessResponse(trainingDto);
     }
+
 
 }

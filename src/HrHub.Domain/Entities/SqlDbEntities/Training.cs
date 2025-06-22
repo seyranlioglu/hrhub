@@ -42,6 +42,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string? CongratulationMessage { get; set; }
         public long? EducationLevelId { get; set; }
         public long? PriceTierId { get; set; }
+        public long? TrainingLanguageId { get; set; }
 
         [ForeignKey("TrainingTypeId")]
         public virtual TrainingType TrainingType { get; set; }
@@ -72,6 +73,9 @@ namespace HrHub.Domain.Entities.SqlDbEntities
 
         [ForeignKey("PriceTierId")]
         public virtual PriceTier? PriceTier { get; set; }
+
+        [ForeignKey("TrainingLanguageId")]
+        public virtual TrainingLanguage TrainingLanguage { get; set; }
 
         public virtual ICollection<CartItem> CartItems { get; set; } = null;
         public virtual ICollection<Review> Reviews { get; set; } = null;

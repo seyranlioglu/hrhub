@@ -31,6 +31,7 @@
         public string? SubTitle { get; set; }
         public string? Labels { get; set; }
         public string? CourseImage { get; set; }
+        public long? TrainingLanguageId { get; set; }
 
     }
 }

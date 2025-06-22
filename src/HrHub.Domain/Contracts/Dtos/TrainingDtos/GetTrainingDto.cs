@@ -91,9 +91,18 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         //TrainingSection
         public List<TrainingSectionDto> TrainingSections { get; set; } = new();
 
+        //WhatYouWillLearn
         public List<WhatYouWillLearnDto> WhatYouWillLearns { get; set; }
 
+        //TrainingLanguage
+        public long TrainingLanguageId { get; set; }
+        public string? TrainingLanguageTitle { get; set; }
+        public string? TrainingLanguageAbbreviation { get; set; }
+        public string? TrainingLanguageCode { get; set; }
+        public string? TrainingLanguageDescription { get; set; }
     }
+
+
 
     public class TrainingSectionDto
     {

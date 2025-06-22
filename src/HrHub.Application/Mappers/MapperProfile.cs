@@ -48,7 +48,69 @@ namespace HrHub.Application.Mappers
             //.ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevelId == 0 ? (long?)null : (long?)src.EducationLevelId))
             //.ForMember(dest => dest.PriceTierId, opt => opt.MapFrom(src => src.PriceTierId == 0 ? (long?)null : (long?)src.PriceTierId));
 
-            CreateMap<UpdateTrainingDto, Training>().ReverseMap();
+            CreateMap<UpdateTrainingDto, Training>()
+
+                .ForMember(dest => dest.TrainingLanguageId, opt =>
+                {        
+                    opt.Condition(src => src.TrainingLanguageId != 0);
+                    opt.MapFrom(src => src.TrainingLanguageId);
+                })
+              
+               .ForMember(dest => dest.TrainingLanguage, opt => opt.Ignore()) 
+
+               .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
+               {
+                   if (srcMember == null)
+                       return false;
+
+                   if (srcMember is string str)
+                       return !string.IsNullOrWhiteSpace(str);
+
+
+                   if (srcMember is long l)
+                       return l != 0;
+
+                   if (srcMember is int i)
+                       return i != 0;
+
+                   if (srcMember is decimal d)
+                       return d != 0;
+
+                   if (srcMember is DateTime dt)
+                       return dt != default;
+
+                   if (srcMember is IEnumerable<object> col && !(srcMember is string))
+                       return col.Any();
+
+                   if (srcMember is long valLong)
+                   {
+                       long? nullableLong = valLong;
+                       return nullableLong.HasValue && nullableLong.Value != 0;
+                   }
+
+                   if (srcMember is int valInt)
+                   {
+                       int? nullableInt = valInt;
+                       return nullableInt.HasValue && nullableInt.Value != 0;
+                   }
+
+                   if (srcMember is decimal valDecimal)
+                   {
+                       decimal? nullableDecimal = valDecimal;
+                       return nullableDecimal.HasValue && nullableDecimal.Value != 0;
+                   }
+
+                   if (srcMember is DateTime valDateTime)
+                   {
+                       DateTime? nullableDateTime = valDateTime;
+                       return nullableDateTime.HasValue && nullableDateTime.Value != default;
+                   }
+
+                   return true;
+               }));
+
+
+
             CreateMap<DeleteTrainingDto, Training>().ReverseMap();
 
             CreateMap<Training, GetTrainingDto>()
@@ -74,6 +136,7 @@ namespace HrHub.Application.Mappers
                 .ForMember(dest => dest.CompletionTime, opt => opt.MapFrom(src => src.CompletionTime))
                 .ForMember(dest => dest.TrainingSections, opt => opt.MapFrom(src => src.TrainingSections))
                 .ForMember(dest => dest.WhatYouWillLearns, opt => opt.MapFrom(src => src.WhatYouWillLearns.Where(w => w.TrainingId == src.Id).ToList()));
+
 
 
             CreateMap<WhatYouWillLearn, WhatYouWillLearnDto>()

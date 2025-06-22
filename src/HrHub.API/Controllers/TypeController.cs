@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HrHub.API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    //[ApiController]
     public class TypeController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;

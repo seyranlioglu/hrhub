@@ -6,4 +6,5 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public string? LangCode { get; set; }
     }
+
 }

@@ -93,22 +93,39 @@ namespace HrHub.Application.Managers.TrainingCategories
 
         public async Task<Response<IEnumerable<GetTrainingCategoryDto>>> GetListTrainingCategoryAsync()
         {
-            var categories = await categoryRepository.GetListAsync(predicate: p => (p.IsDelete == false || p.IsDelete == null),
-                                                               include: i => i.Include(c => c.MasterTrainingCategory));
+            var allCategories = await categoryRepository.GetListAsync(predicate: p => (p.IsDelete == false || p.IsDelete == null));
+            var allMapped = mapper.Map<List<GetTrainingCategoryDto>>(allCategories);
 
-            var categoryDto = mapper.Map<IEnumerable<GetTrainingCategoryDto>>(categories);
-            return ProduceSuccessResponse(categoryDto);
+            var topLevel = allMapped.Where(x => x.MasterCategoryId == null);
+            foreach (var parent in topLevel)
+            {
+                parent.SubCategories = allMapped
+                    .Where(x => x.MasterCategoryId == parent.Id)
+                    .ToList();
+            }
+
+            return ProduceSuccessResponse(topLevel);
         }
 
         public async Task<Response<GetTrainingCategoryDto>> GetTrainingCategoryAsync(long id)
         {
-            var categories = await categoryRepository.GetAsync(predicate: p => p.Id == id
-                                                                              && (p.IsDelete == false || p.IsDelete == null),
-                                                               include: i => i.Include(
-                                                               c => c.MasterTrainingCategory));
+            var allCategories = await categoryRepository.GetListAsync(
+                predicate: p => (p.IsDelete == false || p.IsDelete == null),
+                include: i => i.Include(c => c.MasterTrainingCategory)
+            );
 
-            var categoryDto = mapper.Map<GetTrainingCategoryDto>(categories);
-            return ProduceSuccessResponse(categoryDto);
+            var mappedCategories = mapper.Map<List<GetTrainingCategoryDto>>(allCategories);
+
+            foreach (var parent in mappedCategories)
+            {
+                parent.SubCategories = mappedCategories
+                    .Where(x => x.MasterCategoryId == parent.Id)
+                    .ToList();
+            }
+
+            var selectedCategory = mappedCategories.FirstOrDefault(x => x.Id == id);
+            return ProduceSuccessResponse(selectedCategory);
         }
+
     }
 }

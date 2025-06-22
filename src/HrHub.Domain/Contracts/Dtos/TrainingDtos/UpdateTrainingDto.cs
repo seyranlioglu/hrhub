@@ -1,4 +1,6 @@
-﻿namespace HrHub.Domain.Contracts.Dtos.TrainingDtos
+﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+
+namespace HrHub.Domain.Contracts.Dtos.TrainingDtos
 {
     public class UpdateTrainingDto
     {
@@ -33,8 +35,10 @@
         public string? SubTitle { get; set; }
         public string? Labels { get; set; }
         public string? CourseImage { get; set; }
+        public long? TrainingLanguageId { get; set; }
         public List<ContentDto?> ContentOrderIds { get; set; } = new();
     }
+
 
     public class ContentDto
     {

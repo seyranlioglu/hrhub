@@ -25,6 +25,7 @@
          public const string TrainingStatus = "TrainingStatus";
          public const string TrainingType = "TrainingType";
          public const string WhatYouWillLearn = "WhatYouWillLearn";
+         public const string TrainingLanguage = "TrainingLanguage";
 
     }
 }
