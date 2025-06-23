@@ -10,6 +10,7 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         public string? LangCode { get; set; }
 
         // Category Details
+        public long? CategoryId { get; set; }
         public string? CategoryCode { get; set; }
         public string? CategoryTitle { get; set; }
         public string? CategoryDescription { get; set; }
