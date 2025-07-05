@@ -11,6 +11,7 @@ using HrHub.Core.Helpers;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Entities.SqlDbEntities;
+using HrHub.Infrastructre.Repositories.Concrete;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
     private readonly Repository<Training> trainingRepository;
     private readonly Repository<TrainingStatus> trainingStatuRepository;
     private readonly Repository<TrainingContent> trainingContentRepository;
-
+    private readonly Repository<TrainingSection> trainingSectionRepository;
     public TrainingManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork hrUnitOfWork,
                            IMapper mapper) : base(httpContextAccessor)
@@ -33,6 +34,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         trainingRepository = hrUnitOfWork.CreateRepository<Training>();
         trainingStatuRepository = hrUnitOfWork.CreateRepository<TrainingStatus>();
         trainingContentRepository = hrUnitOfWork.CreateRepository<TrainingContent>();
+        trainingSectionRepository = hrUnitOfWork.CreateRepository<TrainingSection>();
         this.mapper = mapper;
     }
 
@@ -79,20 +81,33 @@ public class TrainingManager : ManagerBase, ITrainingManager
             trainingRepository.Update(mapperData);
         }
 
+        int sectionOrder = 0;
+        foreach (var section in dto.ContentOrderIds)
+        {
+            var trainingSection = await trainingSectionRepository.GetAsync(x => x.Id == section.SectionId);
+            if (trainingSection is not null)
+            {
+                trainingSection.RowNumber = ++sectionOrder;
+                trainingSection.UpdateDate = DateTime.UtcNow;
+                trainingSection.UpdateUserId = GetCurrentUserId();
+                trainingSectionRepository.Update(trainingSection);
+            }
+        }
+
         #region **TrainingContent_Section Update
         if (dto.ContentOrderIds != null && dto.ContentOrderIds.Any())
         {
             foreach (var section in dto.ContentOrderIds)
             {
                 var sectionContents = await trainingContentRepository.GetListAsync(c => c.TrainingSectionId == section.SectionId);
-                int newOrder = 1;
+                int newOrder = 0;
 
                 foreach (var content in section.Contents)
                 {
                     var existingContent = sectionContents.FirstOrDefault(c => c.Id == content.ContentId);
                     if (existingContent != null)
                     {
-                        existingContent.OrderId = newOrder++;
+                        existingContent.OrderId = ++newOrder;
                         existingContent.UpdateDate = DateTime.UtcNow;
                         existingContent.UpdateUserId = this.GetCurrentUserId();
                     }
