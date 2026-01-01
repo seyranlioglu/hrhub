@@ -57,7 +57,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual TimeUnit? TimeUnit { get; set; }
 
         [ForeignKey("TrainingLevelId")]
-        public virtual TrainingLevel? TrainingLevel { get; set; }
+        public virtual TrainingLevel TrainingLevel { get; set; }
 
         [ForeignKey("TrainingStatusId")]
         public virtual TrainingStatus? TrainingStatus { get; set; }

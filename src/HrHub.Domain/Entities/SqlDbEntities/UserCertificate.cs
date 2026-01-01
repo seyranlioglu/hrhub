@@ -1,4 +1,5 @@
 ﻿using HrHub.Core.Domain.Entity;
+using HrHub.Domain.Contracts.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
@@ -20,6 +21,18 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string ProviderTitle { get; set; }
         public string VerificationURL { get; set; }
         public Guid CertificateId { get; set; }
+        public string? GeneratedFilePath { get; set; }
+        /// <summary>
+        /// Sertifikanın anlık durumu (Hazırlanıyor, Tamamlandı, Hata)
+        /// </summary>
+        public CertificateStatus Status { get; set; } = CertificateStatus.Preparing; // Default değer
+
+        /// <summary>
+        /// Eğer Status = Failed ise, hatanın ne olduğunu buraya yazarız.
+        /// </summary>
+        public string? ErrorMessage { get; set; }
+
+
 
 
         [ForeignKey("CertificateTemplateId")]

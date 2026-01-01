@@ -12,5 +12,8 @@ public interface ITrainingManager : IBaseManager
     Task<Response<CommonResponse>> DeleteTrainingAsync(long id, CancellationToken cancellationToken = default);
     Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id);
     Task<Response<IEnumerable<GetTrainingDto>>> GetTrainingListAsync();
+    Task<Response<CommonResponse>> ReorderTrainingContentAsync(ReorderTrainingContentDto dto, CancellationToken cancellationToken = default);
     Task<Response<CommonResponse>> UpdateTrainingAsync(UpdateTrainingDto dto, CancellationToken cancellationToken = default);
+    Task<Response<IEnumerable<GetMyTrainingDto>>> GetMyTrainingsAsync(CancellationToken cancellationToken = default);
+    Task<Response<TrainingDetailDto>> GetTrainingDetailForUserAsync(long trainingId);
 }

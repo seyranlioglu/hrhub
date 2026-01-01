@@ -59,5 +59,21 @@ namespace HrHub.API.Controllers
         {
             return await trainingContentManager.GetTrainingContentAsync(id).ConfigureAwait(false);
         }
+
+        [HttpPost("[Action]")]
+        // [Authorize(Roles = "User")] // İhtiyaca göre yetki
+        public async Task<Response<CommonResponse>> LogProgress([FromBody] LogWatchProgressDto logDto)
+        {
+            // URL: api/TrainingContent/LogProgress
+            return await trainingContentManager.LogWatchProgressAsync(logDto).ConfigureAwait(false);
+        }
+
+        [HttpGet("[Action]/{id}")]
+        // [Authorize(Roles = "User")] // Sadece giriş yapmış kullanıcılar
+        public async Task<Response<GetContentForPlayerDto>> GetContentForUser(long id)
+        {
+            // URL: api/TrainingContent/GetContentForPlayer/123
+            return await trainingContentManager.GetTrainingContentByIdForUserAsync(id).ConfigureAwait(false);
+        }
     }
 }

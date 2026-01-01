@@ -95,7 +95,7 @@ namespace HrHub.Application.Managers.CurrAccTrainingManagers
                                                                          include: i => i.Include(s => s.CurrAcc)
                                                                                         .Include(i => i.Training)
                                                                                         .Include(w => w.CurrAccTrainingStatus)
-                                                                                        .Include(d => d.User),
+                                                                                        .Include(d => d.ConfirmUser),
                                                                          selector: s => mapper.Map<GetCurrAccTrainingDto>(s));
             return ProduceSuccessResponse(trainings);
         }
@@ -106,7 +106,7 @@ namespace HrHub.Application.Managers.CurrAccTrainingManagers
                                                                          include: i => i.Include(s => s.CurrAcc).ThenInclude(s => s.CurrAccType)
                                                                                         .Include(i => i.Training)
                                                                                         .Include(w => w.CurrAccTrainingStatus)
-                                                                                        .Include(d => d.User),
+                                                                                        .Include(d => d.ConfirmUser),
                                                                          selector: s => mapper.Map<GetCurrAccTrainingDto>(s));
             return ProduceSuccessResponse(trainings);
         }

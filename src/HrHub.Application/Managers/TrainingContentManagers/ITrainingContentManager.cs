@@ -13,5 +13,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
         Task<Response<GetTrainingContentDto>> GetTrainingContentAsync(long id);
         Task<Response<IEnumerable<GetListTrainingContentDto>>> GetTrainingContentListAsync();
         Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default);
+        Task<Response<CommonResponse>> LogWatchProgressAsync(LogWatchProgressDto logDto, CancellationToken cancellationToken = default);
+        Task<Response<GetContentForPlayerDto>> GetTrainingContentByIdForUserAsync(long id);
     }
 }

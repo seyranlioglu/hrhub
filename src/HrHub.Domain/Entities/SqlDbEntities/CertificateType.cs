@@ -10,6 +10,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             ExamResults = new HashSet<ExamResult>();
         }
         public string? LangCode { get; set; }
+        public int MinScore { get; set; }
+        public int MaxScore { get; set; }
 
 
         public virtual ICollection<CertificateTemplate> CertificateTemplates { get; set; }

@@ -52,6 +52,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
         private readonly Repository<UserAnswer> userAnswerRepository;
         private readonly ICommonTypeBaseManager<ExamVersionStatus> ExamVersionStatus;
         private readonly MessageSenderFactory messageSenderFactory;
+        private readonly Repository<CurrAccTrainingUser> currAccTrainingUserRepository;
         private readonly IMapper mapper;
         public ExamManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork unitOfWork,
@@ -69,6 +70,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             this.userExamRepository = unitOfWork.CreateRepository<UserExam>();
             this.examActionRepository = unitOfWork.CreateRepository<ExamAction>();
             this.userAnswerRepository = unitOfWork.CreateRepository<UserAnswer>();
+            this.currAccTrainingUserRepository = unitOfWork.CreateRepository<CurrAccTrainingUser>();
             this.ExamVersionStatus = ExamVersionStatus;
             this.mapper = mapper;
             this.messageSenderFactory = messageSenderFactory;
@@ -332,8 +334,23 @@ namespace HrHub.Application.Managers.ExamOperationManagers
             oldExam.Title = updateData.Title;
             oldExam.ActionId = updateData.ActionId;
             var versionData = oldExam.ExamVersions.FirstOrDefault();
+
+            if (versionData is null)
+                return ProduceFailResponse<CommonResponse>("Güncellenecek Sınav Versiyonu Bulunamadı!", HrStatusCodes.Status111DataNotFound);
+
             versionData.VersionDescription = updateData.VersionInfo.VersionDescription;
-            versionData.ExamTime = updateData.VersionInfo.ExamTime;
+            if (TimeSpan.TryParse(updateData.VersionInfo.ExamTime, out TimeSpan parsedTime))
+            {
+                versionData.ExamTime = parsedTime;
+            }
+            else
+            {
+                // Parse işlemi başarısızsa hata dön
+                return ProduceFailResponse<CommonResponse>(
+                    "Sınav süresi formatı geçersiz! Lütfen 'HH:mm:ss' formatında giriniz. (Örn: 00:45:00)",
+                    StatusCodes.Status400BadRequest
+                );
+            }
             versionData.SuccessRate = updateData.VersionInfo.SuccesRate;
             versionData.PassingScore = updateData.VersionInfo.PassingScore;
             versionData.TotalQuestionCount = updateData.VersionInfo.TotalQuestionCount;
@@ -708,83 +725,202 @@ namespace HrHub.Application.Managers.ExamOperationManagers
 
         public async Task<Response<GetExamInstructionResponse>> PrePrepareExamForStudentAsync(GetExamDto filter, CancellationToken cancellationToken = default)
         {
-            var validator = new FieldBasedValidator<GetExamDto>();
-            var validateResult = validator.Validate(filter);
+            var currentUserId = GetCurrentUserId();
 
-            if (!validateResult.IsValid)
-                return validateResult.SendResponse<GetExamInstructionResponse>();
+            // 1. Sınavın Aktif Versiyonunu ve Konu Başlıklarını Çek
+            // Include zincirine ExamTopics ekledik çünkü response modelinde konu listesi isteniyor.
+            var activeVersion = await examVersionRepository.GetAsync(
+                predicate: x => x.ExamId == filter.ExamId && x.IsPublished == true,
+                include: i => i.Include(v => v.Exam).ThenInclude(e => e.TrainingContents)
+                               .Include(v => v.ExamTopics).ThenInclude(t => t.ExamQuestions)
+            );
 
-            // Fetch only exam and question details dynamically with includes
-            var examData = await examRepository.GetAsync(
-                    e => e.Id == filter.ExamId
-                    && e.IsActive == true
-                    && (e.IsDelete == false || e.IsDelete == null)
-                    && e.ExamVersions.Any(ev => ev.IsPublished == true
-                                                && ev.IsActive == true
-                                                && (ev.IsDelete == false || ev.IsDelete == null)),
-                    include: q => q.Include(e => e.ExamVersions)
-                                    .ThenInclude(ev => ev.ExamTopics)
-                                    .ThenInclude(et => et.ExamQuestions)
-                                    .ThenInclude(eq => eq.QuestionOptions),
-                    selector: e => new
-                    {
-                        ExamVersionId = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.Id).FirstOrDefault(),
-                        Title = e.Title,
-                        Description = e.Description,
-                        SuccessRate = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.SuccessRate).FirstOrDefault(),
-                        ExamTime = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.ExamTime).FirstOrDefault(),
-                        TopicsName = e.ExamVersions.Where(ev => ev.IsPublished).SelectMany(ev => ev.ExamTopics).Select(t => t.Title).ToArray(),
-                        PassingScore = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.PassingScore).FirstOrDefault(),
-                        Questions = e.ExamVersions.Where(ev => ev.IsPublished)
-                                               .SelectMany(ev => ev.ExamTopics)
-                                               .SelectMany(et => et.ExamQuestions)
-                                               .Select((q, index) => new
-                                               {
-                                                   QuestionId = q.Id,
-                                                   QuestionText = q.QuestionText,
-                                                   SeqNumber = index + 1,
-                                                   Options = q.QuestionOptions.Select(qo => new
-                                                   {
-                                                       OptionId = qo.Id,
-                                                       OptionText = qo.OptionText
-                                                   }).ToList()
-                                               }).ToList()
-                    });
+            if (activeVersion == null)
+                return ProduceFailResponse<GetExamInstructionResponse>("Aktif sınav versiyonu bulunamadı.", HrStatusCodes.Status111DataNotFound);
 
-            if (examData == null || !examData.Questions.Any())
-                return ProduceFailResponse<GetExamInstructionResponse>("Exam not ready!", HrStatusCodes.Status111DataNotFound);
+            // 2. Kullanıcının AÇIK (Bitmemiş) bir oturumu var mı?
+            var activeSession = await userExamRepository.GetAsync(
+                predicate: ue => ue.ExamVersionId == activeVersion.Id
+                              && ue.CurrAccTrainingUser.UserId == currentUserId
+                              && ue.IsCompleted == false,
+                include: i => i.Include(ue => ue.UserAnswers) // Soru sayısını buradan alabiliriz
+            );
 
-            // Save UserExam and UserAnswers in a single transaction
-            var userExam = new UserExam
+            long userExamIdToReturn;
+            int totalQuestionCountToReturn;
+
+            // --- SENARYO A: Zaten açık bir sınavı var (Resume) ---
+            if (activeSession != null)
             {
-                ExamVersionId = examData.ExamVersionId,
-                IsCompleted = false,
-                StartDate = null, // Not started yet
-                SuccessRate = examData.SuccessRate ?? 0,
-                PassingScore = examData.PassingScore ?? 0,
-                UserAnswers = examData.Questions.Select(q => new UserAnswer
+                userExamIdToReturn = activeSession.Id;
+                totalQuestionCountToReturn = activeSession.UserAnswers.Count;
+            }
+            else
+            {
+                // --- SENARYO B: Hiç yok veya öncekilerden kalmış (YENİ SINAV OLUŞTUR) ---
+
+                // Atamayı bul
+                var trainingContentId = activeVersion.Exam.TrainingContents.FirstOrDefault()?.Id;
+                var assignment = await currAccTrainingUserRepository.GetAsync(
+                     x => x.UserId == currentUserId
+                     && x.CurrAccTrainings.Training.TrainingSections
+                            .Any(section => section.TrainingContents.Any(tc => tc.Id == trainingContentId))
+                     && x.IsActive == true
+                );
+
+                if (assignment == null)
+                    return ProduceFailResponse<GetExamInstructionResponse>("Eğitim ataması bulunamadı.", HrStatusCodes.Status111DataNotFound);
+
+                // Soruları Hazırla
+                var newAnswers = new List<UserAnswer>();
+                int seqCounter = 1;
+
+                // Konulara (ExamTopics) göre soruları seçip karıştırıyoruz
+                foreach (var topic in activeVersion.ExamTopics)
                 {
-                    QuestionId = q.QuestionId,
-                    SeqNumber = q.SeqNumber
-                }).ToList()
-            };
+                    // Soru seçimi (Randomize)
+                    // Not: Eğer Topic tablosunda 'QuestionCount' (Kaç soru sorulacak?) alanı varsa .Take(n) kullanmalısın.
+                    var questionsToAsk = topic.ExamQuestions.OrderBy(x => Guid.NewGuid()).ToList();
 
-            await userExamRepository.AddAsync(userExam, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+                    foreach (var q in questionsToAsk)
+                    {
+                        newAnswers.Add(new UserAnswer
+                        {
+                            QuestionId = q.Id,
+                            SeqNumber = seqCounter++,
+                            // AnswerId boş
+                        });
+                    }
+                }
 
+                if (!newAnswers.Any())
+                    return ProduceFailResponse<GetExamInstructionResponse>("Sınav soruları hazırlanmamış.", HrStatusCodes.Status111DataNotFound);
+
+                // YENİ UserExam Kaydı
+                var newUserExam = new UserExam
+                {
+                    ExamVersionId = activeVersion.Id,
+                    CurrAccTrainingUserId = assignment.Id,
+                    StartDate = DateTime.UtcNow,
+                    IsCompleted = false,
+                    IsSuccess = false,
+                    SuccessRate = 0,
+                    UserAnswers = newAnswers
+                };
+
+                await userExamRepository.AddAsync(newUserExam);
+                await unitOfWork.SaveChangesAsync();
+
+                userExamIdToReturn = newUserExam.Id;
+                totalQuestionCountToReturn = newAnswers.Count;
+            }
+
+            // --- RESPONSE HAZIRLAMA (Mevcut DTO'ya Göre) ---
             var response = new GetExamInstructionResponse
             {
-                ExamVersionId = examData.ExamVersionId,
-                UserExamId = userExam.Id,
-                Title = examData.Title,
-                Description = examData.Description,
-                ExamTime = examData.ExamTime,
-                TotalQuestionCount = examData.Questions.Count,
-                TopicsNames = examData.TopicsName.ToList()
+                ExamVersionId = activeVersion.Id,
+                UserExamId = userExamIdToReturn,
+                Title = activeVersion.Exam.Title, // Veya activeVersion.Title varsa
+                Description = activeVersion.VersionDescription,
+                ExamTime = activeVersion.ExamTime,
+                TotalQuestionCount = totalQuestionCountToReturn,
+
+                // Konu isimleri listesi
+                TopicsNames = activeVersion.ExamTopics.Select(t => t.Title).ToList(),
+
+                // Konu detay listesi (ExamTopicInstruction)
+                // Not: ExamTopicInstruction sınıfının içindeki alanlara göre burayı maplemelisin.
+                Topics = activeVersion.ExamTopics.Select(t => new ExamTopicInstruction
+                {
+                    // TopicId = t.Id, // Eğer DTO'da Id varsa
+                    // Title = t.Title, 
+                    // QuestionCount = t.ExamQuestions.Count // Veya sorulacak soru sayısı
+                    // Description = t.Description // Varsa
+                }).ToList()
             };
 
             return ProduceSuccessResponse(response);
         }
+
+        //public async Task<Response<GetExamInstructionResponse>> PrePrepareExamForStudentAsync(GetExamDto filter, CancellationToken cancellationToken = default)
+        //{
+        //    var validator = new FieldBasedValidator<GetExamDto>();
+        //    var validateResult = validator.Validate(filter);
+
+        //    if (!validateResult.IsValid)
+        //        return validateResult.SendResponse<GetExamInstructionResponse>();
+
+        //    // Fetch only exam and question details dynamically with includes
+        //    var examData = await examRepository.GetAsync(
+        //            e => e.Id == filter.ExamId
+        //            && e.IsActive == true
+        //            && (e.IsDelete == false || e.IsDelete == null)
+        //            && e.ExamVersions.Any(ev => ev.IsPublished == true
+        //                                        && ev.IsActive == true
+        //                                        && (ev.IsDelete == false || ev.IsDelete == null)),
+        //            include: q => q.Include(e => e.ExamVersions)
+        //                            .ThenInclude(ev => ev.ExamTopics)
+        //                            .ThenInclude(et => et.ExamQuestions)
+        //                            .ThenInclude(eq => eq.QuestionOptions),
+        //            selector: e => new
+        //            {
+        //                ExamVersionId = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.Id).FirstOrDefault(),
+        //                Title = e.Title,
+        //                Description = e.Description,
+        //                SuccessRate = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.SuccessRate).FirstOrDefault(),
+        //                ExamTime = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.ExamTime).FirstOrDefault(),
+        //                TopicsName = e.ExamVersions.Where(ev => ev.IsPublished).SelectMany(ev => ev.ExamTopics).Select(t => t.Title).ToArray(),
+        //                PassingScore = e.ExamVersions.Where(ev => ev.IsPublished).Select(ev => ev.PassingScore).FirstOrDefault(),
+        //                Questions = e.ExamVersions.Where(ev => ev.IsPublished)
+        //                                       .SelectMany(ev => ev.ExamTopics)
+        //                                       .SelectMany(et => et.ExamQuestions)
+        //                                       .Select((q, index) => new
+        //                                       {
+        //                                           QuestionId = q.Id,
+        //                                           QuestionText = q.QuestionText,
+        //                                           SeqNumber = index + 1,
+        //                                           Options = q.QuestionOptions.Select(qo => new
+        //                                           {
+        //                                               OptionId = qo.Id,
+        //                                               OptionText = qo.OptionText
+        //                                           }).ToList()
+        //                                       }).ToList()
+        //            });
+
+        //    if (examData == null || !examData.Questions.Any())
+        //        return ProduceFailResponse<GetExamInstructionResponse>("Exam not ready!", HrStatusCodes.Status111DataNotFound);
+
+        //    // Save UserExam and UserAnswers in a single transaction
+        //    var userExam = new UserExam
+        //    {
+        //        ExamVersionId = examData.ExamVersionId,
+        //        IsCompleted = false,
+        //        StartDate = null, // Not started yet
+        //        SuccessRate = examData.SuccessRate ?? 0,
+        //        PassingScore = examData.PassingScore ?? 0,
+        //        UserAnswers = examData.Questions.Select(q => new UserAnswer
+        //        {
+        //            QuestionId = q.QuestionId,
+        //            SeqNumber = q.SeqNumber
+        //        }).ToList()
+        //    };
+
+        //    await userExamRepository.AddAsync(userExam, cancellationToken);
+        //    await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        //    var response = new GetExamInstructionResponse
+        //    {
+        //        ExamVersionId = examData.ExamVersionId,
+        //        UserExamId = userExam.Id,
+        //        Title = examData.Title,
+        //        Description = examData.Description,
+        //        ExamTime = examData.ExamTime,
+        //        TotalQuestionCount = examData.Questions.Count,
+        //        TopicsNames = examData.TopicsName.ToList()
+        //    };
+
+        //    return ProduceSuccessResponse(response);
+        //}
 
         public async Task<Response<GetNextQuestionResponse>> GetNextQuestionAsync(GetNextQuestionDto filter, CancellationToken cancellationToken = default)
         {
@@ -924,5 +1060,7 @@ namespace HrHub.Application.Managers.ExamOperationManagers
                 Message = isSuccess ? "Congratulations, you passed the exam!" : "Unfortunately, you did not meet the passing criteria."
             });
         }
+
+
     }
 }

@@ -29,7 +29,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual CurrAccTrainingStatus CurrAccTrainingStatus { get; set; }
 
         [ForeignKey("ConfirmUserId")]
-        public virtual User User { get; set; }
+        public virtual User ConfirmUser { get; set; }
 
         public virtual ICollection<CurrAccTrainingUser> CurrAccTrainingUsers { get; set; } = null;
     }

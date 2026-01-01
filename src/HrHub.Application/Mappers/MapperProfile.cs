@@ -1,5 +1,6 @@
 ﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Core.Mapper;
+using HrHub.Domain.Contracts.Dtos.CertificateDtos;
 using HrHub.Domain.Contracts.Dtos.CommentVoteDtos;
 using HrHub.Domain.Contracts.Dtos.ContentCommentDtos;
 using HrHub.Domain.Contracts.Dtos.ContentLibraryDtos;
@@ -24,6 +25,21 @@ namespace HrHub.Application.Mappers
     {
         public MapperProfile()
         {
+            CreateMap<UserCertificate, UserCertificateDto>()
+                .ForMember(dest => dest.TemplateTitle, opt => opt.MapFrom(src => src.CertificateTemplate.Title))
+                .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.CurrAccTrainingUser.CurrAccTrainings.Training.Name));
+
+            CreateMap<AddUserCertificateDto, UserCertificate>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // DB Primary Key (long) ignore
+                .ForMember(dest => dest.CreateUserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.IsDelete, opt => opt.MapFrom(src => false));
+            // Not: CertificateId isimleri tuttuğu için otomatik maplenir.
+
+            CreateMap<UserCertificate, AddUserCertificateDto>().ReverseMap();
+
+
             #region ContentType
             CreateMap<ContentTypeDto, ContentType>().ReverseMap();
             CreateMap<AddExamDto, Exam>()

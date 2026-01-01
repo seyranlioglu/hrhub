@@ -1,5 +1,6 @@
 ﻿using HrHub.Core.Domain.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -7,22 +8,23 @@ namespace HrHub.Domain.Entities.SqlDbEntities
     {
         public UserContentsViewLog()
         {
-            UserContentsViewLogs = new HashSet<UserContentsViewLog>();
+            UserContentsViewLogDetails = new HashSet<UserContentsViewLogDetail>();
         }
         public long TrainingContentId { get; set; }
         public long CurrAccTrainingUserId { get; set; }
         public bool IsActive { get; set; }
-        public bool State { get; set; }
+        public bool IsCompleted { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime CompletedDate { get; set; }
+        [AllowNull]
+        public DateTime? CompletedDate { get; set; }
 
         [ForeignKey("TrainingContentId")]
         public virtual TrainingContent TrainingContent { get; set; }
 
         [ForeignKey("CurrAccTrainingUserId")]
-        public virtual CurrAcc CurrAcc { get; set; }
+        public virtual CurrAccTrainingUser CurrAccTrainingUser { get; set; }
 
 
-        public virtual ICollection<UserContentsViewLog> UserContentsViewLogs { get; set; } = null;
+        public virtual ICollection<UserContentsViewLogDetail> UserContentsViewLogDetails { get; set; } = null;
     }
 }

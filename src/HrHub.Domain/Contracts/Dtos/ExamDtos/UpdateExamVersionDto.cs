@@ -21,7 +21,7 @@ namespace HrHub.Domain.Contracts.Dtos.ExamDtos
         public int VersionNumber { get; set; }
         public bool IsPublished { get; set; }
         [ValidationRules(typeof(PositiveTimeSpanRule))]
-        public TimeSpan ExamTime { get; set; }
+        public string ExamTime { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]
         public decimal SuccesRate { get; set; }
         [ValidationRules(typeof(ZeroCheckRule))]

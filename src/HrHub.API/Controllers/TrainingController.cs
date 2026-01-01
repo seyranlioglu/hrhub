@@ -63,5 +63,27 @@ namespace HrHub.API.Controllers
         {
             return await trainingManager.GetTrainingByIdAsync(id).ConfigureAwait(false);
         }
+
+        [HttpPut("[Action]")]
+        // [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)] // Gerekirse aç
+        public async Task<Response<CommonResponse>> ReorderContent([FromBody] ReorderTrainingContentDto data)
+        {
+            // Frontend'e not: Endpoint URL'i -> api/Training/ReorderContent
+            return await trainingManager.ReorderTrainingContentAsync(data).ConfigureAwait(false);
+        }
+
+        [HttpGet("[Action]")]
+        // [Authorize(Roles = "User")] // Sadece user yetkisi yeterli
+        public async Task<Response<IEnumerable<GetMyTrainingDto>>> GetMyTrainings()
+        {
+            return await trainingManager.GetMyTrainingsAsync().ConfigureAwait(false);
+        }
+
+        [HttpGet("[Action]/{id}")]
+        // [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.Instructor)] // Gerekirse aç
+        public async Task<Response<TrainingDetailDto>> GetDetailForUser(long id)
+        {
+            return await trainingManager.GetTrainingDetailForUserAsync(id).ConfigureAwait(false);
+        }
     }
 }
