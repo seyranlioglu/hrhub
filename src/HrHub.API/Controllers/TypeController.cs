@@ -1,4 +1,7 @@
 ﻿using HrHub.Application.Helpers;
+using HrHub.Application.Managers.TypeManagers;
+using HrHub.Domain.Contracts.Dtos.CurrAccTypeDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrHub.API.Controllers
@@ -8,11 +11,25 @@ namespace HrHub.API.Controllers
     public class TypeController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly ICurrAccTypeManager _currAccTypeManager;
 
-        public TypeController(IServiceProvider serviceProvider)
+        public TypeController(IServiceProvider serviceProvider, ICurrAccTypeManager currAccTypeManager)
         {
             _serviceProvider = serviceProvider;
+            _currAccTypeManager = currAccTypeManager;
         }
+
+        [HttpGet("[Action]")]
+        [AllowAnonymous]
+        public async Task<List<GetCurrAccTypeDto>> GetCurrAccTypes()
+        {
+            var result = await _currAccTypeManager.GetList<GetCurrAccTypeDto>();
+            if (result == null)
+                return new List<GetCurrAccTypeDto>();
+
+            return result.ToList();
+        }
+
         [HttpPost("[Action]")]
         public async Task<IActionResult> Add([FromQuery] string typeEntity, [FromBody] object requestData)
         {

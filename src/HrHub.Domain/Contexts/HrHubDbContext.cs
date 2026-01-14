@@ -69,6 +69,11 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<PriceTier> PriceTiers { get; set; }
         public virtual DbSet<PasswordHistory> PasswordHistories { get; set; }
         public virtual DbSet<TrainingLanguage> TrainingLanguages { get; set; }
+        public virtual DbSet<TrainingProcessRequest> TrainingProcessRequests { get; set; }
+        public virtual DbSet<SysMenu> SysMenus { get; set; }
+        public virtual DbSet<SysMenuRole> SysMenuRoles { get; set; }
+        public virtual DbSet<SysMenuPolicy> SysMenuPolicies { get; set; }
+        public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

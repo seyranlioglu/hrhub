@@ -58,15 +58,17 @@ namespace HrHub.Application.Managers.UserManagers
         {
             if (ValidationHelper.RuleBasedValidator<UserSignUpDto>(data, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<UserSignUpResponse>();
+            var accountType = await commonTypeBaseManager.GetIdByCodeAsync(data.CurrAccTypeCode);
 
             var currAcc = mapper.Map<CurrAcc>(data);
             currAcc.CreatedDate = DateTime.UtcNow;
+            currAcc.CurrAccTypeId = accountType;
+            currAcc.IdentityNumber = String.IsNullOrEmpty(data.IdentityNumber) ? " " : data.IdentityNumber;
 
             var curAccEntity = await currAccRepository.AddAndReturnAsync(currAcc);
             await unitOfWork.SaveChangesAsync();
-            string password = PasswordHepler.GeneratePassword(8, true, true, true);
             var signUpModel = mapper.Map<SignUpDto>(data);
-            signUpModel.Password = password;
+            signUpModel.Password = data.Password;
             signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
             signUpModel.CurrAccId = curAccEntity.Id;
             signUpModel.IsMainUser = true;
@@ -90,7 +92,7 @@ namespace HrHub.Application.Managers.UserManagers
                                 PasswordChangeDate = DateTime.UtcNow,
                                 ExpiryDate = DateTime.UtcNow.AddMonths(6),
                                 ChangeReason = "Password created",
-                                Password = AesEncrypion.EncryptString(password),
+                                Password = AesEncrypion.EncryptString(data.Password),
                                 CreatedDate = DateTime.UtcNow
                             };
                             await passwordHistoryRepository.AddAsync(passwordHistory);
@@ -220,16 +222,32 @@ namespace HrHub.Application.Managers.UserManagers
 
         public async Task<Response<UserSignInResponse>> SignIn(UserSignInDto request, CancellationToken cancellationToken = default)
         {
+            // 1. Validasyon (Fluent Validation kuralları çalışır)
             if (ValidationHelper.RuleBasedValidator<UserSignInDto>(request, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<UserSignInResponse>();
 
-            var user = await userRepository.GetAsync(p => p.Email == request.UserName, include: i => i.Include(s => s.Instructor));
-            var result = await authenticationService.SignIn(new SignInViewModelResource { Email = request.UserName, Password = request.Password });
+            // 2. KULLANICIYI BULMA (DÜZELTİLDİ)
+            // Hem Email hem de Telefon alanında arama yapıyoruz.
+            var user = await userRepository.GetAsync(
+                p => p.Email == request.UserName || p.PhoneNumber == request.UserName,
+                include: i => i.Include(s => s.Instructor)
+            );
+
+            // Eğer kullanıcı bulunamazsa (Validasyon geçse bile DB'de yoksa)
+            if (user == null)
+                return ProduceFailResponse<UserSignInResponse>("Kullanıcı veya şifre hatalı.", StatusCodes.Status404NotFound);
+
+            // 3. KİMLİK DOĞRULAMA (Auth Service)
+            // Not: Kullanıcı telefonla girmiş olsa bile, Auth servisine gerçek Email'ini veriyoruz.
+            // Çünkü Identity genelde Email/Username üzerinden şifre kontrolü yapar.
+            var result = await authenticationService.SignIn(new SignInViewModelResource { Email = user.Email, Password = request.Password });
+
             if (result == null)
-                return ProduceFailResponse<UserSignInResponse>("Kullanıcı Girişi Başarısız..", StatusCodes.Status500InternalServerError);
+                return ProduceFailResponse<UserSignInResponse>("Giriş başarısız, şifre hatalı olabilir.", StatusCodes.Status401Unauthorized);
+
+            // 4. RESPONSE OLUŞTURMA
             VerifySignInResponse response = new VerifySignInResponse
             {
-
                 Expiration = result.Expiration,
                 Token = result.Token,
                 RefreshToken = result.RefreshToken,
@@ -241,23 +259,45 @@ namespace HrHub.Application.Managers.UserManagers
                 PhoneNumber = user.PhoneNumber,
                 InstructorCode = user.Instructor?.InstructorCode
             };
-            string receiver = request.UserName;
-            string message = VerificationHelper.MaskEmail(request.UserName) + " mail adresinize doğrulama kodu gönderilmiştir.";
-            SubmissionTypeEnum type = SubmissionTypeEnum.Email;
-            if (request.Type == SubmissionTypeEnum.Sms)
-            {
 
+            // 5. DOĞRULAMA KODU GÖNDERİM AYARLARI (DÜZELTİLDİ)
+            string receiver = "";
+            string message = "";
+            SubmissionTypeEnum type = request.Type; // Request'ten gelen tipi al (Email veya Sms)
+
+            // Eğer Frontend SMS istediyse
+            if (type == SubmissionTypeEnum.Sms)
+            {
+                // Alıcıyı veritabanındaki kayıtlı telefondan alıyoruz (Request'ten gelen ham veriden değil)
                 receiver = user.PhoneNumber;
-                message = VerificationHelper.MaskPhoneNumber(receiver) + "  telefonunuza doğrulama kodu gönderilmiştir.";
-                type = SubmissionTypeEnum.Sms;
+
+                if (string.IsNullOrEmpty(receiver))
+                    return ProduceFailResponse<UserSignInResponse>("Kayıtlı telefon numarası bulunamadı.", StatusCodes.Status400BadRequest);
+
+                message = VerificationHelper.MaskPhoneNumber(receiver) + " telefonunuza doğrulama kodu gönderilmiştir.";
+            }
+            // Eğer Frontend EMAIL istediyse (veya varsayılan)
+            else
+            {
+                receiver = user.Email;
+                message = VerificationHelper.MaskEmail(receiver) + " mail adresinize doğrulama kodu gönderilmiştir.";
+                type = SubmissionTypeEnum.Email; // Garanti olsun diye set et
             }
 
-            // Doğrulama kodu oluştur ve gönder
+            // 6. KODU OLUŞTUR VE GÖNDER
             string verificationCode = VerificationHelper.GenerateVerificationCode();
+
+            // SendVerifyCode metoduna doğru 'receiver' ve 'type' gidiyor
             await SendVerifyCode(receiver, verificationCode, type, MessageTemplates.Login);
+
+            // 7. CACHE İŞLEMLERİ
+            // Cache Key olarak request.UserName kullanıyoruz ki kullanıcı doğrulama ekranında 
+            // giriş yaparken ne yazdıysa (mail veya telefon) onu gönderip eşleşebilsin.
             VerificationHelper.SaveCode("SignIn_" + request.UserName, verificationCode);
+
+            // Doğrulama başarılı olunca döneceğimiz Token objesini de saklıyoruz
             VerificationHelper.SaveCode("SignInResponse_" + request.UserName, Newtonsoft.Json.JsonConvert.SerializeObject(response));
-            // await cacheService.SetAsync(response, "SignIn_" + request.UserName, cancellationToken);
+
             return ProduceSuccessResponse(new UserSignInResponse { Result = true, Message = message });
         }
 

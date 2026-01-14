@@ -1,17 +1,10 @@
-﻿using HrHub.Abstraction.Consts;
-using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Result;
-using HrHub.Application.Managers.ContentTypes;
-using HrHub.Application.Managers.ExamOperationManagers;
 using HrHub.Application.Managers.Trainings;
 using HrHub.Core.Controllers;
-using HrHub.Domain.Contracts.Dtos.ContentTypes;
-using HrHub.Domain.Contracts.Dtos.ExamDtos;
+using HrHub.Domain.Contracts.Dtos.DashboardDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
-using HrHub.Domain.Contracts.Responses.ExamResponses;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrHub.API.Controllers
@@ -84,6 +77,14 @@ namespace HrHub.API.Controllers
         public async Task<Response<TrainingDetailDto>> GetDetailForUser(long id)
         {
             return await trainingManager.GetTrainingDetailForUserAsync(id).ConfigureAwait(false);
+        }
+
+        [HttpGet("[Action]")]
+        //[Authorize] // Gerekirse aç
+        public async Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainings()
+        {
+            var result = await trainingManager.GetRecommendedTrainingsAsync();
+            return result;
         }
     }
 }

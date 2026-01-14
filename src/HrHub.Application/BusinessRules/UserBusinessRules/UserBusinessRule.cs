@@ -56,7 +56,7 @@ namespace HrHub.Application.BusinessRules.UserBusinessRules
             {
                 var user = userRepository
                   .Get(
-                  predicate: p => p.UserName == userSignInDto.UserName);
+                  predicate: p => p.UserName == userSignInDto.UserName || p.PhoneNumber == userSignInDto.UserName);
                 if (user == null)
                     return (false, ValidationMessages.UserNotFound);
                 if (!user.EmailConfirmed)

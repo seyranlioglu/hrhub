@@ -1,6 +1,7 @@
 ﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Result;
 using HrHub.Core.Base;
+using HrHub.Domain.Contracts.Dtos.DashboardDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 
@@ -16,4 +17,9 @@ public interface ITrainingManager : IBaseManager
     Task<Response<CommonResponse>> UpdateTrainingAsync(UpdateTrainingDto dto, CancellationToken cancellationToken = default);
     Task<Response<IEnumerable<GetMyTrainingDto>>> GetMyTrainingsAsync(CancellationToken cancellationToken = default);
     Task<Response<TrainingDetailDto>> GetTrainingDetailForUserAsync(long trainingId);
+    Task<Response<IEnumerable<GetTrainingDto>>> GetMyGivenTrainingsAsync();
+    /// <summary>
+    /// Kullanıcıya özel, ağırlıklı puanlama algoritması ile eğitim önerir.
+    /// </summary>
+    Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainingsAsync();
 }

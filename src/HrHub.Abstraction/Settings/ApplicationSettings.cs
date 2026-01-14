@@ -14,5 +14,6 @@ namespace HrHub.Abstraction.Settings
         /// Day
         /// </summary>
         public int ExamValidityTime { get; set; }
+        public string DefaultCourseImage { get; set; }
     }
 }

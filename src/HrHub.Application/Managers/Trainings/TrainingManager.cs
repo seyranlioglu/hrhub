@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
+using HrHub.Abstraction.BusinessRules;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Data.EfCore.Repository;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
+using HrHub.Abstraction.StatusCodes;
 using HrHub.Application.BusinessRules.TrainingBusinessRules;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.Helpers;
+using HrHub.Domain.Contracts.Dtos.DashboardDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Entities.SqlDbEntities;
@@ -30,11 +33,13 @@ public class TrainingManager : ManagerBase, ITrainingManager
     private readonly Repository<TrainingSection> trainingSectionRepository;
     private readonly ICurrAccTrainingUserRepository currAccTrainingUserRepository;
     private readonly IUserContentsViewLogRepository userContentsViewLogRepository;
+    private readonly IInstructorRepository instructorRepository;
     public TrainingManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork hrUnitOfWork,
                            IMapper mapper,
                            ICurrAccTrainingUserRepository currAccTrainingUserRepository,
-                           IUserContentsViewLogRepository userContentsViewLogRepository) : base(httpContextAccessor)
+                           IUserContentsViewLogRepository userContentsViewLogRepository,
+                           IInstructorRepository instructorRepository) : base(httpContextAccessor)
     {
         this.hrUnitOfWork = hrUnitOfWork;
         trainingRepository = hrUnitOfWork.CreateRepository<Training>();
@@ -44,6 +49,7 @@ public class TrainingManager : ManagerBase, ITrainingManager
         this.mapper = mapper;
         this.currAccTrainingUserRepository = currAccTrainingUserRepository;
         this.userContentsViewLogRepository = userContentsViewLogRepository;
+        this.instructorRepository = instructorRepository;
     }
 
     public async Task<Response<ReturnIdResponse>> AddTrainingAsync(AddTrainingDto data, CancellationToken cancellationToken = default)
@@ -212,7 +218,6 @@ public class TrainingManager : ManagerBase, ITrainingManager
         //}); 
         #endregion
     }
-
     public async Task<Response<CommonResponse>> DeleteTrainingAsync(long id, CancellationToken cancellationToken = default)
     {
         var trainingDto = await trainingRepository.GetAsync(predicate: t => t.Id == id, selector: s => mapper.Map<DeleteTrainingDto>(s));
@@ -233,7 +238,6 @@ public class TrainingManager : ManagerBase, ITrainingManager
             Result = true
         });
     }
-
     public async Task<Response<IEnumerable<GetTrainingDto>>> GetTrainingListAsync()
     {
         var trainingListDto = await trainingRepository.GetListAsync(predicate: p => p.IsDelete != true,
@@ -259,8 +263,6 @@ public class TrainingManager : ManagerBase, ITrainingManager
         return ProduceSuccessResponse(trainingListDto);
 
     }
-
-
     public async Task<Response<GetTrainingDto>> GetTrainingByIdAsync(long id)
     {
         var training = await trainingRepository.GetAsync(
@@ -288,7 +290,6 @@ public class TrainingManager : ManagerBase, ITrainingManager
         var trainingDto = mapper.Map<GetTrainingDto>(training);
         return ProduceSuccessResponse(trainingDto);
     }
-
     public async Task<Response<CommonResponse>> ReorderTrainingContentAsync(ReorderTrainingContentDto dto, CancellationToken cancellationToken = default)
     {
         // 1. Eğitim var mı kontrolü (Opsiyonel ama güvenli)
@@ -350,7 +351,6 @@ public class TrainingManager : ManagerBase, ITrainingManager
             Result = true
         });
     }
-
     public async Task<Response<IEnumerable<GetMyTrainingDto>>> GetMyTrainingsAsync(CancellationToken cancellationToken = default)
     {
         var currentUserId = GetCurrentUserId();
@@ -429,6 +429,20 @@ public class TrainingManager : ManagerBase, ITrainingManager
                 instructorFullName = $"{training.Instructor.User.Name} {training.Instructor.User.SurName}";
             }
 
+            var now = DateTime.UtcNow;
+            string status = "Active";
+
+            if (assignRecord.StartDate.HasValue && assignRecord.StartDate > now)
+            {
+                status = "NotStarted"; // Buton pasif, "Başlamadı" yazısı
+            }
+            else if (assignRecord.DueDate.HasValue && assignRecord.DueDate < now)
+            {
+                // Burada bir kontrol daha lazım: Kullanıcı zaten talep göndermiş mi?
+                // Şimdilik basitçe:
+                status = "Expired"; // "Erişim Talebi Gönder" butonu aktif olur
+            }
+
             resultList.Add(new GetMyTrainingDto
             {
                 Id = training.Id,
@@ -448,17 +462,38 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
                 LastWatchedContentId = resumeContentId,
                 LastAccessDate = lastLog?.UpdateDate ?? lastLog?.CreatedDate,
-                AssignDate = assignRecord?.CreatedDate
+                AssignDate = assignRecord?.CreatedDate,
+                DueDate = assignRecord?.DueDate,
+                StartDate = assignRecord?.StartDate,
+                AccessStatus = status
             });
         }
 
         return ProduceSuccessResponse(resultList.AsEnumerable());
     }
-
     public async Task<Response<TrainingDetailDto>> GetTrainingDetailForUserAsync(long trainingId)
     {
         var currentUserId = GetCurrentUserId();
         string defaultImage = "/images/default-course-cover.png";
+
+        // 1. Önce Atama (Assignment) kaydını bul (Tarihler burada!)
+        var assignment = await currAccTrainingUserRepository.GetAsync(
+            predicate: x => x.UserId == currentUserId && x.CurrAccTrainings.TrainingId == trainingId && x.IsActive == true,
+            include: i => i.Include(x => x.CurrAccTrainings)
+        );
+
+        if (assignment == null)
+            return ProduceFailResponse<TrainingDetailDto>("Bu eğitime atamanız bulunmamaktadır.", HrStatusCodes.Status404NotFound);
+
+        // 2. Business Rule Kontrolü (Senin standart ValidationHelper yapınla)
+        var accessDto = new TrainingAccessCheckDto { StartDate = assignment.StartDate, DueDate = assignment.DueDate };
+        var validationResult = ValidationHelper.RuleBasedValidator<TrainingAccessCheckDto>(accessDto, typeof(IBusinessRule));
+
+        if (validationResult is ValidationResult res && !res.IsValid)
+        {
+            // Kurala takıldıysa (Tarih geçersizse) içeriği hiç çekmeden hata dön
+            return res.SendResponse<TrainingDetailDto>();
+        }
 
         // 1. EĞİTİMİ VE İLİŞKİLİ TÜM VERİLERİ TEK SORGUDA ÇEK
         var training = await trainingRepository.GetAsync<Training>(
@@ -566,5 +601,160 @@ public class TrainingManager : ManagerBase, ITrainingManager
         return ProduceSuccessResponse(responseDto);
     }
 
+    /// <summary>
+    /// Asynchronously retrieves the list of trainings given by the currently authenticated instructor.
+    /// </summary>
+    /// <remarks>Only trainings associated with the current user as an instructor are returned. Deleted
+    /// trainings are excluded from the result.</remarks>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a response with an enumerable
+    /// collection of training data transfer objects representing the trainings given by the current instructor. If the
+    /// user is not registered as an instructor, the collection will be empty.</returns>
+    public async Task<Response<IEnumerable<GetTrainingDto>>> GetMyGivenTrainingsAsync()
+    {
+        var currentUserId = GetCurrentUserId();
 
+        // 1. Bu kullanıcı bir Eğitmen mi?
+        var instructor = await instructorRepository.GetAsync(x => x.UserId == currentUserId);
+
+        if (instructor == null)
+        {
+            // Eğer eğitmen kaydı yoksa boş liste dön (veya yetki hatası fırlat)
+            return ProduceSuccessResponse(Enumerable.Empty<GetTrainingDto>());
+        }
+
+        // 2. Eğitmenin verdiği eğitimleri çek
+        var trainings = await trainingRepository.GetListAsync(
+            predicate: x => x.InstructorId == instructor.Id && x.IsDelete == false,
+            include: i => i.Include(t => t.TrainingCategory)
+                           .Include(t => t.TrainingStatus)
+                           .Include(t => t.TrainingLevel)
+                           .Include(t => t.TrainingLanguage)
+        // İhtiyaç duyulan diğer include'lar...
+        );
+
+        // 3. Mapping
+        var trainingDtos = mapper.Map<IEnumerable<GetTrainingDto>>(trainings);
+
+        return ProduceSuccessResponse(trainingDtos);
+    }
+
+    public async Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainingsAsync()
+    {
+        long userId = GetCurrentUserId();
+        // 1. Kullanıcının MEVCUT (Aldığı/Atanmış) eğitimlerini çekiyoruz.
+        // Selector ile sadece ihtiyacımız olan ID'leri alıyoruz (Performans).
+        var userHistory = await currAccTrainingUserRepository.GetListAsync(
+            predicate: x => x.UserId == userId,
+            selector: x => new { x.CurrAccTrainings.TrainingId, x.CurrAccTrainings.Training.CategoryId }
+        );
+
+        var ownedTrainingIds = userHistory.Select(x => x.TrainingId).ToList();
+
+        // Kullanıcının en son aldığı eğitimin kategorisini buluyoruz (İlgi alanı tespiti)
+        // Eğer hiç eğitimi yoksa 0 veya null gelir.
+        var lastInteractedCategoryId = userHistory
+            .OrderByDescending(x => x.TrainingId) // veya CreatedDate
+            .Select(x => x.CategoryId)
+            .FirstOrDefault();
+
+        List<TrainingViewCardDto> recommendations = new();
+
+        // 2. A PLANI: Kullanıcının ilgilendiği kategoriden henüz almadığı en yeni eğitimleri getir.
+        if (lastInteractedCategoryId > 0)
+        {
+            var interestBased = await trainingRepository.GetPagedListAsync(
+                predicate: x => x.IsActive &&
+                                x.CategoryId == lastInteractedCategoryId &&
+                                !ownedTrainingIds.Contains(x.Id),
+                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                skip: 0,
+                take: 10,
+                selector: x => new TrainingViewCardDto
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    HeaderImage = x.HeaderImage,
+                    CategoryTitle = x.TrainingCategory.Title,
+                    InstructorTitle = x.Instructor.Title,
+                    InstructorPicturePath = x.Instructor.PicturePath,
+                    Amount = GetTrainingAmount(x),
+                    CurrentAmount = GetTrainingCurrentAmount(x),
+                    DiscountRate = GetTrainingDiscountRate(x),
+                    TrainingLevelTitle = x.TrainingLevel.Title,
+                    CreatedDate = x.CreatedDate
+                    // Rating vb. gerekirse buraya eklenir
+                }
+            );
+
+            recommendations.AddRange(interestBased);
+        }
+
+        // 3. B PLANI (FALLBACK): Eğer liste dolmadıysa (veya kullanıcı yeniyse), Son Eklenenleri getir.
+        if (recommendations.Count < 10)
+        {
+            int neededCount = 10 - recommendations.Count;
+
+            // Zaten listeye eklediklerimizin ID'lerini de hariç tutalım ki tekrar etmesin.
+            var addedIds = recommendations.Select(r => r.Id).ToList();
+            var excludeIds = ownedTrainingIds.Concat(addedIds).ToList();
+
+            var newReleases = await trainingRepository.GetPagedListAsync(
+                predicate: x => x.IsActive && !excludeIds.Contains(x.Id),
+                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                skip: 0,
+                take: neededCount,
+                selector: x => new TrainingViewCardDto
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    HeaderImage = x.HeaderImage,
+                    CategoryTitle = x.TrainingCategory.Title,
+                    InstructorTitle = x.Instructor.Title,
+                    InstructorPicturePath = x.Instructor.PicturePath,
+                    Amount = GetTrainingAmount(x),
+                    CurrentAmount = GetTrainingCurrentAmount(x),
+                    DiscountRate = GetTrainingDiscountRate(x),
+                    TrainingLevelTitle = x.TrainingLevel.Title,
+                    CreatedDate = x.CreatedDate
+                }
+            );
+
+            recommendations.AddRange(newReleases);
+        }
+
+        return ProduceSuccessResponse(recommendations);
+    }
+
+    private decimal? GetTrainingAmount(Training training)
+    {
+        if (training.TrainingAmounts == null || !training.TrainingAmounts.Any())
+            return null;
+
+        return training.TrainingAmounts
+            .OrderBy(w => w.AmountPerLicence)
+            .FirstOrDefault()?
+            .AmountPerLicence;
+    }
+
+    private decimal GetTrainingDiscountRate(Training training)
+    {
+        if (training.TrainingAmounts == null || !training.TrainingAmounts.Any())
+            return 0;
+
+        return training.TrainingAmounts
+            .OrderBy(w => w.AmountPerLicence)
+            .FirstOrDefault()?
+            .DiscountRate ?? 0;
+    }
+
+    private decimal GetTrainingCurrentAmount(Training training)
+    {
+        if (training.TrainingAmounts == null || !training.TrainingAmounts.Any())
+            return 0;
+
+        return training.TrainingAmounts
+            .OrderBy(w => w.AmountPerLicence)
+            .FirstOrDefault()?
+            .AmountPerLicence ?? 0;
+    }
 }

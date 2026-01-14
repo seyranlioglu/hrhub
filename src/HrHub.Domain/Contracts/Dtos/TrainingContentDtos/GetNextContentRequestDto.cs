@@ -8,6 +8,7 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
 {
     public class GetNextContentRequestDto
     {
+        public long CurrentContentId { get; set; }
         public long TrainingId { get; set; }
     }
 }

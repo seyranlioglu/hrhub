@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HrHub.Core\HrHub.Core.csproj" />
+    <ProjectReference Include="..\HrHub.Identity\HrHub.Identity.csproj" />
   </ItemGroup>
 
   <ItemGroup>

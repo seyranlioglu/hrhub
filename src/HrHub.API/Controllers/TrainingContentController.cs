@@ -75,5 +75,14 @@ namespace HrHub.API.Controllers
             // URL: api/TrainingContent/GetContentForPlayer/123
             return await trainingContentManager.GetTrainingContentByIdForUserAsync(id).ConfigureAwait(false);
         }
+
+        [HttpPost("[Action]")]
+        // [Authorize(Roles = "User")] // Sadece giriş yapmış kullanıcılar
+        public async Task<Response<GetContentForPlayerDto>> GetNextContent([FromBody] GetNextContentRequestDto request)
+        {
+            var response = await trainingContentManager.GetNextContentAsync(request);
+            return response;
+        }
+
     }
 }

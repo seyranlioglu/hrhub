@@ -23,6 +23,31 @@ namespace HrHub.Domain.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.AspNetRole", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AspNetRoles", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Cart", b =>
                 {
                     b.Property<long>("Id")
@@ -844,6 +869,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<long?>("DeleteUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -852,6 +880,9 @@ namespace HrHub.Domain.Migrations
 
                     b.Property<bool>("QualifiedCertificate")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
@@ -1997,6 +2028,156 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("Reviews", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenu", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OrderNo")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("SysMenus", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenuPolicy", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PolicyName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("SysMenuId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SysMenuId");
+
+                    b.ToTable("SysMenuPolicies", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenuRole", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SysMenuId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("SysMenuId");
+
+                    b.ToTable("SysMenuRoles", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TimeUnit", b =>
                 {
                     b.Property<long>("Id")
@@ -2629,6 +2810,66 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("TrainingLevels", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingProcessHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ActionUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("NewStatusId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("OldStatusId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TrainingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionUserId");
+
+                    b.HasIndex("NewStatusId");
+
+                    b.HasIndex("OldStatusId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.ToTable("TrainingProcessHistories", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", b =>
                 {
                     b.Property<long>("Id")
@@ -2994,6 +3235,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text");
+
                     b.Property<string>("GeneratedFilePath")
                         .HasColumnType("text");
 
@@ -3014,8 +3258,14 @@ namespace HrHub.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double>("Score")
+                        .HasColumnType("double precision");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TrainerName")
                         .IsRequired()
@@ -3639,6 +3889,45 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenu", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.SysMenu", "Parent")
+                        .WithMany("SubMenus")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenuPolicy", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.SysMenu", "SysMenu")
+                        .WithMany("MenuPolicies")
+                        .HasForeignKey("SysMenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SysMenu");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenuRole", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.AspNetRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.SysMenu", "SysMenu")
+                        .WithMany("MenuRoles")
+                        .HasForeignKey("SysMenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("SysMenu");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Training", b =>
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingCategory", "TrainingCategory")
@@ -3789,6 +4078,39 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("Exam");
 
                     b.Navigation("TrainingSection");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingProcessHistory", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "ActionUser")
+                        .WithMany()
+                        .HasForeignKey("ActionUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingStatus", "NewStatus")
+                        .WithMany()
+                        .HasForeignKey("NewStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.TrainingStatus", "OldStatus")
+                        .WithMany()
+                        .HasForeignKey("OldStatusId");
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
+                        .WithMany()
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActionUser");
+
+                    b.Navigation("NewStatus");
+
+                    b.Navigation("OldStatus");
+
+                    b.Navigation("Training");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", b =>
@@ -4065,6 +4387,15 @@ namespace HrHub.Domain.Migrations
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.QuestionOption", b =>
                 {
                     b.Navigation("UserAnswers");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenu", b =>
+                {
+                    b.Navigation("MenuPolicies");
+
+                    b.Navigation("MenuRoles");
+
+                    b.Navigation("SubMenus");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TimeUnit", b =>

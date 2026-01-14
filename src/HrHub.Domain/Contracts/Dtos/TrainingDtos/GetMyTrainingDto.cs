@@ -25,7 +25,9 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingDtos
         public DateTime? LastAccessDate { get; set; }   // "En son 2 gün önce izledin"
         public DateTime? AssignDate { get; set; }       // "Kütüphaneye eklenme tarihi"
 
-        // Opsiyonel: Bitiş tarihi varsa (Kurumsal atamalarda olur)
-        public DateTime? DueDate { get; set; }
+        public DateTime? StartDate { get; set; } // Atama bazlı başlangıç
+        public DateTime? DueDate { get; set; }   // Atama bazlı bitiş
+
+        public string AccessStatus { get; set; }
     }
 }

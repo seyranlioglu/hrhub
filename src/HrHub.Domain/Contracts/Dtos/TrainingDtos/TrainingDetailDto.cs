@@ -20,6 +20,8 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingDtos
         public string LangCode { get; set; }  // Örn: "TR"
         public string LevelName { get; set; } // Örn: "Başlangıç Seviyesi"
         public bool HasCertificate { get; set; } // Sertifika var mı?
+        public DateTime? StartDate { get; set; }
+        public DateTime? DueDate { get; set; }
 
         // -- Müfredat Ağacı --
         public List<TrainingSectionForUserDto> Sections { get; set; }

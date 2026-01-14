@@ -27,7 +27,7 @@ namespace HrHub.Application.Mappers
         {
             CreateMap<UserCertificate, UserCertificateDto>()
                 .ForMember(dest => dest.TemplateTitle, opt => opt.MapFrom(src => src.CertificateTemplate.Title))
-                .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.CurrAccTrainingUser.CurrAccTrainings.Training.Name));
+                .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.CurrAccTrainingUser.CurrAccTrainings.Training.Title));
 
             CreateMap<AddUserCertificateDto, UserCertificate>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore()) // DB Primary Key (long) ignore

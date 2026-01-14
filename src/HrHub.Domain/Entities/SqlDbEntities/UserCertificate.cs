@@ -22,6 +22,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string VerificationURL { get; set; }
         public Guid CertificateId { get; set; }
         public string? GeneratedFilePath { get; set; }
+        public double Score { get; set; }
         /// <summary>
         /// Sertifikanın anlık durumu (Hazırlanıyor, Tamamlandı, Hata)
         /// </summary>

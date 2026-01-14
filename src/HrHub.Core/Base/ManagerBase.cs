@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 
+
 namespace HrHub.Core.Base
 {
     public class ManagerBase

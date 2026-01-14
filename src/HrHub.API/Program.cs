@@ -40,6 +40,34 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var corsOrigins = builder.Configuration["CorsSettings:AllowedOrigins"];
+
+// 2. Eðer birden fazla adres varsa noktalý virgül ile ayýr (Array'e çevir)
+var allowedOrigins = corsOrigins?.Split(";", StringSplitOptions.RemoveEmptyEntries);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            if (allowedOrigins != null && allowedOrigins.Length > 0)
+            {
+                policy.WithOrigins(allowedOrigins) // Okunan adresleri buraya veriyoruz
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+            }
+            else
+            {
+                // Güvenlik önlemi: Eðer appsettings boþsa en azýndan localhost:4200'e izin ver (Geliþtirme için)
+                policy.WithOrigins("http://localhost:4200")
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+            }
+        });
+});
+
 
 builder.Services.AddAuthorization(opts =>
 {
@@ -75,5 +103,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.AddWorkerDashboard();
 app.MapControllers();
+app.UseCors("AllowAngularApp");
 
 app.Run();

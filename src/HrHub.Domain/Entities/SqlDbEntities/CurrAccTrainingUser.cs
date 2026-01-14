@@ -15,6 +15,8 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long UserId { get; set; }
         public bool IsActive { get; set; }
         public bool QualifiedCertificate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? DueDate { get; set; }
 
         [ForeignKey("UserId")]
         public virtual User User { get; set; }

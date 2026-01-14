@@ -5,6 +5,15 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
 {
     public class GetContentForPlayerDto
     {
+        public ContentDetail Content { get; set; }
+        // Eğitim Bitiş & Sertifika (Fail-Safe ve NextContent için)
+        public bool IsTrainingFinished { get; set; }
+        public string Message { get; set; }
+
+    }
+
+    public class ContentDetail
+    {
         // --- 1. İÇERİK TEMEL BİLGİLERİ (Sadeleştirilmiş) ---
         public long Id { get; set; }
         public string Title { get; set; } // Content Title
@@ -44,15 +53,6 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
         public double? UserScore { get; set; }
         public double? PassingScore { get; set; }
         public int AttemptCount { get; set; }
-
-        // Navigasyon / Eğitim Durumu
-        public long? NextContentId { get; set; }
-        public long? PreviousContentId { get; set; }
-
-        // Eğitim Bitiş & Sertifika (Fail-Safe ve NextContent için)
-        public bool IsTrainingFinished { get; set; }
-        public string Message { get; set; }
-
     }
 
     public class MissingContentItemDto

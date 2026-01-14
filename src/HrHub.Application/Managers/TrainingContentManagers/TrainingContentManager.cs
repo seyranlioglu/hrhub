@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using HrHub.Abstraction.Attributes;
+using HrHub.Abstraction.BusinessRules;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
 using HrHub.Abstraction.Data.EfCore.Repository;
@@ -15,8 +16,10 @@ using HrHub.Application.Managers.UserCertificateManagers;
 using HrHub.Core.Base;
 using HrHub.Core.Data.Repository;
 using HrHub.Core.Helpers;
+using HrHub.Domain.Contracts.Dtos.CertificateDtos;
 using HrHub.Domain.Contracts.Dtos.ContentLibraryDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingContentDtos;
+using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Infrastructre.Repositories.Abstract;
@@ -139,7 +142,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                         videoDuration = await GetVideoDurationAsync(filePath);
                         thumbnailFilePath = Path.Combine(thumbnailDirectoryPath, thumbnailFileName);
                         GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // 5. saniyeden kare al
-                        
+
                         if (videoDuration.HasValue)
                         {
                             int secondsPerPart = 15 * 60; // 15 dakika
@@ -284,8 +287,8 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                     if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
                         GenerateThumbnail(filePath, thumbnailFilePath, lectureSettings.ThumbnailCaptureSecond); // **Videolar için 5. saniyeden thumbnail al**
-                       
-                        videoDuration = await GetVideoDurationAsync(filePath);                      
+
+                        videoDuration = await GetVideoDurationAsync(filePath);
                         if (videoDuration.HasValue)
                         {
                             int secondsPerPart = 15 * 60; // veya: lectureSettings.PartLengthInMinutes * 60;
@@ -359,211 +362,6 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             }
         }
 
-        #region OldAdd_Update
-        //public async Task<Response<ReturnIdResponse>> AddTrainingContentAsync(AddTrainingContentDto data, CancellationToken cancellationToken = default)
-        //{
-        //    var maxRowNum = await contentRepository.MaxAsync(
-        //        predicate: c => c.ContentTypeId == data.ContentTypeId,
-        //        selector: s => s.OrderId
-        //    );
-
-        //    await unitOfWork.BeginTransactionAsync();
-
-        //    try
-        //    {
-        //        #region InstructorCodeWithDirectory
-        //        var instructor = await instructorRepository.GetAsync(i => i.UserId == 15);// this.GetCurrentUserId());
-        //        if (instructor == null)
-        //            return ProduceFailResponse<ReturnIdResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
-
-        //        string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
-        //        string fileName;
-        //        AddContentLibraryDto contentLibraryData = new();
-        //        if (data.File != null /*&& data.FileTypeId.HasValue*/)
-        //        {
-        //            fileName = $"{data.File.FileName}";
-        //            using var fileStream = data.File.OpenReadStream();
-        //            byte[] fileContent = new byte[data.File.Length];
-        //            await fileStream.ReadAsync(fileContent, cancellationToken);
-        //            var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
-        //            string filePath = Path.Combine(directoryPath, fileName);
-        //            if (!fileSaved)
-        //            {
-        //                int counter = 1;
-        //                while (File.Exists(filePath))
-        //                {
-        //                    fileName = $"{fileName}({counter})";
-        //                    counter++;
-        //                }
-        //                //return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
-        //            }
-        //            // ContentLibrary Add
-        //            var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
-        //            var fileTypeResponseId = fileTypeResponse.Body.Id;
-
-        //            contentLibraryData = new AddContentLibraryDto
-        //            {
-        //                FileName = fileName,
-        //                FilePath = Path.Combine(directoryPath, fileName),
-        //                FileTypeId = /*data.FileTypeId.Value*/fileTypeResponseId,
-        //                CreatedDate = DateTime.UtcNow,
-        //                CreateUserId = 15,//this.GetCurrentUserId(),
-        //                IsActive = true
-        //            };
-        //        }
-        //        #endregion
-
-        //        #region AddTrainingContent
-        //        var newContent = mapper.Map<TrainingContent>(data);
-        //        newContent.OrderId = maxRowNum.HasValue ? maxRowNum.Value + 1 : 1;
-
-        //        var result = await contentRepository.AddAndReturnAsync(newContent, cancellationToken);
-        //        await unitOfWork.SaveChangesAsync(cancellationToken);
-        //        #endregion
-
-        //        #region Library
-        //        ContentLibrary contentLibraryEntity = null;
-        //        if (data.ContentLibraryId.HasValue) // Kitaplıktan bir içerik seçildiyse
-        //        {
-        //            var existingLibraryContent = await contentLibraryRepository.GetAsync(c => c.Id == data.ContentLibraryId.Value);
-        //            if (existingLibraryContent != null)
-        //            {
-        //                existingLibraryContent.TrainingContentId = result.Id;
-        //                contentLibraryEntity = contentLibraryRepository.UpdateAndReturn(existingLibraryContent);
-        //                await unitOfWork.SaveChangesAsync(cancellationToken);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            contentLibraryData.TrainingContentId = result.Id;
-        //            contentLibraryEntity = mapper.Map<ContentLibrary>(contentLibraryData);
-        //            //if (data.FileTypeId is null)
-        //            //{ 
-        //            //    var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data?.File?.FileName));
-        //            //    contentLibraryEntity.FileTypeId = fileTypeResponse.Body.Id;
-        //            //}
-        //            await contentLibraryRepository.AddAsync(contentLibraryEntity, cancellationToken);
-        //        }
-        //        #endregion
-
-        //        await unitOfWork.SaveChangesAsync(cancellationToken);
-        //        await unitOfWork.CommitTransactionAsync();
-        //        return ProduceSuccessResponse(new ReturnIdResponse { Id = newContent.Id });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await unitOfWork.RollBackTransactionAsync();
-        //        return ProduceFailResponse<ReturnIdResponse>($"İşlem sırasında bir hata oluştu: {ex.Message}", 500);
-        //    }
-        //}
-
-
-        //public async Task<Response<CommonResponse>> UpdateTrainingContentAsync(UpdateTrainingContentDto data, CancellationToken cancellationToken = default)
-        //{
-        //    await unitOfWork.BeginTransactionAsync();
-
-        //    try
-        //    {
-        //        #region Eğitim İçeriğini Bulma
-        //        var existingContent = await contentRepository.GetAsync(
-        //            predicate: p => p.Id == data.Id,
-        //            include: c => c.Include(s => s.ContentLibraries)
-        //        );
-
-        //        if (existingContent == null)
-        //        {
-        //            return ProduceFailResponse<CommonResponse>("Güncellenecek içerik bulunamadı.", StatusCodes.Status404NotFound);
-        //        }
-        //        #endregion
-
-        //        #region Dosya Güncelleme ve Kitaplık
-        //        if (data.File != null)
-        //        {
-        //            var instructor = await instructorRepository.GetAsync(i => i.UserId == this.GetCurrentUserId());
-        //            if (instructor == null)
-        //                return ProduceFailResponse<CommonResponse>("Instructor bulunamadı!", StatusCodes.Status404NotFound);
-
-        //            string directoryPath = Path.Combine("Uploads", instructor.InstructorCode);
-        //            string fileName;
-
-        //            // Dosyayı kaydet
-        //            fileName = $"{data.File.FileName}";
-        //            using var fileStream = data.File.OpenReadStream();
-        //            byte[] fileContent = new byte[data.File.Length];
-        //            await fileStream.ReadAsync(fileContent, cancellationToken);
-        //            var fileSaved = await FileHelper.SaveFileAsync(directoryPath, fileName, fileContent);
-
-        //            string filePath = Path.Combine(directoryPath, fileName);
-        //            if (!fileSaved)
-        //            {
-        //                int counter = 1;
-        //                while (File.Exists(filePath))
-        //                {
-        //                    fileName = $"{fileName}({counter})";
-        //                    counter++;
-        //                }
-        //                //return ProduceFailResponse<ReturnIdResponse>("Dosya zaten mevcut.", StatusCodes.Status409Conflict);
-        //            }
-
-
-        //            var fileTypeResponse = await fileTypeManager.GetByIdFileTypeAsync(Path.GetExtension(data.File.FileName));
-        //            if (fileTypeResponse.Body == null)
-        //                return ProduceFailResponse<CommonResponse>("Desteklenmeyen dosya türü.", HrStatusCodes.Status117FileFormatError);
-
-
-        //            var contentLibrary = existingContent.ContentLibraries.FirstOrDefault();
-        //            if (contentLibrary != null)
-        //            {
-        //                contentLibrary.FileName = fileName;
-        //                contentLibrary.FilePath = Path.Combine(directoryPath, fileName);
-        //                contentLibrary.FileTypeId = fileTypeResponse.Body.Id;
-        //                contentLibrary.UpdateUserId = this.GetCurrentUserId();
-        //                contentLibrary.UpdateDate = DateTime.UtcNow;
-        //                contentLibraryRepository.Update(contentLibrary);
-        //            }
-        //            else
-        //            {
-        //                var newContentLibrary = new ContentLibrary
-        //                {
-        //                    FileName = fileName,
-        //                    FilePath = Path.Combine(directoryPath, fileName),
-        //                    FileTypeId = fileTypeResponse.Body.Id,
-        //                    TrainingContentId = data.Id,
-        //                    CreatedDate = DateTime.UtcNow,
-        //                    CreateUserId = this.GetCurrentUserId(),
-        //                    IsActive = true
-        //                };
-        //                await contentLibraryRepository.AddAsync(newContentLibrary, cancellationToken);
-        //            }
-        //        }
-        //        #endregion
-
-        //        #region Eğitim İçeriği Güncelleme
-        //        mapper.Map(data, existingContent);
-        //        existingContent.UpdateDate = DateTime.UtcNow;
-        //        existingContent.UpdateUserId = 15;// this.GetCurrentUserId();
-
-        //        contentRepository.Update(existingContent);
-        //        #endregion
-
-        //        await unitOfWork.SaveChangesAsync(cancellationToken);
-        //        await unitOfWork.CommitTransactionAsync();
-
-        //        return ProduceSuccessResponse(new CommonResponse
-        //        {
-        //            Message = "Eğitim içeriği başarıyla güncellendi.",
-        //            Code = StatusCodes.Status200OK,
-        //            Result = true
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await unitOfWork.RollBackTransactionAsync();
-        //        return ProduceFailResponse<CommonResponse>($"Güncelleme işlemi sırasında bir hata oluştu", StatusCodes.Status500InternalServerError);
-        //    }
-        //}
-        #endregion
-
         public async Task<Response<CommonResponse>> DeleteTrainingContentAsync(long id, CancellationToken cancellationToken = default)
         {
             var contentDto = await trainingContentRepository.GetAsync(predicate: p => p.Id == id, selector: s => mapper.Map<DeleteTrainingContentDto>(s));
@@ -616,6 +414,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return ProduceFailResponse<CommonResponse>("İşlem sırasında bir hata oluştu!", 500);
             }
         }
+
         public async Task<Response<IEnumerable<GetListTrainingContentDto>>> GetTrainingContentListAsync()
         {
             var trainingList = await trainingContentRepository.GetListAsync(predicate: p => p.IsDelete != false,
@@ -663,6 +462,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             return ProduceSuccessResponse(trainingList);
 
         }
+
         public async Task<Response<GetTrainingContentDto>> GetTrainingContentAsync(long id)
         {
             var trainingListDto = await trainingContentRepository.GetAsync(predicate: p => p.Id == id,
@@ -705,6 +505,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             return ProduceSuccessResponse(trainingListDto);
 
         }
+
         private void GenerateThumbnail(string videoPath, string outputImagePath, int second = 5)
         {
             string ffmpegPath = @"C:\ffmpeg\bin\ffmpeg.exe"; // FFmpeg yolu
@@ -742,6 +543,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 process.Start();
             }
         }
+
         private async Task<TimeSpan?> GetVideoDurationAsync(string videoPath)
         {
 
@@ -777,6 +579,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return null;
             }
         }
+
         public async Task<(int PageCount, double FileSize)> GetPdfDetailsAsync(string pdfPath)
         {
             try
@@ -903,9 +706,6 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             });
         }
 
-        // Gerekli Repository'leri Constructor'a eklediğinden emin ol:
-        // IRepository<Exam>, IRepository<UserExam>, IRepository<ExamVersion>
-
         public async Task<Response<GetContentForPlayerDto>> GetTrainingContentByIdForUserAsync(long id)
         {
             var currentUserId = GetCurrentUserId();
@@ -921,7 +721,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 return ProduceFailResponse<GetContentForPlayerDto>("İçerik bulunamadı.", StatusCodes.Status404NotFound);
 
             // 2. MAPPING (Temel DTO Doldurma)
-            var dto = mapper.Map<GetContentForPlayerDto>(targetContent);
+            var dto = mapper.Map<ContentDetail>(targetContent);
             dto.CanView = true;
             dto.MissingContents = new List<MissingContentItemDto>();
             dto.LastWatchedPart = 0;
@@ -940,7 +740,29 @@ namespace HrHub.Application.Managers.TrainingContentManagers
             {
                 dto.CanView = false;
                 dto.BlockMessage = "Eğitim ataması bulunamadı.";
-                return ProduceSuccessResponse(dto);
+                return ProduceSuccessResponse(new GetContentForPlayerDto { Content = dto });
+            }
+
+            // Senin Attribute tabanlı validasyon sistemini tetikliyoruz
+            var accessDto = new TrainingAccessCheckDto
+            {
+                StartDate = assignment.StartDate,
+                DueDate = assignment.DueDate
+            };
+
+            var validationResult = ValidationHelper.RuleBasedValidator<TrainingAccessCheckDto>(accessDto, typeof(IBusinessRule));
+
+            if (validationResult is ValidationResult vResult && !vResult.IsValid)
+            {
+                dto.CanView = false;
+                // Business Rule'dan gelen hata mesajını UI'a gönderiyoruz (Örn: "Erişim süreniz doldu")
+                dto.BlockMessage = vResult.Errors.FirstOrDefault()?.ErrorMessage ?? "Erişim engellendi.";
+
+                // GÜVENLİK: Linkleri temizliyoruz ki konsoldan ulaşılamasın
+                dto.FilePath = null;
+                dto.ThumbnailPath = null;
+
+                return ProduceSuccessResponse(new GetContentForPlayerDto { Content = dto });
             }
 
             // 4. LOGLARI ÇEK (Video izleme durumları için)
@@ -982,7 +804,7 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 {
                     dto.BlockMessage = "Bu bölüme geçmeden önce tamamlamanız gereken içerikler var.";
                     dto.FilePath = null; // Güvenlik: Linki gizle
-                    return ProduceSuccessResponse(dto); // Direkt dön, aşağıya bakmaya gerek yok
+                    return ProduceSuccessResponse(new GetContentForPlayerDto { Content = dto }); // Direkt dön, aşağıya bakmaya gerek yok
                 }
             }
 
@@ -1075,52 +897,92 @@ namespace HrHub.Application.Managers.TrainingContentManagers
                 dto.IsExam = false;
             }
 
-            return ProduceSuccessResponse(dto);
+            return ProduceSuccessResponse(new GetContentForPlayerDto { Content = dto });
         }
 
         public async Task<Response<GetContentForPlayerDto>> GetNextContentAsync(GetNextContentRequestDto request)
         {
-            var currentUserId = GetCurrentUserId();
-
-            // 1. Sıralı İçerik ID'lerini Çek
-            var allContents = await trainingContentRepository.GetListAsync(
-                predicate: c => c.TrainingSection.TrainingId == request.TrainingId
-                                && c.IsActive == true && c.IsDelete != true
-                                && c.TrainingSection.IsActive == true && c.TrainingSection.IsDelete != true,
-                include: i => i.Include(x => x.TrainingSection), // Sıralama için gerekli olabilir
-                orderBy: o => o.OrderBy(c => c.TrainingSection.RowNumber).ThenBy(c => c.OrderId)
+            // 1. Mevcut içeriğin konumunu çekiyoruz
+            var currentContent = await trainingContentRepository.GetAsync(
+                x => x.Id == request.CurrentContentId,
+                selector: x => new { x.TrainingSectionId, x.OrderId }
             );
 
-            if (!allContents.Any())
-                return ProduceFailResponse<GetContentForPlayerDto>("İçerik bulunamadı.", HrStatusCodes.Status111DataNotFound);
-
-            // 2. Kullanıcının İzlediği Logları Çek
-            // NOT: Burada TrainingId üzerinden logları çekiyoruz.
-            var watchedLogs = await userContentsViewLogRepository.GetListAsync(
-                predicate: x => x.CurrAccTrainingUser.UserId == currentUserId && x.TrainingContent.TrainingSection.TrainingId == request.TrainingId && x.IsCompleted == true
-            );
-
-            var watchedContentIds = watchedLogs.Select(x => x.TrainingContentId).ToList();
-
-            // 3. İzlenmemiş İLK içeriği bul
-            var nextContent = allContents.FirstOrDefault(content => !watchedContentIds.Contains(content.Id));
-
-            // 4. EĞER BİTMİŞSE -> SERTİFİKA
-            if (nextContent == null)
+            if (currentContent == null)
             {
-                // Sertifika sürecini başlat
-                await userCertificateManager.CreateCertificateRequestAsync(request.TrainingId);
-
-                return ProduceSuccessResponse(new GetContentForPlayerDto
-                {
-                    IsTrainingFinished = true,
-                    Message = "Tebrikler! Eğitimi tamamladınız. Sertifikanız hazırlanıyor."
-                });
+                return ProduceFailResponse<GetContentForPlayerDto>("Mevcut içerik bulunamadı.", HrStatusCodes.Status404NotFound);
             }
 
-            // 5. SIRADAKİ VARSA -> SENİN METODUNU ÇAĞIR
-            return await GetTrainingContentByIdForUserAsync(nextContent.Id);
+            long targetContentId = 0;
+
+            // 2. AYNI BÖLÜM (SECTION) içinde sıradaki içeriği arıyoruz
+            var nextInSameSectionId = await trainingContentRepository.GetAsync(
+                predicate: x => x.TrainingSectionId == currentContent.TrainingSectionId
+                                && x.OrderId > currentContent.OrderId,
+                orderBy: q => q.OrderBy(x => x.OrderId),
+                selector: x => x.Id
+            );
+
+            if (nextInSameSectionId != 0)
+            {
+                targetContentId = nextInSameSectionId;
+            }
+            else
+            {
+                // 3. Aynı bölümde yoksa, SONRAKİ BÖLÜME geçiyoruz
+                var currentSectionSeqNum = await trainingSectionRepository.GetAsync(
+                    x => x.Id == currentContent.TrainingSectionId,
+                    selector: x => x.RowNumber // Veya SeqNum
+                );
+
+                var nextSectionId = await trainingSectionRepository.GetAsync(
+                    predicate: x => x.TrainingId == request.TrainingId && x.RowNumber > currentSectionSeqNum,
+                    orderBy: q => q.OrderBy(x => x.RowNumber),
+                    selector: x => x.Id
+                );
+
+                if (nextSectionId != 0)
+                {
+                    // 4. Yeni bölümün İLK içeriğini buluyoruz
+                    targetContentId = await trainingContentRepository.GetAsync(
+                        predicate: x => x.TrainingSectionId == nextSectionId,
+                        orderBy: q => q.OrderBy(x => x.OrderId),
+                        selector: x => x.Id
+                    );
+                }
+            }
+
+            // 5. Hedef ID bulunduysa, mevcut iş mantığını çağırıyoruz
+            if (targetContentId != 0)
+            {
+                // Not: GetTrainingContentByIdForUserAsync metodunun da artık Response<GetContentForPlayerDto> döndürdüğünü varsayıyoruz.
+                return await GetTrainingContentByIdForUserAsync(targetContentId);
+            }
+
+            // 6. Eğer targetContentId hala 0 ise, EĞİTİM BİTMİŞTİR.
+            // 🔥 SERTİFİKA KONTROLÜ VE ÜRETİMİ 🔥
+
+            // UserId'yi ManagerBase'den (CurrentUser.Id veya benzeri bir property'den) alıyoruz.
+            // CheckAndCreateCertificateAsync metodunu henüz yazmadık, şimdi oraya geçeceğiz.
+            await userCertificateManager.CreateCertificateRequestAsync(request.TrainingId);
+
+            string endMessage = "Tebrikler! Eğitimi tamamladınız. Sertifika süreciniz başladı. Tamamlandığında bildirim gönderilecek.";
+
+            return ProduceSuccessResponse<GetContentForPlayerDto>(
+                new GetContentForPlayerDto
+                {
+                    Content = null, // İçerik yok
+                    IsTrainingFinished = true, // Bitiş bayrağı
+                    Message = endMessage
+                },
+                new ResponseHeader
+                {
+                    Msg = endMessage,
+                    ResCode = HrStatusCodes.Status200OK
+                }
+            );
         }
+
 
     }
 }
