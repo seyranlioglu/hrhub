@@ -21,6 +21,7 @@ using HrHub.Infrastructre.Repositories.Concrete;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using ServiceStack;
 
 namespace HrHub.Application.Managers.Trainings;
 
@@ -35,6 +36,9 @@ public class TrainingManager : ManagerBase, ITrainingManager
     private readonly ICurrAccTrainingUserRepository currAccTrainingUserRepository;
     private readonly IUserContentsViewLogRepository userContentsViewLogRepository;
     private readonly IInstructorRepository instructorRepository;
+    private readonly Repository<TrainingCategory> trainingCategoryRepository;
+    private readonly Repository<TrainingLevel> trainingLevelRepository;
+    private readonly Repository<TrainingLanguage> trainingLanguageRepository;
     public TrainingManager(IHttpContextAccessor httpContextAccessor,
                            IHrUnitOfWork hrUnitOfWork,
                            IMapper mapper,
@@ -47,6 +51,9 @@ public class TrainingManager : ManagerBase, ITrainingManager
         trainingStatuRepository = hrUnitOfWork.CreateRepository<TrainingStatus>();
         trainingContentRepository = hrUnitOfWork.CreateRepository<TrainingContent>();
         trainingSectionRepository = hrUnitOfWork.CreateRepository<TrainingSection>();
+        trainingCategoryRepository = hrUnitOfWork.CreateRepository<TrainingCategory>();
+        trainingLevelRepository = hrUnitOfWork.CreateRepository<TrainingLevel>();
+        trainingLanguageRepository = hrUnitOfWork.CreateRepository<TrainingLanguage>();
         this.mapper = mapper;
         this.currAccTrainingUserRepository = currAccTrainingUserRepository;
         this.userContentsViewLogRepository = userContentsViewLogRepository;
@@ -937,40 +944,33 @@ public class TrainingManager : ManagerBase, ITrainingManager
     {
         try
         {
-            // 1. Kullanıcı Giriş Yapmışsa Şirket ID'sini Al (ManagerBase'den)
+            // 1. Kullanıcı Giriş Yapmışsa Şirket ID'sini Al
             long userCurrAccId = 0;
             if (IsAuthenticate())
             {
-                // ManagerBase içindeki metodu kullanıyoruz, DB'ye gitmeye gerek yok!
                 userCurrAccId = GetCurrAccId();
             }
 
-            // 2. SORGUNUN HAZIRLANMASI
+            // 2. Query Başlat
             var query = trainingRepository.GetQuery();
 
             // --- Temel Kurallar ---
             query = query.Where(t => t.IsActive == true && (t.IsDelete == false || t.IsDelete == null));
 
-            // --- GİZLİLİK (VISIBILITY) MANTIĞI ---
-
+            // --- GİZLİLİK FİLTRESİ ---
             if (request.OnlyPrivate)
             {
-                // Kullanıcı "Sadece Şirketime Özel" dediyse:
-                // Sadece Private OLAN ve Benim Şirketimin OLANLARI getir.
                 query = query.Where(t => t.IsPrivate == true && t.OwnerCurrAccId == userCurrAccId);
             }
             else
             {
-                // Standart Liste:
-                // 1. Public Olanlar (IsPrivate = false)
-                // 2. Private OLUP benim şirketimin olanlar
                 query = query.Where(t =>
                     t.IsPrivate == false ||
                     (t.IsPrivate == true && t.OwnerCurrAccId == userCurrAccId)
                 );
             }
 
-            // --- FİLTRELER ---
+            // --- DİNAMİK FİLTRELER ---
 
             // Metin Arama
             if (!string.IsNullOrWhiteSpace(request.SearchText) && request.SearchText.Length >= 3)
@@ -984,29 +984,36 @@ public class TrainingManager : ManagerBase, ITrainingManager
                 );
             }
 
-            // Kategori
+            // --- HATA BURADAYDI, DÜZELTİLDİ ---
+            // Kategori Filtresi (Artık request içindeki ID'lere göre filtreliyor)
             if (request.CategoryIds != null && request.CategoryIds.Any())
+            {
                 query = query.Where(t => t.CategoryId.HasValue && request.CategoryIds.Contains(t.CategoryId.Value));
+            }
 
             // Seviye
             if (request.LevelIds != null && request.LevelIds.Any())
+            {
                 query = query.Where(t => t.TrainingLevelId.HasValue && request.LevelIds.Contains(t.TrainingLevelId.Value));
+            }
 
             // Dil
             if (request.LanguageIds != null && request.LanguageIds.Any())
+            {
                 query = query.Where(t => t.TrainingLanguageId.HasValue && request.LanguageIds.Contains(t.TrainingLanguageId.Value));
+            }
 
             // Puan
             if (request.MinRating.HasValue && request.MinRating > 0)
+            {
                 query = query.Where(t => t.Reviews.Any() && t.Reviews.Average(r => r.TrainingPoint) >= request.MinRating.Value);
+            }
 
-            // --- SIRALAMA ---
+            // --- SIRALAMA VE PROJECTION (AYNI) ---
             query = query.OrderByDescending(t => t.CreatedDate);
 
-            // --- TOPLAM SAYI (Pagination için) ---
             int totalRecords = await query.CountAsync();
 
-            // --- VERİ ÇEKME (Projection) ---
             var pagedData = await query
                 .Skip(request.PageIndex * request.PageSize)
                 .Take(request.PageSize)
@@ -1016,38 +1023,25 @@ public class TrainingManager : ManagerBase, ITrainingManager
                     Title = x.Title,
                     Description = x.Description,
                     HeaderImage = !string.IsNullOrEmpty(x.HeaderImage) ? x.HeaderImage : "assets/images/courses/course1.jpg",
-
                     CategoryName = x.TrainingCategory != null ? x.TrainingCategory.Title : "",
-
                     InstructorName = x.Instructor != null && x.Instructor.User != null
                                      ? x.Instructor.User.Name + " " + x.Instructor.User.SurName
                                      : "HrHub Eğitmen",
                     InstructorImage = x.Instructor != null ? x.Instructor.PicturePath : "assets/images/users/user-dummy.jpg",
-
                     LevelName = x.TrainingLevel != null ? x.TrainingLevel.Title : "",
-
-                    // Fiyat (SQL tarafında null check önemli)
                     Amount = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().AmountPerLicence : 0,
                     DiscountRate = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().DiscountRate : 0,
-                    CurrentAmount = 0, // Code side hesaplanacak
-
+                    CurrentAmount = 0,
                     Rating = x.Reviews.Any() ? x.Reviews.Average(r => r.TrainingPoint) : 0,
                     ReviewCount = x.Reviews.Count(),
-
                     LessonCount = x.TrainingSections.SelectMany(s => s.TrainingContents).Count(),
-                    // Toplam dakika
-                    TotalMinutes = x.TrainingSections
-                        .SelectMany(s => s.TrainingContents)
-                        .Where(c => c.Time.HasValue)
-                        .Sum(c => (int)c.Time.Value.TotalMinutes),
-
+                    TotalMinutes = x.TrainingSections.SelectMany(s => s.TrainingContents).Where(c => c.Time.HasValue).Sum(c => (int)c.Time.Value.TotalMinutes),
                     CreatedDate = x.CreatedDate,
                     IsPrivate = x.IsPrivate,
                     IsActive = x.IsActive
                 })
                 .ToListAsync();
 
-            // --- FİYAT HESAPLAMA (Memory) ---
             foreach (var item in pagedData)
             {
                 if (item.Amount > 0)
@@ -1059,20 +1053,129 @@ public class TrainingManager : ManagerBase, ITrainingManager
                 }
             }
 
-            // Listeyi PagedList formatına çevirip dönüyoruz
-            var responsePagedList = new PagedList<TrainingListItemDto>(
-                pagedData,      // Liste
-                totalRecords,   // Toplam kayıt sayısı
-                request.PageIndex,
-                request.PageSize
-            );
-
+            var responsePagedList = new PagedList<TrainingListItemDto>(pagedData, totalRecords, request.PageIndex, request.PageSize);
             return ProduceSuccessResponse(responsePagedList);
         }
         catch (Exception ex)
         {
             return ProduceFailResponse<PagedList<TrainingListItemDto>>("Eğitim listesi alınırken hata: " + ex.Message, 500);
         }
+    }
+
+    public async Task<Response<TrainingFilterOptionsDto>> GetTrainingFilterOptionsAsync()
+    {
+        try
+        {
+            var response = new TrainingFilterOptionsDto();
+
+            // 1. KATEGORİLER (ParentId var)
+            var categoryQuery = trainingCategoryRepository
+                .GetQuery(
+                    predicate: x => x.IsActive == true && x.IsDelete != true) // OrderBy'ı Union'dan sonra yapacağız
+                .Select(x => new FlatFilterData
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    ParentId = x.MasterCategoryId, // Veritabanındaki gerçek değer
+                    Type = "CAT",
+                    Order = 0
+                });
+
+            // 2. SEVİYELER (ParentId YOK - Explicit Cast Lazım)
+            var levelQuery = trainingLevelRepository
+                .GetQuery(
+                    predicate: x => x.IsActive == true && x.IsDelete != true)
+                .Select(x => new FlatFilterData
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    ParentId = (long?)null, // <--- KRİTİK DÜZELTME: Türü açıkça belirtiyoruz
+                    Type = "LVL",
+                    Order = (int)x.Id
+                });
+
+            // 3. DİLLER (ParentId YOK)
+            var languageQuery = trainingLanguageRepository
+                .GetQuery(
+                    predicate: x => x.IsActive == true && x.IsDelete != true)
+                .Select(x => new FlatFilterData
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    ParentId = (long?)null, // <--- KRİTİK DÜZELTME
+                    Type = "LNG",
+                    Order = 0
+                });
+
+            // 4. EĞİTMENLER (ParentId YOK)
+            var instructorQuery = instructorRepository
+                .GetQuery(
+                    predicate: x => x.IsActive == true && x.IsDelete != true,
+                    include: x => x.Include(i => i.User))
+                .Select(x => new FlatFilterData
+                {
+                    Id = x.Id,
+                    Title = x.User.Name + " " + x.User.SurName,
+                    ParentId = (long?)null, // <--- KRİTİK DÜZELTME
+                    Type = "INS",
+                    Order = 0
+                });
+
+            // 5. UNION ALL (Concat)
+            // EF Core Concat yaparken tiplerin uyuştuğundan emin olur.
+            var combinedQuery = categoryQuery
+                                .Concat(levelQuery)
+                                .Concat(languageQuery)
+                                .Concat(instructorQuery);
+
+            // 6. DB'YE TEK SORGU VE BELLEKTE AYRIŞTIRMA
+            var flatList = await combinedQuery.ToListAsync();
+
+            // ---------------------------------------------------------------------
+            // RAM MAPPING (Sıralamaları burada yapıyoruz, SQL'de değil)
+            // ---------------------------------------------------------------------
+
+            response.Categories = flatList
+                .Where(x => x.Type == "CAT")
+                .OrderBy(x => x.Title) // Alfabetik Sıralama
+                .Select(x => new FilterItemDto { Id = x.Id, Title = x.Title, ParentId = x.ParentId })
+                .ToList();
+
+            response.Levels = flatList
+                .Where(x => x.Type == "LVL")
+                .OrderBy(x => x.Order) // ID (Zorluk) Sıralaması
+                .Select(x => new FilterItemDto { Id = x.Id, Title = x.Title, ParentId = null })
+                .ToList();
+
+            response.Languages = flatList
+                .Where(x => x.Type == "LNG")
+                .OrderBy(x => x.Title)
+                .Select(x => new FilterItemDto { Id = x.Id, Title = x.Title, ParentId = null })
+                .ToList();
+
+            response.Instructors = flatList
+                .Where(x => x.Type == "INS")
+                .OrderBy(x => x.Title)
+                .Select(x => new FilterItemDto { Id = x.Id, Title = x.Title, ParentId = null })
+                .ToList();
+
+            return ProduceSuccessResponse(response);
+        }
+        catch (Exception ex)
+        {
+            return ProduceFailResponse<TrainingFilterOptionsDto>("Filtre seçenekleri alınırken hata oluştu: " + ex.Message, 500);
+        }
+    }
+
+    // Bu sınıfı metodun hemen üstüne veya dosyanın altına, class dışına koyabilirsin.
+    // Sadece bu metodun içinde veri taşıma amaçlıdır.
+    private class FlatFilterData
+    {
+        public long Id { get; set; }
+        public string Title { get; set; }
+        public long? ParentId { get; set; } // Eklendi
+        public string Type { get; set; }
+        public int Order { get; set; }
     }
 
     private decimal? GetTrainingAmount(Training training)

@@ -27,4 +27,5 @@ public interface ITrainingManager : IBaseManager
     Task<Response<List<TrainingViewCardDto>>> SearchTrainingsAsync(string searchTerm, int pageIndex = 0, int pageSize = 12);
     Task<Response<List<TrainingCardDto>>> GetNavbarRecentTrainingsAsync(int count = 5);
     Task<Response<PagedList<TrainingListItemDto>>> GetAdvancedTrainingListAsync(SearchTrainingRequestDto request);
+    Task<Response<TrainingFilterOptionsDto>> GetTrainingFilterOptionsAsync();
 }

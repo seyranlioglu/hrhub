@@ -107,5 +107,11 @@ namespace HrHub.API.Controllers
             return await trainingManager.GetAdvancedTrainingListAsync(request);
         }
 
+        [HttpGet("GetFilterOptions")]
+        public async Task<Response<TrainingFilterOptionsDto>> GetFilterOptions()
+        {
+            return await trainingManager.GetTrainingFilterOptionsAsync();
+        }
+
     }
 }
