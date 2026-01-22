@@ -79,6 +79,10 @@ namespace HrHub.Core.Base
             return GetUser().IsInRole(Roles.SuperAdmin);
         }
 
+        public bool IsAdmin()
+        {
+            return GetUser().IsInRole(Roles.Admin);
+        }
 
         public string GetCurrentIpAddress()
         {

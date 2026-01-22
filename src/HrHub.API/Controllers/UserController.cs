@@ -4,6 +4,7 @@ using HrHub.Application.Managers.UserManagers;
 using HrHub.Domain.Contracts.Dtos.UserDtos;
 using HrHub.Domain.Contracts.Responses.UserResponses;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 
@@ -40,6 +41,7 @@ namespace HrHub.API.Controllers
             var result = await userManager.SignUp(dto);
             return result;
         }
+
         [AllowAnonymous]
         [HttpPost("[Action]")]
         public async Task<Response<VerifySendResponse>> VerifyCodeSend([FromBody] VerifySendDto verifySendDto)
@@ -54,7 +56,7 @@ namespace HrHub.API.Controllers
             var result = await userManager.VerifyCodeAndConfirm(verifyDto);
             return result;
         }
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin},{Roles.User}", Policy = Policies.MainUser)]
         [HttpPost("[Action]")]
         public async Task<Response<CommonResponse>> AddUser([FromBody] AddUserDto addUser)
         {
@@ -138,7 +140,7 @@ namespace HrHub.API.Controllers
             return result;
         }
 
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin},{Roles.User}", Policy = Policies.MainUser)]
         [HttpPut("[Action]")]
         public async Task<Response<CommonResponse>> Update(UserUpdateDto updateUserDto)
         {
@@ -146,7 +148,7 @@ namespace HrHub.API.Controllers
             return result;
         }
 
-        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.User}", Policy = Policies.MainUser)]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin},{Roles.User}", Policy = Policies.MainUser)]
         [HttpDelete("[action]/{userId:long}")]
         public async Task<Response<CommonResponse>> Delete(long userId)
         {
@@ -166,6 +168,33 @@ namespace HrHub.API.Controllers
         public async Task<Response<List<CurrAccTypeDto>>> CurrAccTypeList()
         {
             var result = await userManager.GetCurrAccTypeList();
+            return result;
+        }
+
+        [HttpGet("managed-users")]
+        [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin},{Roles.User}", Policy = Policies.MainUser)]
+        public async Task<Response<List<ManagedUserDto>>> GetManagedUsers()
+        {
+            var result = await userManager.GetManagedUsersAsync();
+            return result;
+        }
+
+        /// <summary>
+        /// Sisteme yeni personel davet eder veya mevcutsa transfer eder.
+        /// </summary>
+        [HttpPost("invite-user")]
+        [Authorize(Policy = Policies.MainUser)] // Sadece Kurum Yöneticisi
+        public async Task<Response<CommonResponse>> InviteUser([FromBody] InviteUserDto dto)
+        {
+            // Manager 'Response<string>' döner.
+            var result = await userManager.InviteUserAsync(
+                dto.Email,
+                dto.FirstName,
+                dto.LastName,
+                dto.ForceTransfer
+            );
+
+            // Response wrapper ile döner (Frontend data.isSuccessful kontrolü yapabilir)
             return result;
         }
     }

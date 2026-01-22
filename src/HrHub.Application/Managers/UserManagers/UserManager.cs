@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Enums;
+using HrHub.Abstraction.Exceptions;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
 using HrHub.Application.BusinessRules.UserBusinessRules;
@@ -19,9 +20,12 @@ using HrHub.Domain.Contracts.Responses.UserResponses;
 using HrHub.Domain.Entities.SqlDbEntities;
 using HrHub.Identity.Model;
 using HrHub.Identity.Services;
+using HrHub.Infrastructre.Repositories.Abstract;
+using HrHub.Infrastructre.Repositories.Concrete;
 using HrHub.Infrastructre.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
 using ServiceStack;
 using System.Linq.Expressions;
 
@@ -40,7 +44,18 @@ namespace HrHub.Application.Managers.UserManagers
         private readonly IAuthenticationService authenticationService;
         private readonly Repository<PasswordHistory> passwordHistoryRepository;
         private readonly MessageSenderFactory messageSenderFactory;
-        public UserManager(IHttpContextAccessor httpContextAccessor, IHrUnitOfWork unitOfWork, IMapper mapper, IAppUserService appUserService, IAppRoleService appRoleService, IAuthenticationService authenticationService, MessageSenderFactory messageSenderFactory, ICommonTypeBaseManager<CurrAccType> commonTypeBaseManager) : base(httpContextAccessor)
+        private readonly IInstructorRepository _instructorRepository;
+        private readonly ICurrAccTrainingUserRepository _trainingUserRepository;
+        public UserManager(IHttpContextAccessor httpContextAccessor,
+                           IHrUnitOfWork unitOfWork,
+                           IMapper mapper,
+                           IAppUserService appUserService,
+                           IAppRoleService appRoleService,
+                           IAuthenticationService authenticationService,
+                           MessageSenderFactory messageSenderFactory,
+                           ICommonTypeBaseManager<CurrAccType> commonTypeBaseManager,
+                           IInstructorRepository instructorRepository,
+                           ICurrAccTrainingUserRepository trainingUserRepository) : base(httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -53,6 +68,8 @@ namespace HrHub.Application.Managers.UserManagers
             this.passwordHistoryRepository = unitOfWork.CreateRepository<PasswordHistory>(); ;
             this.messageSenderFactory = messageSenderFactory;
             this.commonTypeBaseManager = commonTypeBaseManager;
+            _instructorRepository = instructorRepository;
+            _trainingUserRepository = trainingUserRepository;
         }
         public async Task<Response<UserSignUpResponse>> SignUp(UserSignUpDto data, CancellationToken cancellationToken = default)
         {
@@ -301,15 +318,19 @@ namespace HrHub.Application.Managers.UserManagers
             return ProduceSuccessResponse(new UserSignInResponse { Result = true, Message = message });
         }
 
-        public async Task<Response<CommonResponse>> AddUser(AddUserDto request, CancellationToken cancellationToken = default)
+        public async Task<Response<CommonResponse>> AddUser(AddUserDto request,  CancellationToken cancellationToken = default)
         {
             if (ValidationHelper.RuleBasedValidator<AddUserDto>(request, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
-            string password = PasswordHepler.GeneratePassword(8, true, true, true);
+            string password = PasswordHelper.GeneratePassword(8, true, true, true);
             var signUpModel = mapper.Map<SignUpDto>(request);
             signUpModel.AuthCode = Guid.NewGuid().TrimHyphen();
             signUpModel.Password = password;
             signUpModel.IsMainUser = false;
+            if (IsMainUser() && !IsSuperAdmin() && !IsAdmin())
+            {
+                request.CurrAccId = GetCurrAccId();
+            }
 
             var result = await appUserService.SignUpAsync(signUpModel);
             if (result.Item2)
@@ -342,10 +363,14 @@ namespace HrHub.Application.Managers.UserManagers
                             var dictionary = new Dictionary<string, string>
                             {
                                 { "@PASSWORD", password },
-                                { "@USERNAME", request.Email }
+                                { "@USERNAME", request.Email },
+                                { "@NAME", request.Name },
+                                { "@SURNAME", request.SurName},
                             };
                             var sender = messageSenderFactory.GetSender(MessageType.Email);
                             await sender.SendAsync(new EmailMessageDto { Recipient = request.Email, Content = content, MessageTemplate = MessageTemplates.NewUser, Parameters = dictionary });
+
+                            return ProduceSuccessResponse(new CommonResponse { Code = 200, Message = "Kullanıcı Eklendi", Result = true });
                         }
                     }
                 }
@@ -376,6 +401,7 @@ namespace HrHub.Application.Managers.UserManagers
             VerificationHelper.SaveCode("ChangePassword_" + changePassword.UserName, verificationCode);
             return ProduceSuccessResponse(new CommonResponse { Result = true, Message = message });
         }
+
         public async Task<Response<CommonResponse>> VerifyCodeAndChangePassword(VerifyChangePasswordDto verify, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<VerifyChangePasswordDto>();
@@ -394,15 +420,23 @@ namespace HrHub.Application.Managers.UserManagers
 
         public async Task<Response<CommonResponse>> ForgotPassword(ForgotPasswordDto forgotPassword, CancellationToken cancellationToken = default)
         {
+
             if (ValidationHelper.RuleBasedValidator<ForgotPasswordDto>(forgotPassword, typeof(IUserBusinessRule)) is ValidationResult cBasedValidResult && !cBasedValidResult.IsValid)
                 return cBasedValidResult.SendResponse<CommonResponse>();
 
 
-            var user = await appUserService.GetUserByEmailAsync(forgotPassword.UserName);
+            var user = await userRepository.GetAsync(
+                    p => p.Email == forgotPassword.UserName || p.PhoneNumber == forgotPassword.UserName,
+                    include: i => i.Include(s => s.Instructor)
+                );
             string receiver = forgotPassword.UserName;
-            string message = VerificationHelper.MaskEmail(forgotPassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
+            string message = string.Empty;
             SubmissionTypeEnum type = SubmissionTypeEnum.Email;
-            if (forgotPassword.Type == SubmissionTypeEnum.Sms)
+            if (forgotPassword.Type == SubmissionTypeEnum.Email)
+            {
+                message = VerificationHelper.MaskEmail(forgotPassword.UserName) + " mail adresinize şifre değişikliği için doğrulama kodu gönderilmiştir.";
+            }
+            else if (forgotPassword.Type == SubmissionTypeEnum.Sms)
             {
 
                 receiver = user.PhoneNumber;
@@ -416,6 +450,7 @@ namespace HrHub.Application.Managers.UserManagers
             VerificationHelper.SaveCode("ForgotPassword_" + forgotPassword.UserName, verificationCode);
             return ProduceSuccessResponse(new CommonResponse { Result = true, Message = message });
         }
+
         public async Task<Response<CommonResponse>> VerifyCodeAndForgotPassword(VerifyForgotPasswordDto verify, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<VerifyForgotPasswordDto>();
@@ -431,7 +466,6 @@ namespace HrHub.Application.Managers.UserManagers
 
             return ProduceSuccessResponse(new CommonResponse { Message = "Doğrulama Başarılı", Code = 200, Result = true });
         }
-
 
         public async Task<Response<CommonResponse>> PasswordReset(PasswordResetDto passwordReset, string reason, bool isSendMail = false, CancellationToken cancellationToken = default)
         {
@@ -474,6 +508,7 @@ namespace HrHub.Application.Managers.UserManagers
             }
             return ProduceSuccessResponse(new CommonResponse { Message = "Şifre başarıyla değiştirilmiştir.", Code = 200, Result = true });
         }
+
         public async Task<Response<GetUserResponse>> GetUserById(GetUserByIdDto getUserById, CancellationToken cancellationToken = default)
         {
             var validator = new FieldBasedValidator<GetUserByIdDto>();
@@ -530,9 +565,20 @@ namespace HrHub.Application.Managers.UserManagers
             var user = await userRepository.GetAsync(p => p.Id == userUpdateDto.Id);
             if (user == null)
                 return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
+            // --- GÜVENLİK EKLEMESİ ---
+            // MainUser, kendi firmasındaki birini güncellerken firma ID'sini değiştirememeli.
+            // Sadece SuperAdmin veya Admin firma değişikliği (transfer) yapabilir.
+            if (IsMainUser() && !IsSuperAdmin() && !IsAdmin())
+            {
+                // Kullanıcı bizim firmada değilse hata ver (Güvenlik)
+                if (user.CurrAccId != GetCurrAccId())
+                    return ProduceFailResponse<CommonResponse>("Bu kullanıcıyı düzenleme yetkiniz yok.", StatusCodes.Status403Forbidden);
 
-            user.Name = userUpdateDto.Name;
-            user.SurName = userUpdateDto.SurName;
+                // Firma değişikliğini engelle (Mevcut firmasında kalsın)
+                userUpdateDto.CurrAccId = user.CurrAccId;
+            }
+            // -------------------------
+            user.SurName = userUpdateDto.SurName ?? user.SurName;
             user.CurrAccId = userUpdateDto.CurrAccId;
             user.UpdateDate = DateTime.UtcNow;
             user.UpdateUserId = this.GetCurrentUserId();
@@ -540,19 +586,22 @@ namespace HrHub.Application.Managers.UserManagers
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla güncellenmiştir.", Code = 200, Result = true });
         }
+
         public async Task<Response<CommonResponse>> DeleteUser(long userId, CancellationToken cancellationToken = default)
         {
-            var user = await userRepository.GetAsync(p => p.Id == userId);
+            var user = await userRepository.GetAsync(p => p.Id == userId && p.IsDelete != true);
             if (user == null)
                 return ProduceFailResponse<CommonResponse>("Kullanıcı Bulunamadı", StatusCodes.Status404NotFound);
 
             user.DeleteDate = DateTime.UtcNow;
             user.DeleteUserId = this.GetCurrentUserId();
             user.IsActive = false;
+            user.IsDelete = true;
             userRepository.Update(user);
             await unitOfWork.SaveChangesAsync();
             return ProduceSuccessResponse(new CommonResponse { Message = "Kullanıcı başarıyla silinmiştir.", Code = 200, Result = true });
         }
+
         public async Task SendVerifyCode(string receiver, string code, SubmissionTypeEnum type, MessageTemplates template)
         {
             switch (type)
@@ -604,8 +653,191 @@ namespace HrHub.Application.Managers.UserManagers
 
         public async Task<Response<List<CurrAccTypeDto>>> GetCurrAccTypeList(CancellationToken cancellationToken = default)
         {
-            var list= await commonTypeBaseManager.GetList<CurrAccTypeDto>(predicate:p => p.IsActive && p.IsDelete!= true);
+            var list = await commonTypeBaseManager.GetList<CurrAccTypeDto>(predicate: p => p.IsActive && p.IsDelete != true);
             return ProduceSuccessResponse(list.ToList());
+        }
+
+        public async Task<Response<List<ManagedUserDto>>> GetManagedUsersAsync()
+        {
+            var currentUserId = GetCurrentUserId();
+            IEnumerable<User> users = new List<User>();
+            string viewMode = "";
+
+            // --- SENARYO 1: SUPER ADMIN (Tüm Kullanıcılar) ---
+            if (IsSuperAdmin())
+            {
+                viewMode = "AdminView";
+                users = await userRepository.GetListAsync(
+                    x => x.IsDelete != true,
+                    include: q => q.Include(u => u.CurrAcc)
+                );
+            }
+            // --- SENARYO 2: MAIN USER (Kurum Yöneticisi) ---
+            else if (IsMainUser())
+            {
+                viewMode = "CompanyView";
+                var myCompanyId = GetCurrAccId();
+
+                // Sadece kendi şirketindekiler ve kendisi hariç
+                users = await userRepository.GetListAsync(
+                    x => x.CurrAccId == myCompanyId && x.Id != currentUserId && x.IsDelete != true
+                );
+            }
+            // --- SENARYO 3: INSTRUCTOR (Öğrencileri) ---
+            else if (IsInstructor())
+            {
+                viewMode = "InstructorView";
+
+                // 1. Önce bu User'ın Instructor kaydını bulalım
+                var instructor = await _instructorRepository.GetAsync(x => x.UserId == currentUserId);
+
+                if (instructor != null)
+                {
+                    // 2. Eğitmenin kurslarına (Training -> InstructorId) kayıtlı olan (CurrAccTrainingUser) satırları çek
+                    // İlişki: CurrAccTrainingUser -> CurrAccTraining -> Training -> Instructor
+                    var enrollments = await _trainingUserRepository.GetListAsync(
+                        predicate: x => x.CurrAccTrainings.Training.InstructorId == instructor.Id && x.IsDelete != true,
+                        include: q => q.Include(x => x.User)
+                                       .Include(x => x.CurrAccTrainings)
+                                       .ThenInclude(t => t.Training)
+                    );
+
+                    // 3. Bu kayıtlardaki 'User'ları al ve tekilleştir (Distinct)
+                    // Bir öğrenci 3 kurs almış olabilir, listede 1 kere görünmeli.
+                    users = enrollments.Select(x => x.User)
+                                       .Where(u => u != null && u.IsDelete != true)
+                                       .DistinctBy(u => u.Id) // .NET 6+ özelliği, yoksa GroupBy kullanırız
+                                       .ToList();
+                }
+            }
+            else
+            {
+                return ProduceFailResponse<List<ManagedUserDto>>("Yetkisiz Erişim: Rolünüz tanımlanamadı.", 403);
+            }
+
+            // --- MAPPING & KVKK (Veri Gizleme) ---
+            var dtoList = users.Select(u =>
+            {
+                var dto = new ManagedUserDto
+                {
+                    Id = u.Id,
+                    FirstName = u.Name,
+                    LastName = u.SurName,
+                    IsActive = u.IsActive,
+                    CreatedDate = u.CreatedDate,
+                    // Eğer User entity'sinde Title varsa
+                    // Title = u.Title 
+                    ViewMode = viewMode
+                };
+
+                // Admin ise her şeyi gör
+                if (viewMode == "AdminView")
+                {
+                    dto.Email = u.Email;
+                    dto.PhoneNumber = u.PhoneNumber;
+                    dto.CompanyName = u.CurrAcc?.Title;
+                    dto.Status = u.IsActive ? "Aktif" : "Pasif";
+                }
+                // Kurum Yöneticisi ise iletişim bilgilerini gör
+                else if (viewMode == "CompanyView")
+                {
+                    dto.Email = u.Email;
+                    dto.PhoneNumber = u.PhoneNumber;
+                    dto.Status = u.IsActive ? "Aktif" : "Pasif";
+                }
+                // Eğitmen ise KİŞİSEL BİLGİLERİ GİZLE (KVKK)
+                else if (viewMode == "InstructorView")
+                {
+                    dto.Email = null; // Eğitmen öğrencinin mailini göremez
+                    dto.PhoneNumber = null; // Eğitmen telefonunu göremez
+                    dto.Status = "Öğrenci";
+                }
+
+                return dto;
+            }).ToList();
+
+            return ProduceSuccessResponse(dtoList);
+        }
+
+        // PERSONEL EKLEME VE TRANSFER SENARYOSU
+        public async Task<Response<CommonResponse>> InviteUserAsync(string email, string firstName, string lastName, bool forceTransfer = false)
+        {
+            if (!IsMainUser()) return ProduceFailResponse<CommonResponse>("Sadece Kurum Yöneticileri personel ekleyebilir.", 403);
+
+            var currentCompanyId = GetCurrAccId();
+            var existingUser = await userRepository.GetAsync(u => u.Email == email);
+
+            // DURUM 1: KULLANICI YOK (Sıfırdan Ekle)
+            if (existingUser == null)
+            {
+                // Random şifre oluştur, User tablosuna kaydet
+                var newUser = new User
+                {
+                    Email = email,
+                    Name = firstName,
+                    SurName = lastName,
+                    CurrAccId = currentCompanyId,
+                    UserName = email,
+                    IsActive = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                };
+
+                // Identity (UserManager) ile create işlemi...
+                // var result = await _userManager.CreateAsync(newUser, "RandomPass123!");
+
+                // Mail Gönderimi: _emailService.SendInvitation(email, "Hoşgeldin, şifreni belirle...");
+
+                return ProduceSuccessResponse(new CommonResponse
+                {
+                    Code = 0,
+                    Message = "Kullanıcı oluşturuldu ve davetiyesi gönderildi.",
+                    Result = true
+                });
+            }
+
+            // DURUM 2: KULLANICI VAR (Transfer Kontrolü)
+            else
+            {
+                // Kullanıcı zaten bizim şirkette mi?
+                if (existingUser.CurrAccId == currentCompanyId)
+                {
+                    return ProduceFailResponse<CommonResponse>("Bu kullanıcı zaten sizin personeliniz.", 400);
+                }
+
+                // Kullanıcı başka şirkette mi?
+                if (existingUser.CurrAccId != null && existingUser.CurrAccId != 0)
+                {
+                    // Eğer "Zorla Transfer Et" denmediyse uyarı dön
+                    if (!forceTransfer)
+                    {
+                        // Frontend'e özel kod: 409 Conflict veya özel bir kod dönüyoruz
+                        // Frontend bu kodu görünce "Bu kullanıcı başka şirkette, transfer edilsin mi?" diye soracak.
+                        return ProduceFailResponse<CommonResponse>("Bu kullanıcı başka bir firmaya kayıtlı", 409);
+                    }
+
+                    // Onay geldiyse transferi yap
+                    existingUser.CurrAccId = currentCompanyId;
+                    await userRepository.UpdateAsync(existingUser); // Veya UoW.SaveAsync
+
+                    // Mail at: "Artık X şirketine bağlandınız."
+                    return ProduceSuccessResponse(new CommonResponse
+                    {
+                        Code = 0,
+                        Message = "Kullanıcı başarıyla şirketinize transfer edildi.",
+                        Result = true
+                    });
+                }
+
+                // Kullanıcı boşta (Bireysel) ise direkt al
+                existingUser.CurrAccId = currentCompanyId;
+                await userRepository.UpdateAsync(existingUser);
+                return ProduceSuccessResponse(new CommonResponse
+                {
+                    Code = 0,
+                    Message = "Kullanıcı personelinize eklendi.",
+                    Result = true
+                });
+            }
         }
     }
 }

@@ -22,4 +22,7 @@ public interface ITrainingManager : IBaseManager
     /// Kullanıcıya özel, ağırlıklı puanlama algoritması ile eğitim önerir.
     /// </summary>
     Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainingsAsync();
+
+    Task<Response<List<TrainingViewCardDto>>> SearchTrainingsAsync(string searchTerm, int pageIndex = 0, int pageSize = 12);
+    Task<Response<List<TrainingCardDto>>> GetNavbarRecentTrainingsAsync(int count = 5);
 }

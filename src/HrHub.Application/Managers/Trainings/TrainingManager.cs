@@ -640,89 +640,294 @@ public class TrainingManager : ManagerBase, ITrainingManager
 
     public async Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainingsAsync()
     {
-        long userId = GetCurrentUserId();
-        // 1. Kullanıcının MEVCUT (Aldığı/Atanmış) eğitimlerini çekiyoruz.
-        // Selector ile sadece ihtiyacımız olan ID'leri alıyoruz (Performans).
-        var userHistory = await currAccTrainingUserRepository.GetListAsync(
-            predicate: x => x.UserId == userId,
-            selector: x => new { x.CurrAccTrainings.TrainingId, x.CurrAccTrainings.Training.CategoryId }
+        try
+        {
+            long userId = GetCurrentUserId();
+
+            // 1. Kullanıcı Geçmişini Çek (Null Check ile)
+            var userHistory = await currAccTrainingUserRepository.GetListAsync(
+                predicate: x => x.UserId == userId,
+                selector: x => new {
+                    TrainingId = x.CurrAccTrainings != null ? x.CurrAccTrainings.TrainingId : 0,
+                    CategoryId = (x.CurrAccTrainings != null && x.CurrAccTrainings.Training != null) ? x.CurrAccTrainings.Training.CategoryId : (long?)null
+                }
+            );
+
+            // Null gelirse boş liste ata
+            userHistory = userHistory;
+
+            var ownedTrainingIds = userHistory.Select(x => (long)x.TrainingId).ToList();
+
+            // En son etkileşim kurulan kategori
+            var lastInteractedCategoryId = userHistory
+                .Where(x => x.CategoryId != null && x.CategoryId > 0)
+                .OrderByDescending(x => x.TrainingId)
+                .Select(x => x.CategoryId)
+                .FirstOrDefault();
+
+            List<TrainingViewCardDto> recommendations = new();
+
+            // 2. A PLANI (Kategori Bazlı Öneri)
+            if (lastInteractedCategoryId.HasValue && lastInteractedCategoryId.Value > 0)
+            {
+                var interestBased = await trainingRepository.GetPagedListAsync(
+                    predicate: x => x.IsActive == true &&
+                                    x.IsDelete != true &&
+                                    x.CategoryId == lastInteractedCategoryId &&
+                                    !ownedTrainingIds.Contains(x.Id),
+                    orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                    include: i => i.Include(t => t.TrainingCategory)
+                                   .Include(t => t.Instructor).ThenInclude(u => u.User)
+                                   .Include(t => t.TrainingLevel)
+                                   .Include(t => t.TrainingAmounts),
+                    skip: 0,
+                    take: 10,
+                    selector: x => new TrainingViewCardDto
+                    {
+                        Id = x.Id,
+                        Title = x.Title,
+                        HeaderImage = !string.IsNullOrEmpty(x.HeaderImage) ? x.HeaderImage : "/assets/images/courses/course1.jpg",
+                        CategoryTitle = x.TrainingCategory != null ? x.TrainingCategory.Title : "",
+                        InstructorTitle = x.Instructor != null && x.Instructor.User != null ? $"{x.Instructor.User.Name} {x.Instructor.User.SurName}" : "",
+                        InstructorPicturePath = x.Instructor != null ? x.Instructor.PicturePath : "",
+                        Amount = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().AmountPerLicence : 0,
+                        CurrentAmount = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().AmountPerLicence : 0,
+                        DiscountRate = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().DiscountRate : 0,
+                        TrainingLevelTitle = x.TrainingLevel != null ? x.TrainingLevel.Title : "",
+                        CreatedDate = x.CreatedDate
+                    }
+                );
+
+                if (interestBased != null)
+                    recommendations.AddRange(interestBased);
+            }
+
+            // 3. B PLANI (Genel Öneri - Son Eklenenler)
+            if (recommendations.Count < 10)
+            {
+                int neededCount = 10 - recommendations.Count;
+                var addedIds = recommendations.Select(r => r.Id).ToList();
+                var excludeIds = ownedTrainingIds.Concat(addedIds).ToList();
+
+                var newReleases = await trainingRepository.GetPagedListAsync(
+                    predicate: x => x.IsActive == true &&
+                                    x.IsDelete != true &&
+                                    !excludeIds.Contains(x.Id),
+                    orderBy: q => q.OrderByDescending(x => x.CreatedDate),
+                    include: i => i.Include(t => t.TrainingCategory)
+                                   .Include(t => t.Instructor).ThenInclude(u => u.User)
+                                   .Include(t => t.TrainingLevel)
+                                   .Include(t => t.TrainingAmounts),
+                    skip: 0,
+                    take: neededCount,
+                    selector: x => new TrainingViewCardDto
+                    {
+                        Id = x.Id,
+                        Title = x.Title,
+                        HeaderImage = !string.IsNullOrEmpty(x.HeaderImage) ? x.HeaderImage : "/assets/images/courses/course1.jpg",
+                        CategoryTitle = x.TrainingCategory != null ? x.TrainingCategory.Title : "",
+                        InstructorTitle = x.Instructor != null && x.Instructor.User != null ? $"{x.Instructor.User.Name} {x.Instructor.User.SurName}" : "",
+                        InstructorPicturePath = x.Instructor != null ? x.Instructor.PicturePath : "",
+                        Amount = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().AmountPerLicence : 0,
+                        CurrentAmount = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().AmountPerLicence : 0,
+                        DiscountRate = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().DiscountRate : 0,
+                        TrainingLevelTitle = x.TrainingLevel != null ? x.TrainingLevel.Title : "",
+                        CreatedDate = x.CreatedDate
+                    }
+                );
+
+                if (newReleases != null)
+                    recommendations.AddRange(newReleases);
+            }
+
+            return ProduceSuccessResponse(recommendations);
+        }
+        catch (Exception ex)
+        {
+            // Hata durumunda loglama yapıp boş liste dönmek güvenlidir
+            // Logger.LogError(ex);
+            return ProduceSuccessResponse(new List<TrainingViewCardDto>());
+        }
+    }
+
+    public async Task<Response<List<TrainingViewCardDto>>> SearchTrainingsAsync(string searchTerm, int pageIndex = 0, int pageSize = 12)
+    {
+        // 1. Arama terimi boşsa boş liste veya son eklenenleri dönebiliriz.
+        // Şimdilik boş liste dönüyoruz, frontend zaten 3 harf kuralını uyguluyor.
+        if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm.Length < 3)
+        {
+            return ProduceSuccessResponse(new List<TrainingViewCardDto>());
+        }
+
+        // Küçük harfe çevirerek case-insensitive (büyük/küçük harf duyarsız) arama hazırlığı
+        // Not: DB Collation ayarına göre Contains zaten duyarsız olabilir ama garantiye alalım.
+        searchTerm = searchTerm.Trim().ToLower();
+
+        // 2. Sorgu (Predicate) Oluşturma
+        // Bu sorgu veritabanına "WHERE (... OR ... OR ...)" şeklinde gidecek.
+        var trainings = await trainingRepository.GetPagedListAsync(
+            predicate: x => x.IsActive == true &&
+                            (x.IsDelete == false || x.IsDelete == null) && // Silinenleri getirme
+                            (
+                                x.Title.ToLower().Contains(searchTerm) ||
+                                (x.SubTitle != null && x.SubTitle.ToLower().Contains(searchTerm)) ||
+                                (x.Description != null && x.Description.ToLower().Contains(searchTerm)) ||
+                                (x.Labels != null && x.Labels.ToLower().Contains(searchTerm)) ||
+                                // İlişkili Tablolarda Arama
+                                (x.TrainingCategory != null && x.TrainingCategory.Title.ToLower().Contains(searchTerm)) ||
+                                (x.Instructor != null && x.Instructor.User != null &&
+                                    (x.Instructor.User.Name.ToLower().Contains(searchTerm) ||
+                                     x.Instructor.User.SurName.ToLower().Contains(searchTerm)))
+                            ),
+            // 3. İlişkili verileri dahil et (Kart görünümü için lazım)
+            include: i => i.Include(t => t.TrainingCategory)
+                           .Include(t => t.Instructor).ThenInclude(ins => ins.User)
+                           .Include(t => t.TrainingLevel)
+                           .Include(t => t.TrainingAmounts) // Fiyat hesabı için şart
+                           .Include(t => t.Reviews), // Puanlama için şart
+
+            // 4. Sıralama (Opsiyonel: En yeniden eskiye veya puana göre)
+            orderBy: o => o.OrderByDescending(t => t.CreatedDate),
+
+            // 5. Sayfalama (Backend Pagination)
+            skip: pageIndex * pageSize,
+            take: pageSize,
+
+            // 6. Mapping (Entity -> Dto)
+            selector: x => new TrainingViewCardDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                HeaderImage = !string.IsNullOrEmpty(x.HeaderImage) ? x.HeaderImage : "/assets/images/courses/course1.jpg", // Default resim kontrolü
+                CategoryTitle = x.TrainingCategory != null ? x.TrainingCategory.Title : "",
+                InstructorTitle = x.Instructor != null && x.Instructor.User != null
+                                  ? $"{x.Instructor.User.Name} {x.Instructor.User.SurName}"
+                                  : "",
+                InstructorPicturePath = x.Instructor != null ? x.Instructor.PicturePath : "",
+
+                // Mevcut Manager içindeki private metodları kullanarak fiyat hesaplama
+                Amount = x.TrainingAmounts.OrderBy(a => a.AmountPerLicence).FirstOrDefault() != null
+                         ? x.TrainingAmounts.OrderBy(a => a.AmountPerLicence).FirstOrDefault().AmountPerLicence
+                         : 0,
+
+                CurrentAmount = x.TrainingAmounts.OrderBy(a => a.AmountPerLicence).FirstOrDefault() != null
+                                ? (x.TrainingAmounts.OrderBy(a => a.AmountPerLicence).FirstOrDefault().AmountPerLicence) // Burada indirim mantığını ekleyebilirsin
+                                : 0,
+
+                DiscountRate = x.TrainingAmounts.OrderBy(a => a.AmountPerLicence).FirstOrDefault() != null
+                               ? x.TrainingAmounts.OrderBy(a => a.AmountPerLicence).FirstOrDefault().DiscountRate
+                               : 0,
+
+                TrainingLevelTitle = x.TrainingLevel != null ? x.TrainingLevel.Title : "",
+
+                // Puanlama Hesaplama
+                ReviewCount = x.Reviews != null ? x.Reviews.Count : 0,
+                Rating = x.Reviews != null && x.Reviews.Any()
+                         ? x.Reviews.Average(r => r.TrainingPoint) // Rate property'si entity'de neyse onu yaz (Score, Point vs.)
+                         : 0,
+
+                CreatedDate = x.CreatedDate
+            }
         );
 
-        var ownedTrainingIds = userHistory.Select(x => x.TrainingId).ToList();
+        return ProduceSuccessResponse(trainings.ToList());
+    }
 
-        // Kullanıcının en son aldığı eğitimin kategorisini buluyoruz (İlgi alanı tespiti)
-        // Eğer hiç eğitimi yoksa 0 veya null gelir.
-        var lastInteractedCategoryId = userHistory
-            .OrderByDescending(x => x.TrainingId) // veya CreatedDate
-            .Select(x => x.CategoryId)
-            .FirstOrDefault();
-
-        List<TrainingViewCardDto> recommendations = new();
-
-        // 2. A PLANI: Kullanıcının ilgilendiği kategoriden henüz almadığı en yeni eğitimleri getir.
-        if (lastInteractedCategoryId > 0)
+    public async Task<Response<List<TrainingCardDto>>> GetNavbarRecentTrainingsAsync(int count = 5)
+    {
+        try
         {
-            var interestBased = await trainingRepository.GetPagedListAsync(
-                predicate: x => x.IsActive &&
-                                x.CategoryId == lastInteractedCategoryId &&
-                                !ownedTrainingIds.Contains(x.Id),
-                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
-                skip: 0,
-                take: 10,
-                selector: x => new TrainingViewCardDto
+            long userId = GetCurrentUserId();
+            var resultList = new List<TrainingCardDto>();
+
+            // =================================================================================
+            // 1. ADIM: SON İZLENENLER (Logs) - OPTİMİZE EDİLDİ
+            // =================================================================================
+
+            // Veritabanından sadece ihtiyacımız olan alanları çekiyoruz.
+            // GetListAsync'in selector özelliği varsa onu kullanıyoruz. 
+            // Yoksa mecburen entity çekip AsNoTracking kullanırız ama senin repository'de selector var kabul ediyorum.
+
+            var recentLogsRaw = await userContentsViewLogRepository.GetListAsync(
+                predicate: x => x.CurrAccTrainingUser.UserId == userId,
+                orderBy: o => o.OrderByDescending(x => x.CreatedDate),
+                include: i => i.Include(x => x.CurrAccTrainingUser)
+                               .ThenInclude(u => u.CurrAccTrainings)
+                               .ThenInclude(ct => ct.Training),
+                // SELECTOR İLE SADECE GEREKLİ ALANLAR (HeaderImage ham string olarak alınır)
+                selector: x => new
                 {
-                    Id = x.Id,
-                    Title = x.Title,
-                    HeaderImage = x.HeaderImage,
-                    CategoryTitle = x.TrainingCategory.Title,
-                    InstructorTitle = x.Instructor.Title,
-                    InstructorPicturePath = x.Instructor.PicturePath,
-                    Amount = GetTrainingAmount(x),
-                    CurrentAmount = GetTrainingCurrentAmount(x),
-                    DiscountRate = GetTrainingDiscountRate(x),
-                    TrainingLevelTitle = x.TrainingLevel.Title,
-                    CreatedDate = x.CreatedDate
-                    // Rating vb. gerekirse buraya eklenir
+                    TrainingId = x.CurrAccTrainingUser.CurrAccTrainings.Training.Id,
+                    Title = x.CurrAccTrainingUser.CurrAccTrainings.Training.Title,
+                    RawHeaderImage = x.CurrAccTrainingUser.CurrAccTrainings.Training.HeaderImage,
+                    LogDate = x.CreatedDate
                 }
             );
 
-            recommendations.AddRange(interestBased);
-        }
+            // BELLEKTE (Client-Side) İŞLEME
+            // GroupBy ve GetHeaderImage burada çalıştırılır.
+            var startedTrainings = recentLogsRaw // GetListAsync genelde PagedList döner, Items ile listeye ulaşırız
+                .GroupBy(x => x.TrainingId)
+                .Select(g => g.First()) // Her eğitimin en güncel logu
+                .Take(count)
+                .Select(x => new TrainingCardDto
+                {
+                    Id = x.TrainingId,
+                    Title = x.Title,
+                    // Helper metod burada güvenle çalışır çünkü veri artık RAM'de.
+                    ImageUrl = GetHeaderImage(x.RawHeaderImage),
+                    Progress = 25, // TODO: İlerleme hesaplaması
+                    InstructorName = "Eğitmen Bilgisi Yok"
+                })
+                .ToList();
 
-        // 3. B PLANI (FALLBACK): Eğer liste dolmadıysa (veya kullanıcı yeniyse), Son Eklenenleri getir.
-        if (recommendations.Count < 10)
-        {
-            int neededCount = 10 - recommendations.Count;
+            resultList.AddRange(startedTrainings);
 
-            // Zaten listeye eklediklerimizin ID'lerini de hariç tutalım ki tekrar etmesin.
-            var addedIds = recommendations.Select(r => r.Id).ToList();
-            var excludeIds = ownedTrainingIds.Concat(addedIds).ToList();
+            // =================================================================================
+            // 2. ADIM: YENİ ATANANLAR (Assignments) - OPTİMİZE EDİLDİ
+            // =================================================================================
 
-            var newReleases = await trainingRepository.GetPagedListAsync(
-                predicate: x => x.IsActive && !excludeIds.Contains(x.Id),
-                orderBy: q => q.OrderByDescending(x => x.CreatedDate),
-                skip: 0,
-                take: neededCount,
-                selector: x => new TrainingViewCardDto
+            if (resultList.Count < count)
+            {
+                int remaining = count - resultList.Count;
+                var existingIds = resultList.Select(x => x.Id).ToList();
+
+                // Veritabanından ham veriyi çek (DTO'ya direkt çevirmiyoruz çünkü GetHeaderImage patlar)
+                var newAssignmentsRaw = await currAccTrainingUserRepository.GetPagedListAsync(
+                    predicate: x => x.UserId == userId && x.IsActive == true && !existingIds.Contains(x.CurrAccTrainings.TrainingId),
+                    orderBy: o => o.OrderByDescending(x => x.CreatedDate),
+                    include: i => i.Include(u => u.CurrAccTrainings).ThenInclude(ct => ct.Training),
+                    skip: 0,
+                    take: remaining,
+                    // SELECTOR: Sadece gerekli alanlar + Ham Resim Stringi
+                    selector: assign => new
+                    {
+                        Id = assign.CurrAccTrainings.Training.Id,
+                        Title = assign.CurrAccTrainings.Training.Title,
+                        RawHeaderImage = assign.CurrAccTrainings.Training.HeaderImage
+                    }
+                );
+
+                // BELLEKTE (Client-Side) DTO'ya Çevir
+                var newTrainings = newAssignmentsRaw.Select(x => new TrainingCardDto
                 {
                     Id = x.Id,
                     Title = x.Title,
-                    HeaderImage = x.HeaderImage,
-                    CategoryTitle = x.TrainingCategory.Title,
-                    InstructorTitle = x.Instructor.Title,
-                    InstructorPicturePath = x.Instructor.PicturePath,
-                    Amount = GetTrainingAmount(x),
-                    CurrentAmount = GetTrainingCurrentAmount(x),
-                    DiscountRate = GetTrainingDiscountRate(x),
-                    TrainingLevelTitle = x.TrainingLevel.Title,
-                    CreatedDate = x.CreatedDate
-                }
-            );
+                    // Helper metod burada çalışır
+                    ImageUrl = GetHeaderImage(x.RawHeaderImage),
+                    Progress = 0,
+                    InstructorName = "Eğitmen Bilgisi Yok"
+                }).ToList();
 
-            recommendations.AddRange(newReleases);
+                resultList.AddRange(newTrainings);
+            }
+
+            return ProduceSuccessResponse(resultList);
         }
-
-        return ProduceSuccessResponse(recommendations);
+        catch (Exception exp)
+        {
+            return ProduceFailResponse<List<TrainingCardDto>>("Eğitimler listelenirken hata oluştu. " + exp.Message, 500);
+        }
     }
 
     private decimal? GetTrainingAmount(Training training)
@@ -756,5 +961,17 @@ public class TrainingManager : ManagerBase, ITrainingManager
             .OrderBy(w => w.AmountPerLicence)
             .FirstOrDefault()?
             .AmountPerLicence ?? 0;
+    }
+
+    private string GetHeaderImage(string imagePath)
+    {
+        // 1. Resim yolu boşsa varsayılan bir resim göster
+        if (string.IsNullOrEmpty(imagePath))
+        {
+            return "assets/images/courses/course1.jpg"; // Varsayılan resim yolu
+        }
+
+        // 2. Eğer resim zaten tam bir URL ise (http...) veya Base64 ise olduğu gibi dön
+        return imagePath;
     }
 }

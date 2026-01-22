@@ -44,7 +44,7 @@ namespace HrHub.API.Controllers
             var response = await trainingManager.DeleteTrainingAsync(id).ConfigureAwait(false);
             return response;
         }
-        
+
         [HttpGet("[Action]")]
         public async Task<Response<IEnumerable<GetTrainingDto>>> GetListAsync()
         {
@@ -86,5 +86,20 @@ namespace HrHub.API.Controllers
             var result = await trainingManager.GetRecommendedTrainingsAsync();
             return result;
         }
+
+        [HttpGet("Search")]
+        public async Task<Response<List<TrainingViewCardDto>>> Search([FromQuery] string query, [FromQuery] int page = 0, [FromQuery] int size = 12)
+        {
+            var result = await trainingManager.SearchTrainingsAsync(query, page, size);
+            return result;
+        }
+
+        [HttpGet("[Action]")]
+        public async Task<Response<List<TrainingCardDto>>> GetNavbarRecentTrainings([FromQuery] int count = 5)
+        {
+            return await trainingManager.GetNavbarRecentTrainingsAsync(count).ConfigureAwait(false);
+        }
+
+
     }
 }

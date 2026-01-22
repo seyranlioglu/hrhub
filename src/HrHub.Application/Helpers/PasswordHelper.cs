@@ -3,7 +3,7 @@ using System.Text;
 
 namespace HrHub.Application.Helpers
 {
-    public static class PasswordHepler
+    public static class PasswordHelper
     {
         public static string GeneratePassword(int length, bool includeUppercase, bool includeNumbers, bool includeSpecialChars)
         {

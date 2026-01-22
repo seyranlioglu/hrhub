@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aramıza Hoş Geldiniz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #0d6efd;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+            /* Farklılık olsun diye mavi ton */
+            .header h1 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 600;
+            }
+
+        .content {
+            padding: 30px;
+            color: #333333;
+        }
+
+        .info-card {
+            background-color: #f0f7ff;
+            border-left: 5px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .info-row {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #555;
+            width: 100px;
+            display: inline-block;
+        }
+
+        .value {
+            color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: #f4f4f4;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888888;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #0d6efd;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HrHub'a Hoş Geldiniz!</h1>
+        </div>
+        <div class="content">
+            <p>Sayın @NAME @SURNAME,</p>
+            <p>HrHub personel hesabınız başarıyla oluşturulmuştur. Sisteme giriş yapabilmeniz için gerekli bilgiler aşağıdadır:</p>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="label">Kullanıcı Adı:</span>
+                    <span class="value">@USERNAME</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Parola:</span>
+                    <span class="value">@PASSWORD</span>
+                </div>
+            </div>
+
+            <p style="color: #d9534f; font-size: 13px;">
+                <strong>Önemli:</strong> Güvenliğiniz için sisteme ilk girişinizde lütfen şifrenizi değiştiriniz.
+            </p>
+
+            <center>
+                <a href="https://hrhub.t1akademi.com" class="btn">Giriş Yap</a>
+            </center>
+        </div>
+        <div class="footer">
+            Bu e-posta otomatik olarak oluşturulmuştur, lütfen cevaplamayınız.<br>
+            &copy; 2026 T1 Akademi
+        </div>
+    </div>
+</body>
+</html>

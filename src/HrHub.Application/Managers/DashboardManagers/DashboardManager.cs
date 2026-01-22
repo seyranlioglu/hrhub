@@ -50,59 +50,67 @@ namespace HrHub.Application.Managers.DashboardManagers
         // 1. HERO SECTION
         public async Task<Response<ContinueTrainingDto>> GetLastActiveTrainingAsync()
         {
-            long userId = GetCurrentUserId();
-
-            // SORGULAMA: Entity yapına göre revize edildi.
-            // Log -> CurrAccTrainingUser (Atama) -> CurrAccTrainings (Şirket Eğitimi) -> Training (Eğitim Detayı)
-            var lastLog = await userContentsViewLogRepository.GetAsync<UserContentsViewLog>(
-                predicate: x => x.CurrAccTrainingUser.UserId == userId,
-                orderBy: o => o.OrderByDescending(x => x.CreatedDate),
-                include: i => i.Include(x => x.CurrAccTrainingUser)
-                               .ThenInclude(u => u.CurrAccTrainings)
-                               .ThenInclude(ct => ct.Training)
-                               .Include(x => x.TrainingContent) // Son kalınan içerik adı için
-            );
-
-            if (lastLog == null || lastLog.CurrAccTrainingUser?.CurrAccTrainings?.Training == null)
+            try
             {
-                // Log yoksa, atanmış ilk eğitimi getir
-                var firstAssigned = await currAccTrainingUserRepository.GetAsync(
-                    predicate: x => x.UserId == userId && x.IsActive == true,
-                    include: i => i.Include(u => u.CurrAccTrainings).ThenInclude(ct => ct.Training)
+                long userId = GetCurrentUserId();
+
+                // SORGULAMA: Entity yapına göre revize edildi.
+                // Log -> CurrAccTrainingUser (Atama) -> CurrAccTrainings (Şirket Eğitimi) -> Training (Eğitim Detayı)
+                var lastLog = await userContentsViewLogRepository.GetAsync<UserContentsViewLog>(
+                    predicate: x => x.CurrAccTrainingUser.UserId == userId,
+                    orderBy: o => o.OrderByDescending(x => x.CreatedDate),
+                    include: i => i.Include(x => x.CurrAccTrainingUser)
+                                   .ThenInclude(u => u.CurrAccTrainings)
+                                   .ThenInclude(ct => ct.Training)
+                                   .Include(x => x.TrainingContent) // Son kalınan içerik adı için
                 );
 
-                if (firstAssigned != null && firstAssigned.CurrAccTrainings?.Training != null)
+                if (lastLog == null || lastLog.CurrAccTrainingUser?.CurrAccTrainings?.Training == null)
                 {
-                    var trainingData = firstAssigned.CurrAccTrainings.Training;
-                    return ProduceSuccessResponse(new ContinueTrainingDto
+                    // Log yoksa, atanmış ilk eğitimi getir
+                    var firstAssigned = await currAccTrainingUserRepository.GetAsync(
+                        predicate: x => x.UserId == userId && x.IsActive == true,
+                        include: i => i.Include(u => u.CurrAccTrainings).ThenInclude(ct => ct.Training)
+                    );
+
+                    if (firstAssigned != null && firstAssigned.CurrAccTrainings?.Training != null)
                     {
-                        TrainingId = trainingData.Id,
-                        Title = trainingData.Title, // Entity: TypeCardEntity -> Title
-                        ImageUrl = GetHeaderImage(trainingData.HeaderImage), // Entity: HeaderImage
-                        Progress = 0,
-                        LastLessonName = "Eğitime Başla"
-                    });
+                        var trainingData = firstAssigned.CurrAccTrainings.Training;
+                        return ProduceSuccessResponse(new ContinueTrainingDto
+                        {
+                            TrainingId = trainingData.Id,
+                            Title = trainingData.Title, // Entity: TypeCardEntity -> Title
+                            ImageUrl = GetHeaderImage(trainingData.HeaderImage), // Entity: HeaderImage
+                            Progress = 0,
+                            LastLessonName = "Eğitime Başla"
+                        });
+                    }
+
+                    return ProduceFailResponse<ContinueTrainingDto>("Henüz atanmış bir eğitim bulunamadı.", HrStatusCodes.Status111DataNotFound);
                 }
 
-                return ProduceFailResponse<ContinueTrainingDto>("Henüz atanmış bir eğitim bulunamadı.", HrStatusCodes.Status111DataNotFound);
+                var activeTraining = lastLog.CurrAccTrainingUser.CurrAccTrainings.Training;
+
+                // TODO: İlerleme hesaplaması (Mock: %10)
+                int progress = 10;
+
+                var result = new ContinueTrainingDto
+                {
+                    TrainingId = activeTraining.Id,
+                    Title = activeTraining.Title,
+                    ImageUrl = GetHeaderImage(activeTraining.HeaderImage), // Helper metod kullanımı
+                    Progress = progress,
+                    // Log -> TrainingContent -> Title (TypeCardEntity'den gelir)
+                    LastLessonName = lastLog.TrainingContent?.Title ?? "Son İzlenen Bölüm"
+                };
+
+                return ProduceSuccessResponse(result);
             }
-
-            var activeTraining = lastLog.CurrAccTrainingUser.CurrAccTrainings.Training;
-
-            // TODO: İlerleme hesaplaması (Mock: %10)
-            int progress = 10;
-
-            var result = new ContinueTrainingDto
+            catch (Exception exp)
             {
-                TrainingId = activeTraining.Id,
-                Title = activeTraining.Title,
-                ImageUrl = GetHeaderImage(activeTraining.HeaderImage), // Helper metod kullanımı
-                Progress = progress,
-                // Log -> TrainingContent -> Title (TypeCardEntity'den gelir)
-                LastLessonName = lastLog.TrainingContent?.Title ?? "Son İzlenen Bölüm"
-            };
 
-            return ProduceSuccessResponse(result);
+                return ProduceFailResponse<ContinueTrainingDto>("Bilinmeyen Hata. Hata Mesajı : " + exp.ToJson(), HrStatusCodes.Status111DataNotFound);
+            }
         }
 
         // 2. İSTATİSTİKLER

@@ -20,5 +20,6 @@ namespace HrHub.Domain.Contracts.Dtos.DashboardDtos
         // Frontend'de etiketi kırmızı göstermek için
         public bool IsAssigned { get; set; } // Zorunlu mu?
         public DateTime? DueDate { get; set; } // Son tarih
+        public int Progress { get; set; } // 0 ile 100 arası değer
     }
 }

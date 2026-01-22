@@ -12,7 +12,7 @@ namespace HrHub.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = Roles.User)]
+    [Authorize]
     public class DashboardController : ApiControllerBase
     {
         private readonly IDashboardManager dashboardManager;

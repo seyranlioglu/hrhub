@@ -43,6 +43,9 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long? EducationLevelId { get; set; }
         public long? PriceTierId { get; set; }
         public long? TrainingLanguageId { get; set; }
+        public bool IsPrivate { get; set; } = false;
+        public long? OwnerCurrAccId { get; set; }
+
 
         [ForeignKey("TrainingTypeId")]
         public virtual TrainingType TrainingType { get; set; }

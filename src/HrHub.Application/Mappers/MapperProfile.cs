@@ -25,6 +25,14 @@ namespace HrHub.Application.Mappers
     {
         public MapperProfile()
         {
+            // Constructor içine ekle:
+            CreateMap<User, ManagedUserDto>()
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.SurName))
+                // AppUser'dan gelenler (Identity)
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber));
+
             CreateMap<UserCertificate, UserCertificateDto>()
                 .ForMember(dest => dest.TemplateTitle, opt => opt.MapFrom(src => src.CertificateTemplate.Title))
                 .ForMember(dest => dest.TrainingName, opt => opt.MapFrom(src => src.CurrAccTrainingUser.CurrAccTrainings.Training.Title));
@@ -303,7 +311,9 @@ namespace HrHub.Application.Mappers
             CreateMap<GetUserResponse, User>().ReverseMap();
             CreateMap<UserSignUpDto, CurrAcc>();
             CreateMap<UserSignUpDto, SignUpDto>();
-            CreateMap<AddUserDto, SignUpDto>();
+            CreateMap<AddUserDto, SignUpDto>()
+                .ForMember(dest => dest.PhoneNumber, opt =>
+                    opt.MapFrom(src => src.PhoneNumber != null ? src.PhoneNumber.Replace(" ", "") : null));
 
             #endregion
 

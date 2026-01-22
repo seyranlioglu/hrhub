@@ -72,7 +72,7 @@ namespace HrHub.Application.BusinessRules.UserBusinessRules
             {
                 var user = userRepository
                   .Get(
-                  predicate: p => p.UserName == changePasswordDto.UserName);
+                  predicate: p => p.UserName == changePasswordDto.UserName || p.PhoneNumber == changePasswordDto.UserName);
                 if (user == null)
                     return (false, ValidationMessages.UserNotFound);
                 if (!user.EmailConfirmed)
@@ -88,7 +88,7 @@ namespace HrHub.Application.BusinessRules.UserBusinessRules
             {
                 var user = userRepository
                   .Get(
-                  predicate: p => p.UserName == forgotPasswordDto.UserName);
+                  predicate: p => p.UserName == forgotPasswordDto.UserName || p.PhoneNumber == forgotPasswordDto.UserName);
                 if (user == null)
                     return (false, ValidationMessages.UserNotFound);
                 if (!user.EmailConfirmed)
@@ -105,7 +105,7 @@ namespace HrHub.Application.BusinessRules.UserBusinessRules
             {
                 var user = userRepository
                   .Get(
-                  predicate: p => p.UserName == passwordResetDto.UserName);
+                  predicate: p => p.UserName == passwordResetDto.UserName || p.PhoneNumber == passwordResetDto.UserName);
                 if (user == null)
                     return (false, ValidationMessages.UserNotFound);
                 var userPasswords =  passwordHistoryRepository

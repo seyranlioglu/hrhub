@@ -1,85 +1,53 @@
 ﻿using HrHub.Abstraction.Enums;
-using HrHub.Core.Helpers;
+using System.Collections.Concurrent;
+using System.Text;
 
 namespace HrHub.Application.Helpers
 {
     public static class MailHelper
     {
-        public static string GenerateEmailBody(string emailTemplatePath, Dictionary<string, string> parameters)
-        {
-            var htmlText = "";
-            using (StreamReader reader = System.IO.File.OpenText(emailTemplatePath))
-            {
-                htmlText = reader.ReadToEnd();
-            }
-            foreach (var param in parameters)
-            {
-                htmlText = htmlText.Replace(param.Key, param.Value);
-            }
-            var htmlTextBytes = System.Text.Encoding.UTF8.GetBytes(htmlText);
-            return System.Convert.ToBase64String(htmlTextBytes);
-        }
+        // Şablonları RAM'de tutmak için Cache (Her seferinde diskten okumasın diye)
+        // Key: MailType, Value: HTML İçeriği
+        private static readonly ConcurrentDictionary<MailType, string> _templateCache = new();
 
+        // Şablonların olduğu klasör yolu (wwwroot/EmailTemplates)
+        private static readonly string _baseTemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates");
+
+        /// <summary>
+        /// Mail tipine göre ilgili HTML dosyasını okur ve ham string olarak döner.
+        /// Parametre değişimi yapılmaz.
+        /// </summary>
         public static string GetMailBody(MailType mailType, StateEnum? state = null)
         {
-            string mailBody = "";
-            if (mailType == MailType.VerifyEmail)
-            {
-                mailBody = @"<!DOCTYPE html>
-<html lang=""tr"">
-<head>
-    <meta charset=""UTF-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Doğrulama Kodu</title>
-</head>
-<body>
-    <div style=""font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;"">
-        <p>HrHub Kayıt</p>
-        <p>Doğrulama Kodu  : <strong>@VERIFYCODE</strong></p>
-    </div>
-</body>
-</html>";
-            }
-            else if (mailType == MailType.AddUser)
-            {
-                mailBody = @"<!DOCTYPE html>
-<html lang=""tr"">
-<head>
-    <meta charset=""UTF-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Kullanıcı Bilgileri</title>
-</head>
-<body>
-    <div style=""font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;"">
-        <p>HrHub Giriş Bilgileri</p>
-        <p>Kullanıcı  : <strong>@USERNAME</strong></p>
-        <p>Parola  : <strong>@PASSWORD</strong></p>
-    </div>
-</body>
-</html>";
-            }
-
-            else if (mailType == MailType.ChangePasswordBySuperAdmin)
-            {
-                mailBody = @"<!DOCTYPE html>
-<html lang=""tr"">
-<head>
-    <meta charset=""UTF-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Kullanıcı Bilgileri Değişikliği</title>
-</head>
-<body>
-    <div style=""font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;"">
-        <p>HrHub Yeni Giriş Bilgileri</p>
-        <p>Kullanıcı  : <strong>@USERNAME</strong></p>
-        <p>Parola  : <strong>@PASSWORD</strong></p>
-    </div>
-</body>
-</html>";
-            }
-            return mailBody;
-
+            // Cache'te varsa oradan getir, yoksa diskten oku ve cache'e ekle
+            return _templateCache.GetOrAdd(mailType, type => LoadTemplateFromDisk(type));
         }
 
+        private static string LoadTemplateFromDisk(MailType mailType)
+        {
+            string fileName = GetTemplateFileName(mailType);
+            string fullPath = Path.Combine(_baseTemplatePath, fileName);
+
+            if (!File.Exists(fullPath))
+            {
+                // Dosya yoksa log atılabilir veya boş dönülebilir. 
+                // Geçici olarak hata fırlatmayıp default bir html dönebiliriz ya da exception fırlatabiliriz.
+                throw new FileNotFoundException($"Mail şablon dosyası bulunamadı: {fullPath}");
+            }
+
+            return File.ReadAllText(fullPath, Encoding.UTF8);
+        }
+
+        private static string GetTemplateFileName(MailType mailType)
+        {
+            return mailType switch
+            {
+                MailType.VerifyEmail => "VerifyEmail.html",
+                MailType.AddUser => "AddUser.html",
+                MailType.ChangePasswordBySuperAdmin => "ChangePassword.html",
+                // İleride eklenecek diğer tipler...
+                _ => "Default.html"
+            };
+        }
     }
 }
