@@ -1,4 +1,5 @@
 ﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+using HrHub.Abstraction.Data.Collections;
 using HrHub.Abstraction.Result;
 using HrHub.Core.Base;
 using HrHub.Domain.Contracts.Dtos.DashboardDtos;
@@ -25,4 +26,5 @@ public interface ITrainingManager : IBaseManager
 
     Task<Response<List<TrainingViewCardDto>>> SearchTrainingsAsync(string searchTerm, int pageIndex = 0, int pageSize = 12);
     Task<Response<List<TrainingCardDto>>> GetNavbarRecentTrainingsAsync(int count = 5);
+    Task<Response<PagedList<TrainingListItemDto>>> GetAdvancedTrainingListAsync(SearchTrainingRequestDto request);
 }

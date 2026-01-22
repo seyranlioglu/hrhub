@@ -1,4 +1,5 @@
 ﻿using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+using HrHub.Abstraction.Data.Collections;
 using HrHub.Abstraction.Result;
 using HrHub.Application.Managers.Trainings;
 using HrHub.Core.Controllers;
@@ -100,6 +101,11 @@ namespace HrHub.API.Controllers
             return await trainingManager.GetNavbarRecentTrainingsAsync(count).ConfigureAwait(false);
         }
 
+        [HttpGet("GetAdvancedList")]
+        public async Task<Response<PagedList<TrainingListItemDto>>> GetAdvancedList([FromQuery] SearchTrainingRequestDto request)
+        {
+            return await trainingManager.GetAdvancedTrainingListAsync(request);
+        }
 
     }
 }

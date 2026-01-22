@@ -46,6 +46,21 @@ namespace HrHub.Abstraction.Data.Collections
             }
         }
 
+        // --- YENİ EKLENEN CONSTRUCTOR (Zaten sayfalanmış veri için) ---
+        // Manager tarafında DB'den çektiğimiz veriyi buna vereceğiz.
+        public PagedList(IList<T> items, int totalCount, int pageIndex, int pageSize)
+        {
+            PageIndex = pageIndex;
+            PageSize = pageSize;
+            IndexFrom = 0; // Genelde 0 başlar
+            TotalCount = totalCount;
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // DİKKAT: Burada tekrar Skip/Take yapmıyoruz, çünkü veri zaten sayfalı geldi!
+            Items = items;
+        }
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PagedList{T}" /> class.
         /// </summary>

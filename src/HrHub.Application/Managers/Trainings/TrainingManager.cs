@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using HrHub.Abstraction.BusinessRules;
 using HrHub.Abstraction.Consts;
 using HrHub.Abstraction.Contracts.Dtos.TrainingDtos;
+using HrHub.Abstraction.Data.Collections;
 using HrHub.Abstraction.Data.EfCore.Repository;
 using HrHub.Abstraction.Extensions;
 using HrHub.Abstraction.Result;
@@ -927,6 +928,150 @@ public class TrainingManager : ManagerBase, ITrainingManager
         catch (Exception exp)
         {
             return ProduceFailResponse<List<TrainingCardDto>>("Eğitimler listelenirken hata oluştu. " + exp.Message, 500);
+        }
+    }
+
+    // HrHub.Application.Managers.Trainings.TrainingManager.cs
+
+    public async Task<Response<PagedList<TrainingListItemDto>>> GetAdvancedTrainingListAsync(SearchTrainingRequestDto request)
+    {
+        try
+        {
+            // 1. Kullanıcı Giriş Yapmışsa Şirket ID'sini Al (ManagerBase'den)
+            long userCurrAccId = 0;
+            if (IsAuthenticate())
+            {
+                // ManagerBase içindeki metodu kullanıyoruz, DB'ye gitmeye gerek yok!
+                userCurrAccId = GetCurrAccId();
+            }
+
+            // 2. SORGUNUN HAZIRLANMASI
+            var query = trainingRepository.GetQuery();
+
+            // --- Temel Kurallar ---
+            query = query.Where(t => t.IsActive == true && (t.IsDelete == false || t.IsDelete == null));
+
+            // --- GİZLİLİK (VISIBILITY) MANTIĞI ---
+
+            if (request.OnlyPrivate)
+            {
+                // Kullanıcı "Sadece Şirketime Özel" dediyse:
+                // Sadece Private OLAN ve Benim Şirketimin OLANLARI getir.
+                query = query.Where(t => t.IsPrivate == true && t.OwnerCurrAccId == userCurrAccId);
+            }
+            else
+            {
+                // Standart Liste:
+                // 1. Public Olanlar (IsPrivate = false)
+                // 2. Private OLUP benim şirketimin olanlar
+                query = query.Where(t =>
+                    t.IsPrivate == false ||
+                    (t.IsPrivate == true && t.OwnerCurrAccId == userCurrAccId)
+                );
+            }
+
+            // --- FİLTRELER ---
+
+            // Metin Arama
+            if (!string.IsNullOrWhiteSpace(request.SearchText) && request.SearchText.Length >= 3)
+            {
+                string text = request.SearchText.Trim().ToLower();
+                query = query.Where(t =>
+                    t.Title.ToLower().Contains(text) ||
+                    (t.Description != null && t.Description.ToLower().Contains(text)) ||
+                    (t.Instructor != null && t.Instructor.User != null &&
+                     (t.Instructor.User.Name.ToLower().Contains(text) || t.Instructor.User.SurName.ToLower().Contains(text)))
+                );
+            }
+
+            // Kategori
+            if (request.CategoryIds != null && request.CategoryIds.Any())
+                query = query.Where(t => t.CategoryId.HasValue && request.CategoryIds.Contains(t.CategoryId.Value));
+
+            // Seviye
+            if (request.LevelIds != null && request.LevelIds.Any())
+                query = query.Where(t => t.TrainingLevelId.HasValue && request.LevelIds.Contains(t.TrainingLevelId.Value));
+
+            // Dil
+            if (request.LanguageIds != null && request.LanguageIds.Any())
+                query = query.Where(t => t.TrainingLanguageId.HasValue && request.LanguageIds.Contains(t.TrainingLanguageId.Value));
+
+            // Puan
+            if (request.MinRating.HasValue && request.MinRating > 0)
+                query = query.Where(t => t.Reviews.Any() && t.Reviews.Average(r => r.TrainingPoint) >= request.MinRating.Value);
+
+            // --- SIRALAMA ---
+            query = query.OrderByDescending(t => t.CreatedDate);
+
+            // --- TOPLAM SAYI (Pagination için) ---
+            int totalRecords = await query.CountAsync();
+
+            // --- VERİ ÇEKME (Projection) ---
+            var pagedData = await query
+                .Skip(request.PageIndex * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new TrainingListItemDto
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Description = x.Description,
+                    HeaderImage = !string.IsNullOrEmpty(x.HeaderImage) ? x.HeaderImage : "assets/images/courses/course1.jpg",
+
+                    CategoryName = x.TrainingCategory != null ? x.TrainingCategory.Title : "",
+
+                    InstructorName = x.Instructor != null && x.Instructor.User != null
+                                     ? x.Instructor.User.Name + " " + x.Instructor.User.SurName
+                                     : "HrHub Eğitmen",
+                    InstructorImage = x.Instructor != null ? x.Instructor.PicturePath : "assets/images/users/user-dummy.jpg",
+
+                    LevelName = x.TrainingLevel != null ? x.TrainingLevel.Title : "",
+
+                    // Fiyat (SQL tarafında null check önemli)
+                    Amount = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().AmountPerLicence : 0,
+                    DiscountRate = x.TrainingAmounts.Any() ? x.TrainingAmounts.FirstOrDefault().DiscountRate : 0,
+                    CurrentAmount = 0, // Code side hesaplanacak
+
+                    Rating = x.Reviews.Any() ? x.Reviews.Average(r => r.TrainingPoint) : 0,
+                    ReviewCount = x.Reviews.Count(),
+
+                    LessonCount = x.TrainingSections.SelectMany(s => s.TrainingContents).Count(),
+                    // Toplam dakika
+                    TotalMinutes = x.TrainingSections
+                        .SelectMany(s => s.TrainingContents)
+                        .Where(c => c.Time.HasValue)
+                        .Sum(c => (int)c.Time.Value.TotalMinutes),
+
+                    CreatedDate = x.CreatedDate,
+                    IsPrivate = x.IsPrivate,
+                    IsActive = x.IsActive
+                })
+                .ToListAsync();
+
+            // --- FİYAT HESAPLAMA (Memory) ---
+            foreach (var item in pagedData)
+            {
+                if (item.Amount > 0)
+                {
+                    if (item.DiscountRate > 0)
+                        item.CurrentAmount = item.Amount - (item.Amount * item.DiscountRate / 100);
+                    else
+                        item.CurrentAmount = item.Amount;
+                }
+            }
+
+            // Listeyi PagedList formatına çevirip dönüyoruz
+            var responsePagedList = new PagedList<TrainingListItemDto>(
+                pagedData,      // Liste
+                totalRecords,   // Toplam kayıt sayısı
+                request.PageIndex,
+                request.PageSize
+            );
+
+            return ProduceSuccessResponse(responsePagedList);
+        }
+        catch (Exception ex)
+        {
+            return ProduceFailResponse<PagedList<TrainingListItemDto>>("Eğitim listesi alınırken hata: " + ex.Message, 500);
         }
     }
 
