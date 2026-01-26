@@ -1,5 +1,6 @@
 ﻿using HrHub.Application.Helpers;
 using HrHub.Application.Managers.TypeManagers;
+using HrHub.Core.Controllers;
 using HrHub.Domain.Contracts.Dtos.CurrAccTypeDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace HrHub.API.Controllers
 {
     [Route("api/[controller]")]
     //[ApiController]
-    public class TypeController : ControllerBase
+    public class TypeController : ApiControllerBase
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICurrAccTypeManager _currAccTypeManager;

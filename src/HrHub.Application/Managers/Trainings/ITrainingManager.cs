@@ -28,4 +28,7 @@ public interface ITrainingManager : IBaseManager
     Task<Response<List<TrainingCardDto>>> GetNavbarRecentTrainingsAsync(int count = 5);
     Task<Response<PagedList<TrainingListItemDto>>> GetAdvancedTrainingListAsync(SearchTrainingRequestDto request);
     Task<Response<TrainingFilterOptionsDto>> GetTrainingFilterOptionsAsync();
+    Task<Response<CommonResponse>> ToggleFavoriteAsync(long trainingId);
+    Task<Response<CommonResponse>> AddOrUpdateReviewAsync(AddReviewDto request);
+    Task<Response<TrainingPublicDetailDto>> GetTrainingPublicDetailAsync(long id);
 }

@@ -17,7 +17,11 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public string? ConfirmNotes { get; set; }
         public int? LicenceCount { get; set; }
         public long? CartItemId { get; set; }
+        public int PaymentMethod { get; set; } // 0: DirectPurchase, 1: Subscription
+        public long? SubscriptionUsageId { get; set; }
 
+        [ForeignKey("SubscriptionUsageId")]
+        public virtual SubscriptionUsage SubscriptionUsage { get; set; }
 
         [ForeignKey("CurrAccId")]
         public virtual CurrAcc CurrAcc { get; set; }

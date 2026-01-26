@@ -43,7 +43,7 @@ namespace HrHub.API.Controllers
         }
 
         [HttpGet("recommended-trainings")]
-        public async Task<Response<List<TrainingCardDto>>> GetRecommendedTrainings()
+        public async Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainings()
         {
             return await dashboardManager.GetRecommendedTrainingsAsync().ConfigureAwait(false);
         }

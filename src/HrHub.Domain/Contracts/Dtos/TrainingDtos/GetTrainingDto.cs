@@ -133,6 +133,7 @@ namespace HrHub.Abstraction.Contracts.Dtos.TrainingDtos
         public string? Title { get; set; }
         public string? Description { get; set; }
         public long? ExamId { get; set; }
+        public bool? IsPreview { get; set; }
         public TrainingContentTypeDto ContentType { get; set; } = new();
         public TrainingContentLibraryDto TrainingContentLibraryDto { get; set; } = new();
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HrHub.Domain.Contracts.Dtos.DashboardDtos
 {
@@ -11,15 +8,46 @@ namespace HrHub.Domain.Contracts.Dtos.DashboardDtos
         public long Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; }
-        public string InstructorName { get; set; } // Eğitmen Adı
-        public double? Rating { get; set; } // Puan (Örn: 4.8)
-        public int TotalDurationMinutes { get; set; } // Toplam Süre
-        public int LessonCount { get; set; } // Ders Sayısı
 
-        // Frontend'de etiketi kırmızı göstermek için
-        public bool IsAssigned { get; set; } // Zorunlu mu?
-        public DateTime? DueDate { get; set; } // Son tarih
-        public int Progress { get; set; } // 0 ile 100 arası değer
+        // Frontend ve Manager "HeaderImage" bekliyor
+        public string HeaderImage { get; set; }
+
+        // --- KATEGORİ ---
+        public long CategoryId { get; set; }
+        public long ParentCategoryId { get; set; }
+        public string CategoryTitle { get; set; }
+
+        // --- EĞİTMEN ---
+        public string InstructorName { get; set; }
+        public string InstructorPicturePath { get; set; } // EKLENDİ (Resim için)
+
+        // --- META VERİLER ---
+        public double? Rating { get; set; }
+        public int ReviewCount { get; set; } // EKLENDİ (Yorum sayısı için)
+        public int TotalDurationMinutes { get; set; }
+        public int LessonCount { get; set; }
+        public string TrainingLevelTitle { get; set; } // EKLENDİ (Başlangıç/İleri vs.)
+
+        // --- FİYAT ---
+        public decimal? Amount { get; set; } // EKLENDİ (Orijinal Fiyat)
+        public decimal? CurrentAmount { get; set; } // EKLENDİ (Satış Fiyatı)
+        public decimal? DiscountRate { get; set; } // EKLENDİ (İndirim)
+
+        // --- ROZETLER & KULLANICI DURUMU ---
+        public bool IsAssigned { get; set; } // Zorunlu/Satın Alınmış mı?
+        public bool IsFavorite { get; set; } // EKLENDİ (İstek listesi kalp ikonu)
+        public bool IsBestseller { get; set; } // EKLENDİ (Çok Satan rozeti)
+        public bool IsNew { get; set; } // EKLENDİ (Yeni rozeti)
+
+        // --- DASHBOARD ÖZEL ---
+        public DateTime? DueDate { get; set; }
+        public int Progress { get; set; }
+        public DateTime CreatedDate { get; set; } // EKLENDİ (Sıralama ve 'Yeni' kontrolü için)
+
+        // --- HOVER POPOVER ---
+        // Mouse üzerine gelince çıkan maddeler
+        public List<string> WhatYouWillLearn { get; set; } = new List<string>();
+
+        public string ImageUrl { get; set; }
     }
 }

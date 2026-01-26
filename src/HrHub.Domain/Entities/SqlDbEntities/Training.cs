@@ -14,7 +14,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
             TrainingSections = new HashSet<TrainingSection>();
             WhatYouWillLearns = new HashSet<WhatYouWillLearn>();
             CurrAccTrainings = new HashSet<CurrAccTraining>();
-            TrainingAmounts = new HashSet<TrainingAmount>();
+            TrainingReviews = new HashSet<TrainingReview>();
         }
 
         public string? HeaderImage { get; set; }
@@ -45,6 +45,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long? TrainingLanguageId { get; set; }
         public bool IsPrivate { get; set; } = false;
         public long? OwnerCurrAccId { get; set; }
+        public bool IncludedInSubscription { get; set; } = true;
 
 
         [ForeignKey("TrainingTypeId")]
@@ -86,6 +87,6 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public virtual ICollection<TrainingSection> TrainingSections { get; set; } = null;
         public virtual ICollection<WhatYouWillLearn> WhatYouWillLearns { get; set; } = null;
         public virtual ICollection<CurrAccTraining> CurrAccTrainings { get; set; } = null;
-        public virtual ICollection<TrainingAmount> TrainingAmounts { get; set; } = null;
+        public virtual ICollection<TrainingReview> TrainingReviews { get; set; } = null;
     }
 }

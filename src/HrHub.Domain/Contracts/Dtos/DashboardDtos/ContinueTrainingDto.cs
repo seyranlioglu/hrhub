@@ -13,5 +13,6 @@ namespace HrHub.Domain.Contracts.Dtos.DashboardDtos
         public string ImageUrl { get; set; }
         public int Progress { get; set; }
         public string LastLessonName { get; set; }
+        public long? CategoryId { get; set; }
     }
 }

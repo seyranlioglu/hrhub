@@ -1,5 +1,6 @@
 ﻿using HrHub.Core.Domain.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HrHub.Domain.Entities.SqlDbEntities
 {
@@ -13,10 +14,13 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public long CurrAccId { get; set; }
         public string PromotionCode { get; set; }
         public decimal TotalAmount { get; set; }
-        public long CardStatusId { get; set; }
-        public DateTime ConfirmDate { get; set; }
-        public long ConfirmUserId { get; set; }
-        public string ConfirmNotes { get; set; }
+        public long StatusId { get; set; }
+        [AllowNull]
+        public DateTime? ConfirmDate { get; set; }
+        [AllowNull]
+        public long? ConfirmUserId { get; set; }
+        [AllowNull]
+        public string? ConfirmNotes { get; set; }
         public long AddCartUserId { get; set; }
 
         [ForeignKey("StatusId")]

@@ -6,6 +6,7 @@ using HrHub.Core.Controllers;
 using HrHub.Domain.Contracts.Dtos.DashboardDtos;
 using HrHub.Domain.Contracts.Dtos.TrainingDtos;
 using HrHub.Domain.Contracts.Responses.CommonResponse;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrHub.API.Controllers
@@ -80,13 +81,13 @@ namespace HrHub.API.Controllers
             return await trainingManager.GetTrainingDetailForUserAsync(id).ConfigureAwait(false);
         }
 
-        [HttpGet("[Action]")]
-        //[Authorize] // Gerekirse aç
-        public async Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainings()
-        {
-            var result = await trainingManager.GetRecommendedTrainingsAsync();
-            return result;
-        }
+        //[HttpGet("[Action]")]
+        ////[Authorize] // Gerekirse aç
+        //public async Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainings()
+        //{
+        //    var result = await trainingManager.GetRecommendedTrainingsAsync();
+        //    return result;
+        //}
 
         [HttpGet("Search")]
         public async Task<Response<List<TrainingViewCardDto>>> Search([FromQuery] string query, [FromQuery] int page = 0, [FromQuery] int size = 12)
@@ -113,5 +114,24 @@ namespace HrHub.API.Controllers
             return await trainingManager.GetTrainingFilterOptionsAsync();
         }
 
+        [HttpPost("toggle-favorite/{id}")]
+        public async Task<Response<CommonResponse>> ToggleFavorite(long id)
+        {
+            return await trainingManager.ToggleFavoriteAsync(id);
+        }
+
+        [HttpPost("add-review")]
+        public async Task<Response<CommonResponse>> AddReview([FromBody] AddReviewDto request)
+        {
+            return await trainingManager.AddOrUpdateReviewAsync(request);
+        }
+
+        [HttpGet("GetPublicDetail/{id}")]
+        [Authorize]
+        public async Task<Response<TrainingPublicDetailDto>> GetPublicDetail(long id)
+        {
+            var result =  await trainingManager.GetTrainingPublicDetailAsync(id);
+            return result;
+        }
     }
 }

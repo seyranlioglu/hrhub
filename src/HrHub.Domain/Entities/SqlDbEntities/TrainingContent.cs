@@ -31,6 +31,7 @@ namespace HrHub.Domain.Entities.SqlDbEntities
         public int? MinReadTimeThreshold { get; set; }
         [AllowNull]
         public long? ExamId { get; set; }
+        public bool IsPreview { get; set; }
 
         [ForeignKey("ExamId")]
         public virtual Exam Exam { get; set; }

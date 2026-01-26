@@ -48,6 +48,233 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("AspNetRoles", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Campaign", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("MinConditionAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("MinConditionQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Scope")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Target")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Campaigns", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CampaignParticipant", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ActionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CampaignId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("InstructorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("TrainingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("InstructorId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.ToTable("CampaignParticipants", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CampaignPriceTier", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CampaignId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("PriceTierId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("PriceTierId");
+
+                    b.ToTable("CampaignPriceTiers", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CampaignRule", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CampaignId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RelatedId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RuleType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.ToTable("CampaignRules", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Cart", b =>
                 {
                     b.Property<long>("Id")
@@ -59,17 +286,13 @@ namespace HrHub.Domain.Migrations
                     b.Property<long>("AddCartUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("CardStatusId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("ConfirmDate")
+                    b.Property<DateTime?>("ConfirmDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ConfirmNotes")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("ConfirmUserId")
+                    b.Property<long?>("ConfirmUserId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("CreateUserId")
@@ -399,6 +622,72 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CommentVotes", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CompanySubscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CurrAccId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("PricePaid")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("SubscriptionPlanId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TotalCredit")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UsedCredit")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrAccId");
+
+                    b.HasIndex("SubscriptionPlanId");
+
+                    b.ToTable("CompanySubscriptions", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentComment", b =>
@@ -775,6 +1064,12 @@ namespace HrHub.Domain.Migrations
                     b.Property<int?>("LicenceCount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("SubscriptionUsageId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("TrainingId")
                         .HasColumnType("bigint");
 
@@ -791,6 +1086,8 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("CurrAccId");
 
                     b.HasIndex("CurrAccTrainingStatusId");
+
+                    b.HasIndex("SubscriptionUsageId");
 
                     b.HasIndex("TrainingId");
 
@@ -1457,6 +1754,53 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("ExamVersionStatuses", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FavoriteTraining", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("TrainingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrainingId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FavoriteTrainings", "public");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FileType", b =>
                 {
                     b.Property<long>("Id")
@@ -1885,6 +2229,10 @@ namespace HrHub.Domain.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("DeleteDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1912,6 +2260,66 @@ namespace HrHub.Domain.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PriceTiers", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.PriceTierDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("DiscountRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxLicenceCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinLicenceCount")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("PriceTierId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PriceTierId");
+
+                    b.ToTable("PriceTierDetails", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.QuestionOption", b =>
@@ -2026,6 +2434,130 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("TrainingId");
 
                     b.ToTable("Reviews", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SubscriptionPlan", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DurationMonths")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Features")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxUserCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinUserCount")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TotalMonthlyCredit")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionPlans", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SubscriptionUsage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanySubscriptionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("ProcessedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TrainingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UsageDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanySubscriptionId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.ToTable("SubscriptionUsages", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenu", b =>
@@ -2298,6 +2830,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<string>("HeaderImage")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IncludedInSubscription")
+                        .HasColumnType("boolean");
+
                     b.Property<long?>("InstructorId")
                         .HasColumnType("bigint");
 
@@ -2383,69 +2918,6 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("TrainingTypeId");
 
                     b.ToTable("Trainings", "public");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingAmount", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("AmountPerLicence")
-                        .HasColumnType("numeric");
-
-                    b.Property<long?>("CreateUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeleteDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("DiscountRate")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("IsDelete")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("MaxLicenceCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MinLicenceCount")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("TaxRate")
-                        .HasColumnType("numeric");
-
-                    b.Property<long>("TrainingId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TrainingId");
-
-                    b.ToTable("TrainingAmounts", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingAnnouncement", b =>
@@ -2670,6 +3142,9 @@ namespace HrHub.Domain.Migrations
                     b.Property<bool?>("IsDelete")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPreview")
+                        .HasColumnType("boolean");
+
                     b.Property<bool?>("Mandatory")
                         .HasColumnType("boolean");
 
@@ -2888,6 +3363,63 @@ namespace HrHub.Domain.Migrations
                     b.HasIndex("TrainingId");
 
                     b.ToTable("TrainingProcessRequests", "public");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingReview", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("TrainingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrainingId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TrainingReviews", "public");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", b =>
@@ -3557,6 +4089,59 @@ namespace HrHub.Domain.Migrations
                     b.ToTable("WhatYouWillLearns", "public");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CampaignParticipant", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Campaign", "Campaign")
+                        .WithMany("CampaignParticipants")
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Instructor", "Instructor")
+                        .WithMany()
+                        .HasForeignKey("InstructorId");
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
+                        .WithMany()
+                        .HasForeignKey("TrainingId");
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("Instructor");
+
+                    b.Navigation("Training");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CampaignPriceTier", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Campaign", "Campaign")
+                        .WithMany("CampaignPriceTiers")
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.PriceTier", "PriceTier")
+                        .WithMany("CampaignPriceTiers")
+                        .HasForeignKey("PriceTierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("PriceTier");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CampaignRule", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Campaign", "Campaign")
+                        .WithMany("CampaignRules")
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Cart", b =>
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "AddCartUser")
@@ -3568,8 +4153,7 @@ namespace HrHub.Domain.Migrations
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "ConfirmUser")
                         .WithMany("ConfirmCarts")
                         .HasForeignKey("ConfirmUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.CurrAcc", "CurrAcc")
                         .WithMany("Carts")
@@ -3639,6 +4223,25 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("ContentComment");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CompanySubscription", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.CurrAcc", "CurrAcc")
+                        .WithMany()
+                        .HasForeignKey("CurrAccId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.SubscriptionPlan", "SubscriptionPlan")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CurrAcc");
+
+                    b.Navigation("SubscriptionPlan");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentComment", b =>
@@ -3731,6 +4334,10 @@ namespace HrHub.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.SubscriptionUsage", "SubscriptionUsage")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionUsageId");
+
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
                         .WithMany("CurrAccTrainings")
                         .HasForeignKey("TrainingId")
@@ -3742,6 +4349,8 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("CurrAcc");
 
                     b.Navigation("CurrAccTrainingStatus");
+
+                    b.Navigation("SubscriptionUsage");
 
                     b.Navigation("Training");
                 });
@@ -3860,6 +4469,25 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("ExamVersionStatus");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.FavoriteTraining", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
+                        .WithMany()
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Training");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Instructor", b =>
                 {
                     b.HasOne("HrHub.Domain.Entities.SqlDbEntities.InstructorType", "InstructorType")
@@ -3877,6 +4505,17 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("InstructorType");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.PriceTierDetail", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.PriceTier", "PriceTier")
+                        .WithMany("Details")
+                        .HasForeignKey("PriceTierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PriceTier");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.QuestionOption", b =>
@@ -3907,6 +4546,25 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("Training");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SubscriptionUsage", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.CompanySubscription", "CompanySubscription")
+                        .WithMany("SubscriptionUsages")
+                        .HasForeignKey("CompanySubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
+                        .WithMany()
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CompanySubscription");
+
+                    b.Navigation("Training");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.SysMenu", b =>
@@ -4015,17 +4673,6 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("TrainingStatus");
 
                     b.Navigation("TrainingType");
-                });
-
-            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingAmount", b =>
-                {
-                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
-                        .WithMany("TrainingAmounts")
-                        .HasForeignKey("TrainingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Training");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingAnnouncement", b =>
@@ -4137,6 +4784,25 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("TargetStatus");
 
                     b.Navigation("Training");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingReview", b =>
+                {
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.Training", "Training")
+                        .WithMany("TrainingReviews")
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HrHub.Domain.Entities.SqlDbEntities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Training");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.TrainingSection", b =>
@@ -4265,6 +4931,15 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("Training");
                 });
 
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Campaign", b =>
+                {
+                    b.Navigation("CampaignParticipants");
+
+                    b.Navigation("CampaignPriceTiers");
+
+                    b.Navigation("CampaignRules");
+                });
+
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.Cart", b =>
                 {
                     b.Navigation("CartItems");
@@ -4285,6 +4960,11 @@ namespace HrHub.Domain.Migrations
                     b.Navigation("CertificateTemplates");
 
                     b.Navigation("ExamResults");
+                });
+
+            modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.CompanySubscription", b =>
+                {
+                    b.Navigation("SubscriptionUsages");
                 });
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.ContentComment", b =>
@@ -4407,6 +5087,10 @@ namespace HrHub.Domain.Migrations
 
             modelBuilder.Entity("HrHub.Domain.Entities.SqlDbEntities.PriceTier", b =>
                 {
+                    b.Navigation("CampaignPriceTiers");
+
+                    b.Navigation("Details");
+
                     b.Navigation("Trainings");
                 });
 
@@ -4437,9 +5121,9 @@ namespace HrHub.Domain.Migrations
 
                     b.Navigation("Reviews");
 
-                    b.Navigation("TrainingAmounts");
-
                     b.Navigation("TrainingAnnouncements");
+
+                    b.Navigation("TrainingReviews");
 
                     b.Navigation("TrainingSections");
 

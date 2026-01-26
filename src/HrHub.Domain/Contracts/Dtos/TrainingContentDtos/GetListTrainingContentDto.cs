@@ -18,7 +18,7 @@
         public bool? AllowSeeking { get; set; }
         public int? PartCount { get; set; }
         public int? MinReadTimeThreshold { get; set; }
-
+        public bool? IsPreview { get; set; }
 
         //TrainingSection
         public string? TrainingSectionTitle { get; set; }

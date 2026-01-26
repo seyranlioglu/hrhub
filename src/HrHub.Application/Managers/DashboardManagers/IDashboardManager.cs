@@ -14,6 +14,6 @@ namespace HrHub.Application.Managers.DashboardManagers
         Task<Response<ContinueTrainingDto>> GetLastActiveTrainingAsync();
         Task<Response<DashboardStatsDto>> GetUserStatsAsync();
         Task<Response<List<TrainingCardDto>>> GetAssignedTrainingsAsync();
-        Task<Response<List<TrainingCardDto>>> GetRecommendedTrainingsAsync();
+        Task<Response<List<TrainingViewCardDto>>> GetRecommendedTrainingsAsync();
     }
 }

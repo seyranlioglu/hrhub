@@ -14,6 +14,8 @@ namespace HrHub.Domain.Contracts.Dtos.DashboardDtos
 
         // Kategori Bilgisi (Sadece adı yeterli)
         public string CategoryTitle { get; set; }
+        public long CategoryId { get; set; }
+        public long ParentCategoryId { get; set; }
 
         // Eğitmen Bilgisi (Sadece adı yeterli)
         public string InstructorTitle { get; set; }

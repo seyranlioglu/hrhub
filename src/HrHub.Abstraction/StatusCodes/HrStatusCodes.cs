@@ -42,6 +42,8 @@ namespace HrHub.Abstraction.StatusCodes
         public static readonly int Status400BadRequest = 400;
         [Display(ResourceType = typeof(HrHub.Abstraction.StatusCodes.Resources.StatusCodeResource), Name = "Status401Unauthorized")]
         public static readonly int Status401Unauthorized = 401;
+        [Display(ResourceType = typeof(HrHub.Abstraction.StatusCodes.Resources.StatusCodeResource), Name = "Status403Forbidden")]
+        public static readonly int Status403Forbidden = 403;
         [Display(ResourceType = typeof(HrHub.Abstraction.StatusCodes.Resources.StatusCodeResource), Name = "Status404NotFound")]
         public static readonly int Status404NotFound = 404;
         [Display(ResourceType = typeof(HrHub.Abstraction.StatusCodes.Resources.StatusCodeResource), Name = "Status408TimeOut")]

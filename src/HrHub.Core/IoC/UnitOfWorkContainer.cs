@@ -16,7 +16,6 @@ namespace HrHub.Core.IoC
         {
             //services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
-
         }
     }
 }

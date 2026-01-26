@@ -37,6 +37,7 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingDtos
         public string? CourseImage { get; set; }
         public long? TrainingLanguageId { get; set; }
         public List<ContentDto?> ContentOrderIds { get; set; } = new();
+        public bool? IsPreview { get; set; }
     }
 
 

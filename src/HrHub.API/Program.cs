@@ -6,6 +6,7 @@ using HrHub.Abstraction.Data.EfCore.Repository;
 using HrHub.Abstraction.Data.MongoDb;
 using HrHub.Abstraction.Domain;
 using HrHub.API.Properties;
+using HrHub.Application.Managers.TypeManagers;
 using HrHub.Application.Mappers;
 using HrHub.Application.Policies;
 using HrHub.Container.Bootstrappers;
@@ -14,6 +15,7 @@ using HrHub.Core.Data.UnitOfWork;
 using HrHub.Core.Domain.Entity;
 using HrHub.Core.Helpers;
 using HrHub.Core.IoC;
+using ServiceStack;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -46,7 +46,6 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<Review> Reviews { get; set; }
         public virtual DbSet<TimeUnit> TimeUnits { get; set; }
         public virtual DbSet<Training> Trainings { get; set; }
-        public virtual DbSet<TrainingAmount> TrainingAmounts { get; set; }
         public virtual DbSet<TrainingAnnouncement> TrainingAnnouncements { get; set; }
         public virtual DbSet<TrainingAnnouncementsComment> TrainingAnnouncementsComments { get; set; }
         public virtual DbSet<TrainingCategory> TrainingCategories { get; set; }
@@ -74,6 +73,16 @@ namespace HrHub.Domain.Contexts
         public virtual DbSet<SysMenuRole> SysMenuRoles { get; set; }
         public virtual DbSet<SysMenuPolicy> SysMenuPolicies { get; set; }
         public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+        public virtual DbSet<TrainingReview> TrainingReviews { get; set; }
+        public virtual DbSet<FavoriteTraining> FavoriteTraining { get; set; }
+        public virtual DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+        public virtual DbSet<SubscriptionUsage> SubscriptionUsages { get; set; }
+        public virtual DbSet<CompanySubscription> CompanySubscriptions { get; set; }
+        public virtual DbSet<PriceTierDetail> PriceTierDetails { get; set; }
+        public DbSet<Campaign> Campaigns { get; set; }
+        public DbSet<CampaignParticipant> CampaignParticipants { get; set; }
+        public DbSet<CampaignRule> CampaignRules { get; set; }
+        public DbSet<CampaignPriceTier> CampaignPriceTiers { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -53,6 +53,7 @@ namespace HrHub.Domain.Contracts.Dtos.TrainingContentDtos
         public double? UserScore { get; set; }
         public double? PassingScore { get; set; }
         public int AttemptCount { get; set; }
+        public bool? IsPreview { get; set; }
     }
 
     public class MissingContentItemDto
